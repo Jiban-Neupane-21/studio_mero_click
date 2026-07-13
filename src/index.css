@@ -1,0 +1,15 @@
+/* src/index.css */
+/* stylelint-disable unknownAtRules */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* stylelint-enable unknownAtRules */
+
+
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
