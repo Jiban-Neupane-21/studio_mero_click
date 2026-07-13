@@ -13,6 +13,7 @@ import { FaYoutube, FaFacebook, FaTiktok } from 'react-icons/fa';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { TutorialVideo } from '../../types';
+import { tutorialVideosApi } from '../../api/tutorialVideos';
 
 export default function AdminTutorials() {
   const [formData, setFormData] = useState<Partial<TutorialVideo>>({
@@ -36,10 +37,24 @@ export default function AdminTutorials() {
     setFormData(prev => ({ ...prev, description: content }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Tutorial Video:', formData);
-    // TODO: Send to backend / Supabase
+    try {
+      await tutorialVideosApi.createTutorialVideo({
+        title: formData.title,
+        category: formData.category,
+        description: formData.description,
+        youtube_id: formData.youtubeId || '',
+        facebook_link: formData.facebookLink || '',
+        tiktok_link: formData.tiktokLink || '',
+        duration: formData.duration,
+        upload_date: formData.uploadDate,
+        published_at: formData.publishedAt,
+      });
+      alert('Successfully saved tutorial video!');
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    }
   };
 
   const modules = {

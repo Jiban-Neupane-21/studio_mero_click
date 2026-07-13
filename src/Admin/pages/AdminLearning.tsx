@@ -13,6 +13,8 @@ import { Save, UploadCloud, X } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { LearningArticle } from '../../types';
+import { learningArticlesApi } from '../../api/learningArticles';
+import { uploadImage } from '../../utils/uploadImage';
 
 export default function AdminLearning() {
   const [formData, setFormData] = useState<Partial<LearningArticle>>({
@@ -27,6 +29,8 @@ export default function AdminLearning() {
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -43,20 +47,53 @@ export default function AdminLearning() {
     if (file) {
       const url = URL.createObjectURL(file);
       setImagePreview(url);
+      setImageFile(file);
       setFormData(prev => ({ ...prev, imageUrl: file.name, image: file.name }));
     }
   };
 
   const removeImage = () => {
     setImagePreview(null);
+    setImageFile(null);
     setFormData(prev => ({ ...prev, imageUrl: '', image: '' }));
     if (imageInputRef.current) imageInputRef.current.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Learning Article:', formData);
-    // TODO: Send to backend / Supabase
+    setLoading(true);
+    try {
+      let url = formData.imageUrl;
+      if (imageFile) {
+        url = await uploadImage(imageFile);
+      }
+
+      await learningArticlesApi.createLearningArticle({
+        title: formData.title,
+        category: formData.category,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        author: formData.author,
+        published_at: formData.publishedAt,
+        read_time: formData.readTime,
+        image_url: url || '',
+        image: url || '',
+      });
+      alert('Successfully saved learning article!');
+      
+      // Reset form
+      setFormData({
+        title: '', category: '', excerpt: '', content: '', author: '',
+        publishedAt: '', readTime: '', imageUrl: ''
+      });
+      setImagePreview(null);
+      setImageFile(null);
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const modules = {
@@ -250,11 +287,13 @@ export default function AdminLearning() {
                 <Button 
                   type="submit" 
                   variant="contained" 
-                  color="error"
+                  color="error" 
+                  size="large"
+                  disabled={loading}
                   startIcon={<Save size={20} />}
                   sx={{ px: 6, py: 1.5, borderRadius: 2, textTransform: 'none', fontSize: '1.05rem', boxShadow: 2 }}
                 >
-                  Publish Article
+                  {loading ? 'Saving...' : 'Save Article'}
                 </Button>
               </Box>
             </Grid>

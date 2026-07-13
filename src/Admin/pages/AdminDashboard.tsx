@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import { Save, UploadCloud, X } from 'lucide-react';
 import { Home } from '../../types/home.type';
+import { homeItemsApi } from '../../api/homeItems';
+import { uploadImage } from '../../utils/uploadImage';
 
 export default function AdminDashboard() {
   const [formData, setFormData] = useState<Partial<Home>>({
@@ -17,6 +19,8 @@ export default function AdminDashboard() {
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,20 +28,35 @@ export default function AdminDashboard() {
     if (file) {
       const url = URL.createObjectURL(file);
       setImagePreview(url);
+      setImageFile(file);
       setFormData(prev => ({ ...prev, imageUrl: file.name }));
     }
   };
 
   const removeImage = () => {
     setImagePreview(null);
+    setImageFile(null);
     setFormData(prev => ({ ...prev, imageUrl: '' }));
     if (imageInputRef.current) imageInputRef.current.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Home Image:', formData);
-    // TODO: Send to backend / Supabase
+    setLoading(true);
+    try {
+      let url = formData.imageUrl;
+      if (imageFile) {
+        url = await uploadImage(imageFile);
+      }
+
+      await homeItemsApi.createHomeItem({ image_url: url || '' });
+      alert('Successfully saved home banner!');
+      removeImage();
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,11 +150,13 @@ export default function AdminDashboard() {
                 <Button 
                   type="submit" 
                   variant="contained" 
-                  color="error"
+                  color="error" 
+                  size="large"
+                  disabled={loading}
                   startIcon={<Save size={20} />}
                   sx={{ px: 6, py: 1.5, borderRadius: 2, textTransform: 'none', fontSize: '1.05rem', boxShadow: 2 }}
                 >
-                  Save Homepage Image
+                  {loading ? 'Saving...' : 'Save Banner Image'}
                 </Button>
               </Box>
             </Grid>

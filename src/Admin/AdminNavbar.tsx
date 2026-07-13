@@ -32,6 +32,7 @@ import {
   LogOut,
   Settings
 } from 'lucide-react';
+import { supabase } from '../utils/supabase';
 
 const DRAWER_WIDTH = 260;
 
@@ -51,9 +52,13 @@ export default function AdminNavbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    // Perform any sign out logic here (e.g., clearing tokens)
-    navigate('/login');
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const handleDrawerToggle = () => {

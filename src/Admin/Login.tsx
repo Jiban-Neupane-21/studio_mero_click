@@ -12,19 +12,37 @@ import {
 } from '@mui/material';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/supabase';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    // TODO: Connect to backend authentication
-    // For now, mock a successful login redirect
-    navigate('/admin');
+    setError(null);
+    setLoading(true);
+
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+      } else if (data.session) {
+        navigate('/admin');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,6 +96,12 @@ export default function Login() {
           Sign in to access the admin portal
         </Typography>
 
+        {error && (
+          <Typography color="error" variant="body2" sx={{ mb: 2, textAlign: 'center' }}>
+            {error}
+          </Typography>
+        )}
+
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 4 }}>
             <TextField
@@ -129,27 +153,27 @@ export default function Login() {
             />
           </Box>
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="error"
-            size="large"
-            sx={{ 
-              py: 1.5, 
-              borderRadius: 2,
-              textTransform: 'none',
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              boxShadow: 2,
-              mb: 4,
-              '&:hover': {
-                boxShadow: 4
-              }
-            }}
-          >
-            Sign In
-          </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="error"
+              size="large"
+              fullWidth
+              disabled={loading}
+              sx={{ 
+                py: 1.5, 
+                borderRadius: 2,
+                fontWeight: 700,
+                textTransform: 'none',
+                fontSize: '1.05rem',
+                boxShadow: '0 4px 14px 0 rgb(211 47 47 / 39%)',
+                '&:hover': {
+                  boxShadow: '0 6px 20px rgb(211 47 47 / 23%)'
+                }
+              }}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </Button>
         </form>
 
         <Divider sx={{ width: '100%', mb: 3 }} />

@@ -28,7 +28,7 @@ import {
   Clock,
   Gift,
 } from "lucide-react";
-import { apiService } from "../utils/supabase";
+import { offerAdsApi } from "../api/offerAds";
 import emailjs from "@emailjs/browser";
 import { OfferAd } from "../types";
 
@@ -61,7 +61,7 @@ export default function ClaimOffer() {
   useEffect(() => {
     const fetchOffersAndSetDefault = async () => {
       try {
-        const data = await apiService.getOffers();
+        const data = await offerAdsApi.getOfferAds();
         setOffers(data);
 
         // Check if there's an offer ID passed in query string or state

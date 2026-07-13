@@ -14,6 +14,8 @@ import { Save, UploadCloud, Image as ImageIcon, X } from 'lucide-react';
 import { PORTFOLIO_CATEGORIES, PortfolioItem } from '../../types/portfolio.type';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { portfolioApi } from '../../api/portfolio';
+import { uploadImage } from '../../utils/uploadImage';
 
 export default function AdminPortfolio() {
   const [formData, setFormData] = useState<Partial<PortfolioItem>>({
@@ -28,6 +30,9 @@ export default function AdminPortfolio() {
 
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [secondaryImagePreviews, setSecondaryImagePreviews] = useState<string[]>([]);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [secondaryFiles, setSecondaryFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const secondaryImageInputRef = useRef<HTMLInputElement>(null);
@@ -46,12 +51,14 @@ export default function AdminPortfolio() {
     if (file) {
       const url = URL.createObjectURL(file);
       setMainImagePreview(url);
-      setFormData(prev => ({ ...prev, imageUrl: file.name })); // In a real app, you would upload this file to storage and get a real URL
+      setMainImageFile(file);
+      setFormData(prev => ({ ...prev, imageUrl: file.name }));
     }
   };
 
   const removeMainImage = () => {
     setMainImagePreview(null);
+    setMainImageFile(null);
     setFormData(prev => ({ ...prev, imageUrl: '' }));
     if (mainImageInputRef.current) mainImageInputRef.current.value = '';
   };
@@ -62,6 +69,7 @@ export default function AdminPortfolio() {
       const newPreviews = files.map(file => URL.createObjectURL(file));
       const newNames = files.map(file => file.name);
       
+      setSecondaryFiles(prev => [...prev, ...files]);
       setSecondaryImagePreviews(prev => [...prev, ...newPreviews]);
       setFormData(prev => ({
         ...prev,
@@ -71,6 +79,11 @@ export default function AdminPortfolio() {
   };
 
   const handleRemoveSecondaryImage = (index: number) => {
+    setSecondaryFiles(prev => {
+      const newFiles = [...prev];
+      newFiles.splice(index, 1);
+      return newFiles;
+    });
     setSecondaryImagePreviews(prev => {
       const newPreviews = [...prev];
       newPreviews.splice(index, 1);
@@ -83,10 +96,53 @@ export default function AdminPortfolio() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Portfolio Item:', formData);
-    // TODO: Send to Supabase or backend
+    setLoading(true);
+    try {
+      let mainUrl = formData.imageUrl;
+      if (mainImageFile) {
+        mainUrl = await uploadImage(mainImageFile);
+      }
+
+      let finalSecondaryImages = formData.secondaryImages || [];
+      if (secondaryFiles.length > 0) {
+        finalSecondaryImages = await Promise.all(
+          (formData.secondaryImages || []).map(async (name, index) => {
+            const file = secondaryFiles[index];
+            if (file) {
+              return await uploadImage(file);
+            }
+            return name;
+          })
+        );
+      }
+
+      await portfolioApi.createPortfolioItem({
+        title: formData.title,
+        category: formData.category,
+        image_url: mainUrl || '',
+        spec_label: formData.specLabel,
+        author: formData.author,
+        description: formData.description,
+        secondary_images: finalSecondaryImages,
+      });
+      alert('Successfully saved portfolio item!');
+      
+      // Reset form
+      setFormData({
+        title: '', category: 'Wedding', imageUrl: '', specLabel: '',
+        author: '', description: '', secondaryImages: []
+      });
+      setMainImagePreview(null);
+      setMainImageFile(null);
+      setSecondaryImagePreviews([]);
+      setSecondaryFiles([]);
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ReactQuill modules for MS Word-like design
@@ -379,6 +435,8 @@ export default function AdminPortfolio() {
                   type="submit" 
                   variant="contained" 
                   color="error"
+                  size="large"
+                  disabled={loading}
                   startIcon={<Save size={20} />}
                   sx={{ 
                     px: 6, 
@@ -389,7 +447,7 @@ export default function AdminPortfolio() {
                     boxShadow: 2
                   }}
                 >
-                  Publish Portfolio Item
+                  {loading ? 'Saving...' : 'Publish Portfolio Item'}
                 </Button>
               </Box>
             </Grid>

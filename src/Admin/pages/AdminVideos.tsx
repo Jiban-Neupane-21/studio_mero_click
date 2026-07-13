@@ -14,6 +14,8 @@ import { FaYoutube, FaFacebook, FaTiktok } from 'react-icons/fa';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { VideoItem } from '../../types';
+import { videoItemsApi } from '../../api/videoItems';
+import { uploadImage } from '../../utils/uploadImage';
 
 export default function AdminVideos() {
   const [formData, setFormData] = useState<Partial<VideoItem>>({
@@ -30,6 +32,8 @@ export default function AdminVideos() {
   });
 
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -46,20 +50,55 @@ export default function AdminVideos() {
     if (file) {
       const url = URL.createObjectURL(file);
       setThumbnailPreview(url);
+      setThumbnailFile(file);
       setFormData(prev => ({ ...prev, thumbnail: file.name }));
     }
   };
 
   const removeThumbnail = () => {
     setThumbnailPreview(null);
+    setThumbnailFile(null);
     setFormData(prev => ({ ...prev, thumbnail: '' }));
     if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Video Item:', formData);
-    // TODO: Send to backend / Supabase
+    setLoading(true);
+    try {
+      let thumbnailUrl = formData.thumbnail;
+      if (thumbnailFile) {
+        thumbnailUrl = await uploadImage(thumbnailFile);
+      }
+
+      await videoItemsApi.createVideoItem({
+        title: formData.title,
+        category: formData.category,
+        description: formData.description,
+        youtube_id: formData.youtubeId || '',
+        facebook_link: formData.facebookLink || '',
+        tiktok_link: formData.tiktokLink || '',
+        duration: formData.duration,
+        upload_date: formData.uploadDate,
+        views: formData.views,
+        thumbnail: thumbnailUrl || '',
+      });
+      alert('Successfully saved video!');
+      
+      // Reset form
+      setFormData({
+        title: '', category: '', description: '', youtubeId: '',
+        facebookLink: '', tiktokLink: '', duration: '', uploadDate: '',
+        views: '', thumbnail: ''
+      });
+      setThumbnailPreview(null);
+      setThumbnailFile(null);
+      if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const modules = {
@@ -298,11 +337,13 @@ export default function AdminVideos() {
                 <Button 
                   type="submit" 
                   variant="contained" 
-                  color="error"
+                  color="error" 
+                  size="large"
+                  disabled={loading}
                   startIcon={<Save size={20} />}
                   sx={{ px: 6, py: 1.5, borderRadius: 2, textTransform: 'none', fontSize: '1.05rem', boxShadow: 2 }}
                 >
-                  Save Video
+                  {loading ? 'Saving...' : 'Save Video Item'}
                 </Button>
               </Box>
             </Grid>

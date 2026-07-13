@@ -41,7 +41,7 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { PortfolioItem } from "../types";
-import { apiService } from "../utils/supabase";
+import { portfolioApi } from "../api/portfolio";
 import LoadingSpinner from "./common/LoadingSpinner";
 
 export default function PortfolioDetail() {
@@ -59,7 +59,7 @@ export default function PortfolioDetail() {
     const loadPortfolioData = async () => {
       setLoading(true);
       try {
-        const list = await apiService.getPortfolioItems();
+        const list = await portfolioApi.getPortfolioItems();
         const matched = list.find((item) => item.id === id) ?? null;
         setSelectedItem(matched);
       } catch (err) {

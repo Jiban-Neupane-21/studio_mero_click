@@ -5,8 +5,9 @@
 
 import React, { useEffect, useState } from "react";
 import { Box, Container, Skeleton, Grid } from "@mui/material";
+import { Image as ImageIcon, Sparkles, Filter } from "lucide-react";
+import { portfolioApi } from "../api/portfolio";
 import PortfolioGrid from "../components/PortfolioGrid";
-import { apiService } from "../utils/supabase";
 import { PortfolioItem } from "../types";
 
 export default function PortfolioPage() {
@@ -17,7 +18,7 @@ export default function PortfolioPage() {
     window.scrollTo({ top: 0, behavior: "instant" });
     const loadPortfolio = async () => {
       try {
-        const data = await apiService.getPortfolioItems();
+        const data = await portfolioApi.getPortfolioItems();
         setItems(data);
       } catch (err) {
         console.error("Failed to load live portfolio:", err);

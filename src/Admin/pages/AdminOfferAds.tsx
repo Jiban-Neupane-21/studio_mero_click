@@ -14,6 +14,8 @@ import { Save, UploadCloud, X, Palette } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { OfferAd } from '../../types';
+import { offerAdsApi } from '../../api/offerAds';
+import { uploadImage } from '../../utils/uploadImage';
 
 export default function AdminOfferAds() {
   const [formData, setFormData] = useState<Partial<OfferAd>>({
@@ -28,7 +30,9 @@ export default function AdminOfferAds() {
     validUntil: '',
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -45,20 +49,54 @@ export default function AdminOfferAds() {
     if (file) {
       const url = URL.createObjectURL(file);
       setImagePreview(url);
+      setImageFile(file);
       setFormData(prev => ({ ...prev, image: file.name }));
     }
   };
 
   const removeImage = () => {
     setImagePreview(null);
+    setImageFile(null);
     setFormData(prev => ({ ...prev, image: '' }));
     if (imageInputRef.current) imageInputRef.current.value = '';
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Offer Ad:', formData);
-    // TODO: Send to backend / Supabase
+    setLoading(true);
+    try {
+      let imageUrl = formData.image;
+      
+      // If there's a new file, upload it first
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
+      await offerAdsApi.createOfferAd({
+        title: formData.title,
+        discount: formData.discount,
+        description: formData.description,
+        terms: formData.terms,
+        target_category: formData.targetCategory,
+        image: imageUrl || '',
+        badge: formData.badge,
+        valid_until: formData.validUntil,
+      });
+      alert('Successfully saved offer ad!');
+      
+      // Reset form on success (optional but good UX)
+      setFormData({
+        title: '', discount: '', description: '', terms: '',
+        targetCategory: '', image: '', badge: '', validUntil: ''
+      });
+      setImageFile(null);
+      setImagePreview(null);
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const modules = {
@@ -275,14 +313,21 @@ export default function AdminOfferAds() {
             <Grid item xs={12}>
               <Divider sx={{ mb: 3 }} />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button 
-                  type="submit" 
-                  variant="contained" 
+                <Button
+                  type="submit"
+                  variant="contained"
                   color="error"
-                  startIcon={<Save size={20} />}
-                  sx={{ px: 6, py: 1.5, borderRadius: 2, textTransform: 'none', fontSize: '1.05rem', boxShadow: 2 }}
+                  size="large"
+                  disabled={loading}
+                  startIcon={<Save />}
+                  sx={{
+                    px: 4,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
                 >
-                  Create Offer Ad
+                  {loading ? 'Saving...' : 'Save Offer Ad'}
                 </Button>
               </Box>
             </Grid>

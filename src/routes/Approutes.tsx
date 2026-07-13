@@ -26,6 +26,7 @@ import AdminTutorials from "../Admin/pages/AdminTutorials";
 import AdminLearning from "../Admin/pages/AdminLearning";
 import AdminOfferAds from "../Admin/pages/AdminOfferAds";
 import Login from "../Admin/Login";
+import ProtectedRoute from "../Admin/ProtectedRoute";
 
 
 const router = createBrowserRouter([
@@ -97,17 +98,22 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: <ProtectedRoute />,
     children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: "services", element: <AdminServices /> },
-      { path: "products", element: <AdminProducts /> },
-      { path: "portfolio", element: <AdminPortfolio /> },
-      { path: "videos", element: <AdminVideos /> },
-      { path: "tutorials", element: <AdminTutorials /> },
-      { path: "learning", element: <AdminLearning /> },
-      { path: "offer-ads", element: <AdminOfferAds /> },
-    ],
+      {
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "services", element: <AdminServices /> },
+          { path: "products", element: <AdminProducts /> },
+          { path: "portfolio", element: <AdminPortfolio /> },
+          { path: "videos", element: <AdminVideos /> },
+          { path: "tutorials", element: <AdminTutorials /> },
+          { path: "learning", element: <AdminLearning /> },
+          { path: "offer-ads", element: <AdminOfferAds /> },
+        ],
+      }
+    ]
   },
   {
     path: "*",

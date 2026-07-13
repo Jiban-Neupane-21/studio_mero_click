@@ -40,7 +40,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { VideoItem } from "../types";
 import { ColorModeContext } from "../App";
 import { useNavigate } from "react-router-dom";
-import { apiService } from "../utils/supabase";
+import { videoItemsApi } from "../api/videoItems";
 
 export default function VideoSection() {
   const { mode } = useContext(ColorModeContext);
@@ -56,9 +56,9 @@ export default function VideoSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const loadVideos = async () => {
       try {
-        const data = await apiService.getVideoItems();
+        const data = await videoItemsApi.getVideoItems();
         setVideos(data);
         if (data.length > 0) {
           setSpotlightVideo(data[0]);
@@ -69,7 +69,7 @@ export default function VideoSection() {
         setLoading(false);
       }
     };
-    fetchVideos();
+    loadVideos();
   }, []);
 
   const categories = useMemo(() => {

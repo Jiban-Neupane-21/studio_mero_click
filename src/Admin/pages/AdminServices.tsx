@@ -17,6 +17,8 @@ import { Save, UploadCloud, X, Plus, Trash2, Image as ImageIcon } from 'lucide-r
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { Service, ServiceImage, ServiceSpecification, ServiceFeature, ServiceFAQ } from '../../types/service.type';
+import { servicesApi } from '../../api/services';
+import { uploadImage } from '../../utils/uploadImage';
 
 export default function AdminServices() {
   const [formData, setFormData] = useState<Partial<Service>>({
@@ -40,6 +42,10 @@ export default function AdminServices() {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [galleryPreviews, setGalleryPreviews] = useState<{ id: string; url: string }[]>([]);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<{ id: string; file: File }[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const mainImageInputRef = useRef<HTMLInputElement>(null);
@@ -71,9 +77,11 @@ export default function AdminServices() {
       const url = URL.createObjectURL(file);
       if (type === 'thumbnail') {
         setThumbnailPreview(url);
+        setThumbnailFile(file);
         setFormData(prev => ({ ...prev, thumbnail: file.name }));
       } else {
         setMainImagePreview(url);
+        setMainImageFile(file);
         setFormData(prev => ({ ...prev, image: file.name }));
       }
     }
@@ -93,7 +101,13 @@ export default function AdminServices() {
         url: URL.createObjectURL(file)
       }));
 
+      const newFiles = files.map((file, i) => ({
+        id: newImages[i].id,
+        file
+      }));
+
       setGalleryPreviews(prev => [...prev, ...newPreviews]);
+      setGalleryFiles(prev => [...prev, ...newFiles]);
       setFormData(prev => ({
         ...prev,
         images: [...(prev.images || []), ...newImages]
@@ -103,6 +117,7 @@ export default function AdminServices() {
 
   const removeGalleryImage = (idToRemove: string) => {
     setGalleryPreviews(prev => prev.filter(p => p.id !== idToRemove));
+    setGalleryFiles(prev => prev.filter(f => f.id !== idToRemove));
     setFormData(prev => ({
       ...prev,
       images: (prev.images || []).filter(img => img.id !== idToRemove)
@@ -140,10 +155,72 @@ export default function AdminServices() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Service:', formData);
-    // TODO: Send to Supabase or backend
+    setLoading(true);
+    try {
+      let thumbnailUrl = formData.thumbnail;
+      if (thumbnailFile) {
+        thumbnailUrl = await uploadImage(thumbnailFile);
+      }
+
+      let mainImageUrl = formData.image;
+      if (mainImageFile) {
+        mainImageUrl = await uploadImage(mainImageFile);
+      }
+
+      let finalImages = formData.images || [];
+      if (galleryFiles.length > 0) {
+        finalImages = await Promise.all(
+          finalImages.map(async (img) => {
+            const fileObj = galleryFiles.find(gf => gf.id === img.id);
+            if (fileObj) {
+              const url = await uploadImage(fileObj.file);
+              return { ...img, url };
+            }
+            return img;
+          })
+        );
+      }
+
+      const servicePayload = {
+        title: formData.title,
+        category: formData.category,
+        about: formData.about,
+        description: formData.description,
+        old_price: formData.oldPrice,
+        new_price: formData.newPrice,
+        discount_rate: formData.discountRate,
+        thumbnail: thumbnailUrl || '',
+        image: mainImageUrl || '',
+        is_featured: formData.isFeatured,
+        is_available: formData.isAvailable,
+        images: finalImages,
+        specifications: formData.additionalInfo,
+        features: formData.features,
+        faqs: formData.faq,
+      };
+
+      await servicesApi.createService(servicePayload as any);
+      alert('Successfully saved service!');
+      
+      // Reset form
+      setFormData({
+        title: '', category: '', about: '', description: '', oldPrice: 0, newPrice: 0,
+        discountRate: 0, thumbnail: '', image: '', images: [], additionalInfo: [],
+        features: [], faq: [], isFeatured: false, isAvailable: true
+      });
+      setThumbnailPreview(null);
+      setThumbnailFile(null);
+      setMainImagePreview(null);
+      setMainImageFile(null);
+      setGalleryPreviews([]);
+      setGalleryFiles([]);
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const modules = {
@@ -483,14 +560,21 @@ export default function AdminServices() {
             <Grid item xs={12}>
               <Divider sx={{ mb: 3 }} />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button 
-                  type="submit" 
-                  variant="contained" 
+                <Button
+                  type="submit"
+                  variant="contained"
                   color="error"
-                  startIcon={<Save size={20} />}
-                  sx={{ px: 6, py: 1.5, borderRadius: 2, textTransform: 'none', fontSize: '1.05rem', boxShadow: 2 }}
+                  size="large"
+                  disabled={loading}
+                  startIcon={<Save />}
+                  sx={{
+                    px: 4,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
                 >
-                  Save Service
+                  {loading ? 'Saving...' : 'Save Service'}
                 </Button>
               </Box>
             </Grid>

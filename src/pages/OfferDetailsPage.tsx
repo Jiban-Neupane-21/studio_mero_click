@@ -15,7 +15,7 @@ import {
   CircularProgress
 } from "@mui/material";
 import { ArrowLeft, Tag, Calendar } from "lucide-react";
-import { apiService } from "../utils/supabase";
+import { offerAdsApi } from "../api/offerAds";
 import { OfferAd } from "../types";
 
 export default function OfferDetailsPage() {
@@ -34,7 +34,7 @@ export default function OfferDetailsPage() {
     const fetchOffer = async () => {
       setLoading(true);
       try {
-        const data = await apiService.getOffers();
+        const data = await offerAdsApi.getOfferAds();
         const found = data.find((o) => o.id === id);
         if (found) {
           setOffer(found);

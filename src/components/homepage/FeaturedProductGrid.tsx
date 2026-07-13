@@ -1,10 +1,11 @@
 /* eslint-disable */
 // @ts-nocheck
+import { useState, useEffect } from "react";
 import { Box, Typography, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../ProductCard";
-import { Products } from "../../data/product.data";
 import type { Product } from "../../types/featureProduct.type";
+import { productsApi } from "../../api/products";
 
 export default function FeaturedProducts() {
   const navigate = useNavigate();
@@ -13,7 +14,21 @@ export default function FeaturedProducts() {
     navigate(`/products/${product.id}`);
   };
 
-  const featured = Products.filter((p) => p.isFeatured);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await productsApi.getProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const featured = products.filter((p) => p.is_featured);
 
   return (
     <Box
