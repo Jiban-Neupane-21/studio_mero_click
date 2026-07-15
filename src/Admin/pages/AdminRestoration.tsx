@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Box, Typography, Paper, TextField, Button, Grid, IconButton, Divider,

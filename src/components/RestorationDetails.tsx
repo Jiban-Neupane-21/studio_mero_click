@@ -85,9 +85,9 @@ export default function RestorationDetails() {
       >
         <Grid container spacing={4}>
           {/* Left Column: Images side by side */}
-          <Grid item xs={12} lg={8}>
+          <Grid size={{ xs: 12, lg: 8 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Box
                   sx={{
                     width: '100%',
@@ -110,7 +110,7 @@ export default function RestorationDetails() {
                   </Box>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <Box
                   sx={{
                     width: '100%',
@@ -137,9 +137,9 @@ export default function RestorationDetails() {
           </Grid>
 
           {/* Right Column: Text Details */}
-          <Grid item xs={12} lg={4}>
+          <Grid size={{ xs: 12, lg: 4 }}>
             <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', pt: 2 }}>
-              <Typography variant="h3" fontWeight="800" color="text.primary" gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, lineHeight: 1.2 }}>
+              <Typography variant="h3" sx={{ fontWeight: 800, color: 'text.primary', fontSize: { xs: '2rem', md: '2.5rem' }, lineHeight: 1.2, mb: 2 }}>
                 {restoration.title}
               </Typography>
               
@@ -173,12 +173,12 @@ export default function RestorationDetails() {
       {/* More Restorations Section */}
       {randomRestorations.length > 0 && (
         <Box sx={{ mt: 8 }}>
-          <Typography variant="h5" fontWeight="bold" color="text.primary" mb={4}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'text.primary', mb: 4 }}>
             More Restorations
           </Typography>
           <Grid container spacing={4}>
             {randomRestorations.map((item) => (
-              <Grid item xs={12} sm={6} md={4} key={item.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
                 <Box 
                   component={RouterLink} 
                   to={`/restorations/${item.id}`}
@@ -208,10 +208,10 @@ export default function RestorationDetails() {
                     <Box component="img" src={item.after_image_url} alt="After" sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   </Box>
                   <Box sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="subtitle1" fontWeight="700" color="text.primary" noWrap>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'text.primary' }} noWrap>
                       {item.title}
                     </Typography>
-                    <Typography variant="body2" color="error.main" fontWeight="600" sx={{ mt: 0.5 }}>
+                    <Typography variant="body2" sx={{ color: 'error.main', fontWeight: 600, mt: 0.5 }}>
                       View Details &rarr;
                     </Typography>
                   </Box>
