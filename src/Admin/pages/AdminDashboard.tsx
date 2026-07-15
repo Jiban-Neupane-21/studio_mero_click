@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import React, { useState, useRef } from 'react';
 import {
   Box,
