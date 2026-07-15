@@ -28,14 +28,14 @@ import {
   Clock,
   Gift,
 } from "lucide-react";
-import { apiService } from "../utils/supabase";
 import emailjs from "@emailjs/browser";
 import { OfferAd } from "../types";
+import { useData } from "../context/DataContext";
 
 export default function ClaimOffer() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [offers, setOffers] = useState<OfferAd[]>([]);
+  const { offerAds: offers, loading: contextLoading } = useData();
   const [selectedOffer, setSelectedOffer] = useState<OfferAd | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -59,34 +59,25 @@ export default function ClaimOffer() {
   const WHITE = "#FFFFFF";
 
   useEffect(() => {
-    const fetchOffersAndSetDefault = async () => {
-      try {
-        const data = await apiService.getOffers();
-        setOffers(data);
-
-        // Check if there's an offer ID passed in query string or state
+    if (!contextLoading) {
+      setLoading(false);
+      if (offers.length > 0) {
         const params = new URLSearchParams(location.search);
         const queryOfferId = params.get("offerId") || params.get("id");
 
-        if (queryOfferId && data.length > 0) {
-          const matched = data.find((o) => o.id === queryOfferId);
+        if (queryOfferId) {
+          const matched = offers.find((o) => o.id === queryOfferId);
           if (matched) {
             setSelectedOffer(matched);
           } else {
-            setSelectedOffer(data[0]);
+            setSelectedOffer(offers[0]);
           }
-        } else if (data.length > 0) {
-          setSelectedOffer(data[0]);
+        } else {
+          setSelectedOffer(offers[0]);
         }
-      } catch (err) {
-        console.error("Error loading offers in Claim Page:", err);
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchOffersAndSetDefault();
-  }, [location]);
+    }
+  }, [contextLoading, offers, location]);
 
   const handleOfferChange = (offerId: string) => {
     const matched = offers.find((o) => o.id === offerId);

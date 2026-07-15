@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -21,7 +22,8 @@ import {
     TextField,
     InputAdornment,
     Tabs,
-    Tab
+    Tab,
+    Skeleton
 } from '@mui/material';
 import {
     Play,
@@ -41,7 +43,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { TutorialVideo, LearningArticle } from '../types';
 import { ColorModeContext } from '../App';
-import { supabase } from '../utils/supabase';
+import { useData } from '../context/DataContext';
+import { useMinDelay } from '../hooks/useMinDelay';
+import ScrollReveal, { StaggerContainer, StaggerItem } from '../components/common/ScrollReveal';
 
 const extractTiktokId = (url: string) => {
     try {
@@ -60,11 +64,30 @@ const extractTiktokId = (url: string) => {
 export default function LearnFromUs() {
     const { mode } = useContext(ColorModeContext);
     const isDark = mode === 'dark';
+    const navigate = useNavigate();
 
-    // Core Data Lists State
-    const [videos, setVideos] = useState<TutorialVideo[]>([]);
-    const [articles, setArticles] = useState<LearningArticle[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const { tutorialVideos: rawVideos, learningArticles: rawArticles, loading } = useData();
+    const loadingSkeleton = useMinDelay(loading);
+
+    const videos: TutorialVideo[] = useMemo(() => {
+        return rawVideos.map((v: any) => ({
+            ...v,
+            youtubeId: v.youtube_id || v.youtubeId,
+            facebookLink: v.facebook_link || v.facebookLink,
+            tiktokLink: v.tiktok_link || v.tiktokLink,
+            uploadDate: v.upload_date || v.uploadDate,
+            publishedAt: v.published_at || v.publishedAt,
+        }));
+    }, [rawVideos]);
+
+    const articles: LearningArticle[] = useMemo(() => {
+        return rawArticles.map((a: any) => ({
+            ...a,
+            readTime: a.read_time || a.readTime,
+            publishedAt: a.published_at || a.publishedAt,
+            imageUrl: a.image_url || a.image || a.imageUrl,
+        }));
+    }, [rawArticles]);
 
     // Filter/Search States
     const [currentTab, setCurrentTab] = useState<number>(0); // 0 = Videos, 1 = Articles
@@ -73,44 +96,13 @@ export default function LearnFromUs() {
 
     // Modal Interactive States
     const [theaterVideo, setTheaterVideo] = useState<TutorialVideo | null>(null);
-    const [selectedArticle, setSelectedArticle] = useState<LearningArticle | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                if (!supabase) {
-                    console.warn('Supabase is not configured');
-                    return;
-                }
-
-                const [videosResponse, articlesResponse] = await Promise.all([
-                    supabase.from('tutorials').select('*').order('id', { ascending: false }),
-                    supabase.from('articles').select('*').order('id', { ascending: false })
-                ]);
-
-                if (videosResponse.error) throw videosResponse.error;
-                if (articlesResponse.error) throw articlesResponse.error;
-
-                setVideos(videosResponse.data as TutorialVideo[] || []);
-                setArticles(articlesResponse.data as LearningArticle[] || []);
-            } catch (err) {
-                console.error('Error loading tutorials/articles data from Supabase:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
-
-    // Filter Categories derived from both videos or articles
+    // Categories: specific platforms for videos, none for articles
     const categories = useMemo(() => {
-        const defaultCats = ['All'];
-        const currentList = currentTab === 0 ? videos : articles;
-        const itemCats = Array.from(new Set(currentList.map(item => item.category)));
-        return [...defaultCats, ...itemCats];
-    }, [currentTab, videos, articles]);
+        if (currentTab === 1) return []; // No categories for articles
+        return ['All', 'YouTube', 'Facebook', 'TikTok'];
+    }, [currentTab]);
 
     // Reset category filter when switching tabs
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -124,7 +116,18 @@ export default function LearnFromUs() {
         return videos.filter(video => {
             const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 video.description.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesCategory = selectedCategory === 'All' || video.category === selectedCategory;
+
+            let matchesCategory = true;
+            if (selectedCategory === 'YouTube') {
+                matchesCategory = !!video.youtubeId;
+            } else if (selectedCategory === 'Facebook') {
+                matchesCategory = !!video.facebookLink;
+            } else if (selectedCategory === 'TikTok') {
+                matchesCategory = !!video.tiktokLink;
+            } else {
+                matchesCategory = selectedCategory === 'All';
+            }
+
             return matchesSearch && matchesCategory;
         });
     }, [videos, searchQuery, selectedCategory]);
@@ -134,10 +137,9 @@ export default function LearnFromUs() {
             const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 article.content.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesCategory = selectedCategory === 'All' || article.category === selectedCategory;
-            return matchesSearch && matchesCategory;
+            return matchesSearch;
         });
-    }, [articles, searchQuery, selectedCategory]);
+    }, [articles, searchQuery]);
 
     const handleShareVideo = (video: TutorialVideo, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -170,133 +172,95 @@ export default function LearnFromUs() {
         >
             <Container maxWidth="xl">
                 {/* ================= HEADER SECTION ================= */}
-                <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
-                    <Box
-                        sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 1.25,
-                            backgroundColor: isDark ? 'rgba(229, 9, 20, 0.08)' : 'rgba(229, 9, 20, 0.05)',
-                            border: '1px solid rgba(229, 9, 20, 0.15)',
-                            borderRadius: '99px',
-                            px: 2.25,
-                            py: 0.75,
-                            mb: 2.5
-                        }}
-                    >
-                        <Sparkles size={14} color="#E50914" />
+                <ScrollReveal animation="fadeUp">
+                    <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
                         <Typography
-                            variant="caption"
+                            variant="h2"
                             sx={{
                                 fontFamily: '"Space Grotesk", sans-serif',
-                                fontWeight: 650,
-                                color: '#E50914',
-                                letterSpacing: '0.12em',
-                                textTransform: 'uppercase'
+                                fontWeight: 700,
+                                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                                mb: 2.5,
+                                letterSpacing: '-0.02em',
+                                lineHeight: 1.15
                             }}
                         >
-                            Kathmandu Media Academy
+                            Learn From Us: <Box component="span" sx={{ color: '#E50914' }}>Video and Article Guide</Box>
                         </Typography>
                     </Box>
-
-                    <Typography
-                        variant="h2"
-                        sx={{
-                            fontFamily: '"Space Grotesk", sans-serif',
-                            fontWeight: 700,
-                            fontSize: { xs: '2.5rem', md: '3.5rem' },
-                            mb: 2.5,
-                            letterSpacing: '-0.02em',
-                            lineHeight: 1.15
-                        }}
-                    >
-                        Learn From Us: <Box component="span" sx={{ color: '#E50914' }}>Guides & Masterclasses</Box>
-                    </Typography>
-
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            color: isDark ? '#cbd5e1' : '#475569',
-                            maxWidth: '820px',
-                            mx: 'auto',
-                            fontWeight: 300,
-                            fontSize: { xs: '1.025rem', md: '1.15rem' },
-                            lineHeight: 1.7
-                        }}
-                    >
-                        Enhance your photographic knowledge, prepare perfectly for embassy biometric validations, learn standard positioning guidelines, and understand the core crafts behind high-end wooden fabrication.
-                    </Typography>
-                </Box>
+                </ScrollReveal>
 
                 {/* ================= SEARCH & NAVIGATION TOOLBAR ================= */}
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: { xs: 'column', md: 'row' },
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: 3,
-                        mb: 5,
-                        p: 3,
-                        backgroundColor: isDark ? 'rgba(10, 10, 12, 0.6)' : '#ffffff',
-                        border: '1px solid',
-                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-                        borderRadius: '12px',
-                        boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 20px rgba(0,0,0,0.01)'
-                    }}
-                >
-                    {/* Section Selector Tabs */}
-                    <Tabs
-                        value={currentTab}
-                        onChange={handleTabChange}
+                <ScrollReveal animation="fadeUp" delay={0.1}>
+                    <Box
                         sx={{
-                            '& .MuiTabs-indicator': { backgroundColor: '#E50914', height: '3px' },
-                            '& .MuiTab-root': {
-                                fontFamily: '"Space Grotesk", sans-serif',
-                                fontWeight: 600,
-                                fontSize: '1rem',
-                                textTransform: 'none',
-                                color: 'text.secondary',
-                                '&.Mui-selected': { color: '#E50914' }
-                            }
+                            display: 'flex',
+                            flexDirection: { xs: 'column', md: 'row' },
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: 3,
+                            mb: 5,
+                            p: 3,
+                            backgroundColor: isDark ? 'rgba(10, 10, 12, 0.6)' : '#ffffff',
+                            border: '1px solid',
+                            borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                            borderRadius: '12px',
+                            boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 20px rgba(0,0,0,0.01)'
                         }}
                     >
-                        <Tab icon={<Video size={18} />} label="Tutorial Videos" iconPosition="start" />
-                        <Tab icon={<BookOpen size={18} />} label="Articles & Handbooks" iconPosition="start" />
-                    </Tabs>
-
-                    {/* Real-time Search Input */}
-                    <TextField
-                        placeholder={currentTab === 0 ? "Search tutorial video..." : "Search educational article..."}
-                        variant="outlined"
-                        size="small"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Search size={16} color="#94a3b8" />
-                                    </InputAdornment>
-                                ),
-                                style: {
-                                    color: isDark ? '#ffffff' : '#0f172a',
-                                    fontFamily: '"Inter", sans-serif',
-                                    fontSize: '0.9rem'
+                        {/* Section Selector Tabs */}
+                        <Tabs
+                            value={currentTab}
+                            onChange={handleTabChange}
+                            sx={{
+                                '& .MuiTabs-indicator': { backgroundColor: '#E50914', height: '3px' },
+                                '& .MuiTab-root': {
+                                    fontFamily: '"Space Grotesk", sans-serif',
+                                    fontWeight: 600,
+                                    fontSize: '1rem',
+                                    textTransform: 'none',
+                                    color: 'text.secondary',
+                                    '&.Mui-selected': { color: '#E50914' }
                                 }
-                            }
-                        }}
-                        sx={{
-                            width: { xs: '100%', md: '320px' },
-                            '& .MuiOutlinedInput-root': {
-                                backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
-                                '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
-                                '&:hover fieldset': { borderColor: '#E50914' },
-                                '&.Mui-focused fieldset': { borderColor: '#E50914' }
-                            }
-                        }}
-                    />
-                </Box>
+                            }}
+                        >
+                            <Tab icon={<Video size={18} />} label="Tutorial Videos" iconPosition="start" />
+                            <Tab icon={<BookOpen size={18} />} label="Articles & Handbooks" iconPosition="start" />
+                        </Tabs>
+
+                        {/* Real-time Search Input */}
+                        <TextField
+                            placeholder={currentTab === 0 ? "Search tutorial video..." : "Search educational article..."}
+                            variant="outlined"
+                            size="small"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Search size={16} color="#94a3b8" />
+                                        </InputAdornment>
+                                    ),
+                                    style: {
+                                        color: isDark ? '#ffffff' : '#0f172a',
+                                        fontFamily: '"Inter", sans-serif',
+                                        fontSize: '0.9rem'
+                                    }
+                                }
+                            }}
+                            sx={{
+                                width: { xs: '100%', md: '320px' },
+                                '& .MuiOutlinedInput-root': {
+                                    backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                                    '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                                    '&:hover fieldset': { borderColor: '#E50914' },
+                                    '&.Mui-focused fieldset': { borderColor: '#E50914' }
+                                }
+                            }}
+                        />
+                    </Box>
+                </ScrollReveal>
 
                 {/* ================= CATEGORY BARS ================= */}
                 {categories.length > 1 && (
@@ -346,9 +310,50 @@ export default function LearnFromUs() {
                 )}
 
                 {/* ================= LOADER OR GRID LISTINGS ================= */}
-                {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 12 }}>
-                        <CircularProgress sx={{ color: '#E50914' }} />
+                {loadingSkeleton ? (
+                    <Box>
+                        {/* Header Skeleton */}
+                        <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
+                            <Skeleton variant="text" width="60%" height={56} sx={{ mx: 'auto', mb: 2 }} />
+                            <Skeleton variant="text" width="40%" height={56} sx={{ mx: 'auto', mb: 3 }} />
+                            <Skeleton variant="text" width="70%" height={24} sx={{ mx: 'auto' }} />
+                            <Skeleton variant="text" width="50%" height={24} sx={{ mx: 'auto' }} />
+                        </Box>
+
+                        {/* Toolbar Skeleton */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5, p: 3, borderRadius: '12px', border: '1px solid', borderColor: 'divider' }}>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Skeleton variant="rounded" width={140} height={36} />
+                                <Skeleton variant="rounded" width={160} height={36} />
+                            </Box>
+                            <Skeleton variant="rounded" width={280} height={36} />
+                        </Box>
+
+                        {/* Category Chips Skeleton */}
+                        <Box sx={{ display: 'flex', gap: 1.25, mb: 6, justifyContent: 'center' }}>
+                            {[1, 2, 3, 4].map((i) => (
+                                <Skeleton key={i} variant="rounded" width={100} height={36} sx={{ borderRadius: '100px' }} />
+                            ))}
+                        </Box>
+
+                        {/* Cards Grid Skeleton */}
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 4 }}>
+                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                                <Card key={i} sx={{ background: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: '10px', overflow: 'hidden' }}>
+                                    <Skeleton variant="rectangular" sx={{ aspectRatio: '16/10' }} animation="wave" />
+                                    <CardContent sx={{ p: 3 }}>
+                                        <Skeleton variant="text" width="80%" height={28} sx={{ mb: 1 }} />
+                                        <Skeleton variant="text" width="100%" height={16} />
+                                        <Skeleton variant="text" width="90%" height={16} />
+                                        <Skeleton variant="text" width="60%" height={16} sx={{ mb: 2 }} />
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                                            <Skeleton variant="text" width="30%" height={14} />
+                                            <Skeleton variant="text" width="20%" height={14} />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </Box>
                     </Box>
                 ) : (
                     <Box>
@@ -639,7 +644,7 @@ export default function LearnFromUs() {
 
                                                     <Typography
                                                         variant="h6"
-                                                        onClick={() => setSelectedArticle(article)}
+                                                        onClick={() => navigate(`/learn/${article.id}`)}
                                                         sx={{
                                                             fontFamily: '"Space Grotesk", sans-serif',
                                                             fontWeight: 700,
@@ -698,7 +703,7 @@ export default function LearnFromUs() {
                                                             </IconButton>
                                                             <Button
                                                                 size="small"
-                                                                onClick={() => setSelectedArticle(article)}
+                                                                onClick={() => navigate(`/learn/${article.id}`)}
                                                                 sx={{
                                                                     textTransform: 'none',
                                                                     color: '#E50914',
@@ -723,47 +728,49 @@ export default function LearnFromUs() {
                 )}
 
                 {/* ================= BOTTOM CTA CALL TO ACTION ================= */}
-                <Box
-                    sx={{
-                        mt: 10,
-                        p: { xs: 4, md: 6 },
-                        borderRadius: '12px',
-                        border: '2px solid rgba(229, 9, 20, 0.2)',
-                        background: isDark
-                            ? 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.12) 0%, rgba(5,5,5,1) 80%)'
-                            : 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.05) 0%, rgba(255,255,255,1) 80%)',
-                        textAlign: 'center'
-                    }}
-                >
-                    <Typography variant="overline" sx={{ color: '#E50914', fontWeight: 650, letterSpacing: '0.15em', display: 'block', mb: 1 }}>
-                        Studio Mero Click Booking
-                    </Typography>
-                    <Typography variant="h4" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, mb: 2 }}>
-                        Ready to Book a Slot?
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: isDark ? '#cbd5e1' : '#475569', fontWeight: 300, maxWidth: '750px', mx: 'auto', mb: 4 }}>
-                        Book your  Wedding ,fashion, commercials, cakesmash, maternity, family portraits, ecommerce shoot and many more with Studio Mero Click.
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        href="/book"
+                <ScrollReveal animation="scaleUp">
+                    <Box
                         sx={{
-                            background: 'linear-gradient(135deg, #E50914 0%, #B71C1C 100%)',
-                            fontFamily: '"Space Grotesk", sans-serif',
-                            fontWeight: 600,
-                            textTransform: 'none',
-                            px: 5,
-                            py: 1.5,
-                            borderRadius: '4px',
-                            '&:hover': {
-                                background: 'linear-gradient(135deg, #ff4c4c 0%, #a60000 100%)',
-                                transform: 'translateY(-1px)'
-                            }
+                            mt: 10,
+                            p: { xs: 4, md: 6 },
+                            borderRadius: '12px',
+                            border: '2px solid rgba(229, 9, 20, 0.2)',
+                            background: isDark
+                                ? 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.12) 0%, rgba(5,5,5,1) 80%)'
+                                : 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.05) 0%, rgba(255,255,255,1) 80%)',
+                            textAlign: 'center'
                         }}
                     >
-                        Schedule On-Site Studio Session
-                    </Button>
-                </Box>
+                        <Typography variant="overline" sx={{ color: '#E50914', fontWeight: 650, letterSpacing: '0.15em', display: 'block', mb: 1 }}>
+                            Studio Mero Click Booking
+                        </Typography>
+                        <Typography variant="h4" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, mb: 2 }}>
+                            Ready to Book a Slot?
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: isDark ? '#cbd5e1' : '#475569', fontWeight: 300, maxWidth: '750px', mx: 'auto', mb: 4 }}>
+                            Book your  Wedding ,fashion, commercials, cakesmash, maternity, family portraits, ecommerce shoot and many more with Studio Mero Click.
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            href="/book"
+                            sx={{
+                                background: 'linear-gradient(135deg, #E50914 0%, #B71C1C 100%)',
+                                fontFamily: '"Space Grotesk", sans-serif',
+                                fontWeight: 600,
+                                textTransform: 'none',
+                                px: 5,
+                                py: 1.5,
+                                borderRadius: '4px',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #ff4c4c 0%, #a60000 100%)',
+                                    transform: 'translateY(-1px)'
+                                }
+                            }}
+                        >
+                            Schedule On-Site Studio Session
+                        </Button>
+                    </Box>
+                </ScrollReveal>
             </Container>
 
             {/* ================= INTERACTIVE COMPACT MODAL: THEATER MODE PLAYER ================= */}
@@ -866,203 +873,6 @@ export default function LearnFromUs() {
                 )}
             </AnimatePresence>
 
-            {/* ================= INTERACTIVE COMPACT MODAL: ARTICLE READER ================= */}
-            <AnimatePresence>
-                {selectedArticle && (
-                    <Dialog
-                        fullWidth
-                        maxWidth="md"
-                        open={Boolean(selectedArticle)}
-                        onClose={() => setSelectedArticle(null)}
-                        sx={{
-                            '& .MuiPaper-root': {
-                                backgroundColor: isDark ? '#121214' : '#ffffff',
-                                border: '1px solid',
-                                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
-                                borderRadius: '12px',
-                                color: 'text.primary',
-                                boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-                            }
-                        }}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            transition={{ duration: 0.25 }}
-                        >
-                            {/* Header Image with overlays */}
-                            <Box sx={{ position: 'relative', height: { xs: '180px', sm: '300px' }, overflow: 'hidden' }}>
-                                <img
-                                    src={selectedArticle.imageUrl}
-                                    alt={selectedArticle.title}
-                                    referrerPolicy="no-referrer"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        inset: 0,
-                                        background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.1) 100%)'
-                                    }}
-                                />
-
-                                <IconButton
-                                    onClick={() => setSelectedArticle(null)}
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 16,
-                                        right: 16,
-                                        backgroundColor: 'rgba(0,0,0,0.6)',
-                                        color: '#ffffff',
-                                        '&:hover': { backgroundColor: 'rgba(0,0,0,0.8)' }
-                                    }}
-                                >
-                                    <X size={18} />
-                                </IconButton>
-
-                                {/* Article Overlay text */}
-                                <Box sx={{ position: 'absolute', bottom: 24, left: 24, right: 24, color: '#ffffff' }}>
-                                    <Chip
-                                        label={selectedArticle.category}
-                                        size="small"
-                                        sx={{
-                                            backgroundColor: '#E50914',
-                                            color: '#ffffff',
-                                            fontWeight: 700,
-                                            mb: 1.5,
-                                            borderRadius: '4px'
-                                        }}
-                                    />
-                                    <Typography
-                                        variant="h4"
-                                        sx={{
-                                            fontFamily: '"Space Grotesk", sans-serif',
-                                            fontWeight: 700,
-                                            fontSize: { xs: '1.4rem', sm: '2rem' },
-                                            lineHeight: 1.2,
-                                            mb: 1
-                                        }}
-                                    >
-                                        {selectedArticle.title}
-                                    </Typography>
-
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', opacity: 0.85 }}>
-                                        <Typography component="span" sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
-                                            <User size={12} color="#E50914" /> {selectedArticle.author}
-                                        </Typography>
-                                        <Typography component="span" sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
-                                            <Calendar size={12} color="#E50914" /> Published {selectedArticle.publishedAt}
-                                        </Typography>
-                                        <Typography component="span" sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
-                                            <Clock size={12} color="#E50914" /> {selectedArticle.readTime}
-                                        </Typography>
-                                    </Box>
-                                </Box>
-                            </Box>
-
-                            {/* Main reading content container */}
-                            <Box sx={{ p: { xs: 3, md: 5 }, maxHeight: '55vh', overflowY: 'auto' }}>
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        fontStyle: 'italic',
-                                        color: 'text.secondary',
-                                        fontSize: '1.05rem',
-                                        lineHeight: 1.6,
-                                        mb: 4,
-                                        pb: 2,
-                                        borderBottom: '1px solid',
-                                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'
-                                    }}
-                                >
-                                    {selectedArticle.excerpt}
-                                </Typography>
-
-                                {/* Curated content paragraphs parser */}
-                                <Box
-                                    sx={{
-                                        fontFamily: '"Inter", sans-serif',
-                                        fontSize: '0.98rem',
-                                        lineHeight: 1.8,
-                                        color: isDark ? '#e2e8f0' : '#334155',
-                                        '& h3': {
-                                            fontFamily: '"Space Grotesk", sans-serif',
-                                            fontWeight: 700,
-                                            fontSize: '1.25rem',
-                                            color: isDark ? '#ffffff' : '#0f172a',
-                                            mt: 4,
-                                            mb: 2
-                                        },
-                                        '& p': { mb: 2.5 },
-                                        '& ul': { pl: 3, mb: 3, listStyleType: 'disc' },
-                                        '& li': { mb: 1 }
-                                    }}
-                                >
-                                    {selectedArticle.content.split('\n\n').map((block, idx) => {
-                                        if (block.startsWith('### ')) {
-                                            return <h3 key={idx}>{block.replace('### ', '')}</h3>;
-                                        }
-                                        if (block.startsWith('- ')) {
-                                            return (
-                                                <ul key={idx}>
-                                                    {block.split('\n').map((li, lIdx) => (
-                                                        <li key={lIdx}>{li.replace('- ', '')}</li>
-                                                    ))}
-                                                </ul>
-                                            );
-                                        }
-                                        return <p key={idx}>{block}</p>;
-                                    })}
-                                </Box>
-                            </Box>
-
-                            {/* Footer sharing & dismiss tools */}
-                            <Box
-                                sx={{
-                                    p: 3,
-                                    borderTop: '1px solid',
-                                    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
-                                }}
-                            >
-                                <Button
-                                    variant="outlined"
-                                    size="small"
-                                    onClick={(e) => handleShareArticle(selectedArticle, e)}
-                                    startIcon={<Share2 size={13} />}
-                                    sx={{
-                                        fontFamily: '"Space Grotesk"',
-                                        textTransform: 'none',
-                                        color: copiedId === selectedArticle.id ? '#10b981' : 'text.secondary',
-                                        borderColor: copiedId === selectedArticle.id ? 'rgba(16,185,129,0.3)' : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
-                                        borderRadius: '4px'
-                                    }}
-                                >
-                                    {copiedId === selectedArticle.id ? 'Saved Link!' : 'Share Guide'}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => setSelectedArticle(null)}
-                                    sx={{
-                                        backgroundColor: '#E50914',
-                                        fontFamily: '"Space Grotesk"',
-                                        textTransform: 'none',
-                                        fontWeight: 600,
-                                        borderRadius: '4px',
-                                        px: 3,
-                                        '&:hover': { backgroundColor: '#b91c1c' }
-                                    }}
-                                >
-                                    Close Handbook
-                                </Button>
-                            </Box>
-                        </motion.div>
-                    </Dialog>
-                )}
-            </AnimatePresence>
         </Box>
     );
 }

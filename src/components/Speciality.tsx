@@ -10,6 +10,10 @@ export const SpecialitySection: React.FC = () => {
     <Box
       component="section"
       sx={{
+        minHeight: "calc(100vh - 72px)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
         bgcolor: (theme) =>
           theme.palette.mode === "dark" ? "#0A0A0A" : "#FFFFFF",
         color: (theme) =>
@@ -34,15 +38,11 @@ export const SpecialitySection: React.FC = () => {
         {/* Responsive Grid with spacing matched to image_589674.png */}
         <Grid container spacing={4} sx={{ justifyContent: "center" }}>
           {specialityData.map((item) => (
-            <Grid key={item.id} size={{ xs: 12, sm: 6, md: 4 }}>
+            <Grid item key={item.id} xs={12} sm={6} md={4}>
               <Box
                 component="article"
                 sx={{
                   height: "100%",
-                  minHeight: {
-                    xs: "auto",
-                    md: item.description ? "380px" : "240px",
-                  },
                   p: { xs: 4, md: 5 },
                   display: "flex",
                   flexDirection: "column",

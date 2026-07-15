@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Navigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
@@ -22,43 +22,73 @@ import {
   CardMedia,
   CardContent,
   CardActions,
+  CircularProgress
 } from "@mui/material";
-// Assuming 'services' is typed as Service[] inside your service.data file
-import { services } from "../data/service.data";
 import { ArrowLeft, ChevronDown, Tag, CheckCircle, Calendar } from "lucide-react";
+import { useData } from "../context/DataContext";
 
 const ServiceDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const service = services.find((s) => s.id === id);
+  const { services: allServices, loading: contextLoading } = useData();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const [activeImage, setActiveImage] = useState<string>("");
-  const [randomServices, setRandomServices] = useState<typeof services>([]);
+  const [randomServices, setRandomServices] = useState<any[]>([]);
+  const [relatedServices, setRelatedServices] = useState<any[]>([]);
+
+  const service = useMemo(() => {
+    if (!id || allServices.length === 0) return null;
+    const data = allServices.find((s: any) => s.id === id);
+    if (!data) return null;
+    return {
+      ...data,
+      oldPrice: data.old_price,
+      newPrice: data.new_price,
+      discountRate: data.discount_rate,
+      isFeatured: data.is_featured,
+      isAvailable: data.is_available,
+      images: data.service_images?.map((img: any) => ({ url: img.image_url || img.url, alt: img.alt_text || img.alt })) || [],
+      additionalInfo: data.service_specifications?.map((s: any) => ({ key: s.spec_key || s.key_name, value: s.spec_value || s.value_text })) || [],
+      features: data.service_features || [],
+      faq: data.service_faqs || [],
+    };
+  }, [id, allServices]);
 
   useEffect(() => {
-    if (service) {
-      setActiveImage(service.image || service.thumbnail || "");
-      
-      const otherServices = services.filter((s) => s.id !== service.id);
-      const shuffled = otherServices.sort(() => 0.5 - Math.random());
-      setRandomServices(shuffled.slice(0, 3));
+    if (!contextLoading && id) {
+      setLoading(false);
+      if (service) {
+        setActiveImage(service.thumbnail || "");
+        const otherServices = allServices.filter((s: any) => s.id !== id);
+        const shuffled = [...otherServices].sort(() => 0.5 - Math.random());
+        setRandomServices(shuffled.slice(0, 3));
+        const related = otherServices.filter((s: any) => s.category === service.category);
+        setRelatedServices(related);
+      } else if (allServices.length > 0) {
+        setError(true);
+      }
     }
-  }, [service]);
+  }, [contextLoading, id, service, allServices]);
 
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress color="error" />
+      </Container>
+    );
+  }
 
-  if (!service) {
+  if (error || !service) {
     return <Navigate to="/404" replace />;
   }
 
-  const formatPrice = (value: number) => `Rs. ${value.toLocaleString("en-IN")}`;
+  const formatPrice = (value: number) => `Rs. ${Number(value).toLocaleString("en-IN")}`;
 
   // Dedicated Theme Constants for the Red & White Palette
   const RED_PRIMARY = "#D32F2F"; // Rich Red
   const RED_LIGHT = "#FFEBEE"; // Soft Red background accent
   const WHITE = "#FFFFFF";
-
-  const relatedServices = services.filter(
-    (s) => s.category === service?.category && s.id !== service?.id
-  );
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>

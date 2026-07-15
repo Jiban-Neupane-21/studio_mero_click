@@ -32,9 +32,9 @@ export default function FaqSection() {
 
   const categories = [
     { id: "all", label: "All Queries", icon: HelpCircle },
-    { id: "booking", label: "Booking & Studio", icon: GraduationCap },
-    { id: "preparation", label: "Wardrobe & Posing", icon: Info },
-    { id: "resizer", label: "Online Resizer Tool", icon: Crop },
+    { id: "general", label: "General", icon: Info },
+    { id: "booking", label: "Booking & Scheduling", icon: GraduationCap },
+    { id: "studio", label: "Studio & Equipment", icon: Crop },
   ];
 
   const handleAccordionChange =
@@ -50,6 +50,10 @@ export default function FaqSection() {
   return (
     <Box
       sx={{
+        minHeight: "calc(100vh - 72px)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
         py: { xs: 8, md: 12 },
         backgroundColor: "background.default",
         color: "text.primary",

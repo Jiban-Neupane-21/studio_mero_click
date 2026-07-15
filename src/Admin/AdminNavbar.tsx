@@ -19,6 +19,7 @@ import {
   Briefcase,
   Package,
   Image as ImageIcon,
+  ImagePlus,
   Video,
   PlaySquare,
   BookOpen,
@@ -32,6 +33,7 @@ import {
   LogOut,
   Settings
 } from 'lucide-react';
+import { supabase } from '../utils/supabase';
 
 const DRAWER_WIDTH = 260;
 
@@ -43,6 +45,7 @@ const adminLinks = [
   { name: 'Video Items', path: '/admin/videos', icon: Video },
   { name: 'Tutorial Videos', path: '/admin/tutorials', icon: PlaySquare },
   { name: 'Learning Articles', path: '/admin/learning', icon: BookOpen },
+  { name: 'Image Restoration', path: '/admin/restorations', icon: ImagePlus },
   { name: 'Offer Ads', path: '/admin/offer-ads', icon: Megaphone },
 ];
 
@@ -51,9 +54,13 @@ export default function AdminNavbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    // Perform any sign out logic here (e.g., clearing tokens)
-    navigate('/login');
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const handleDrawerToggle = () => {

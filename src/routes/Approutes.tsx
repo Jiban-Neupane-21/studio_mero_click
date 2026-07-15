@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Layout from "../components/layout/Layout";
 import MainLayout from "../components/layout/MainLayout";
+import PageNotFound from "../components/common/PageNotFound";
 
 import HomePage from "../pages/HomePage";
 import ContactPage from "../pages/ContactPage";
@@ -11,8 +12,10 @@ import ServiceDetails from "../components/ServiceDetails";
 import ProductDetails from "../components/ProductDetails";
 import PortfolioPage from "../pages/PortfolioPage";
 import PortfolioDetail from "../components/PortfolioDetails";
+import RestorationDetails from "../components/RestorationDetails";
 import VideoSection from "../pages/VideoPage";
 import LearnFromUs from "../pages/LearnPage";
+import ReadArticlePage from "../pages/ReadArticlePage";
 import ClaimOffer from "../components/ClaimOffer";
 import OfferDetailsPage from "../pages/OfferDetailsPage";
 
@@ -25,7 +28,9 @@ import AdminVideos from "../Admin/pages/AdminVideos";
 import AdminTutorials from "../Admin/pages/AdminTutorials";
 import AdminLearning from "../Admin/pages/AdminLearning";
 import AdminOfferAds from "../Admin/pages/AdminOfferAds";
+import AdminRestoration from "../Admin/pages/AdminRestoration";
 import Login from "../Admin/Login";
+import ProtectedRoute from "../Admin/ProtectedRoute";
 
 
 const router = createBrowserRouter([
@@ -60,12 +65,20 @@ const router = createBrowserRouter([
             element: <PortfolioDetail />,
           },
           {
+            path: "restorations/:id",
+            element: <RestorationDetails />,
+          },
+          {
             path: "videos",
             element: <VideoSection />,
           },
           {
             path: "learn",
             element: <LearnFromUs />,
+          },
+          {
+            path: "learn/:id",
+            element: <ReadArticlePage />,
           },
           {
             path: "claim-offer",
@@ -97,21 +110,27 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: <ProtectedRoute />,
     children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: "services", element: <AdminServices /> },
-      { path: "products", element: <AdminProducts /> },
-      { path: "portfolio", element: <AdminPortfolio /> },
-      { path: "videos", element: <AdminVideos /> },
-      { path: "tutorials", element: <AdminTutorials /> },
-      { path: "learning", element: <AdminLearning /> },
-      { path: "offer-ads", element: <AdminOfferAds /> },
-    ],
+      {
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "services", element: <AdminServices /> },
+          { path: "products", element: <AdminProducts /> },
+          { path: "portfolio", element: <AdminPortfolio /> },
+          { path: "videos", element: <AdminVideos /> },
+          { path: "tutorials", element: <AdminTutorials /> },
+          { path: "learning", element: <AdminLearning /> },
+          { path: "offer-ads", element: <AdminOfferAds /> },
+          { path: "restorations", element: <AdminRestoration /> },
+        ],
+      }
+    ]
   },
   {
     path: "*",
-    element: <div>Page Not Found</div>,
+    element: <PageNotFound/>
   },
 ]);
 

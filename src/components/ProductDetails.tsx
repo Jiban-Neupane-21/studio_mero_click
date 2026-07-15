@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Navigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
@@ -22,33 +22,66 @@ import {
   CardMedia,
   CardContent,
   CardActions,
+  CircularProgress
 } from "@mui/material";
-// Assuming 'Products' is typed as Product[] inside your product.data file
-import { Products } from "../data/product.data";
 import { ArrowLeft, ChevronDown, Tag, CheckCircle, Calendar } from "lucide-react";
+import { useData } from "../context/DataContext";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const product = Products.find((p) => p.id === id);
+  const { products: allProducts, loading: contextLoading } = useData();
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const [activeImage, setActiveImage] = useState<string>("");
-  const [randomProducts, setRandomProducts] = useState<typeof Products>([]);
+  const [randomProducts, setRandomProducts] = useState<any[]>([]);
+
+  const product = useMemo(() => {
+    if (!id || allProducts.length === 0) return null;
+    const data = allProducts.find((p: any) => p.id === id);
+    if (!data) return null;
+    return {
+      ...data,
+      oldPrice: data.old_price,
+      newPrice: data.new_price,
+      discountRate: data.discount_rate,
+      isFeatured: data.is_featured,
+      isAvailable: data.is_available,
+      images: data.product_images?.map((img: any) => ({ url: img.image_url || img.url, alt: img.alt_text || img.alt })) || [],
+      additionalInfo: data.product_specifications?.map((s: any) => ({ key: s.spec_key || s.key_name, value: s.spec_value || s.value_text })) || [],
+      features: data.product_features || [],
+      faq: data.product_faqs || [],
+    };
+  }, [id, allProducts]);
 
   useEffect(() => {
-    if (product) {
-      setActiveImage(product.thumbnail || "");
-      
-      const otherProducts = Products.filter((p) => p.id !== product.id);
-      const shuffled = otherProducts.sort(() => 0.5 - Math.random());
-      setRandomProducts(shuffled.slice(0, 3));
+    if (!contextLoading && id) {
+      setLoading(false);
+      if (product) {
+        setActiveImage(product.thumbnail || "");
+        const otherProducts = allProducts.filter((p: any) => p.id !== id);
+        const shuffled = [...otherProducts].sort(() => 0.5 - Math.random());
+        setRandomProducts(shuffled.slice(0, 3));
+      } else if (allProducts.length > 0) {
+        setError(true);
+      }
     }
-  }, [product]);
+  }, [contextLoading, id, product, allProducts]);
 
-  if (!product) {
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress color="error" />
+      </Container>
+    );
+  }
+
+  if (error || !product) {
     return <Navigate to="/404" replace />;
   }
 
-  const formatPrice = (value: number) => `Rs. ${value.toLocaleString("en-IN")}`;
+  const formatPrice = (value: number) => `Rs. ${Number(value).toLocaleString("en-IN")}`;
 
   // Dedicated Theme Constants for the Red & White Palette
   const RED_PRIMARY = "#D32F2F"; // Rich Red
@@ -106,8 +139,8 @@ const ProductDetails: React.FC = () => {
                 alt={product.title}
                 sx={{
                   width: "100%",
-                  height: { xs: 300, sm: 400, md: 450 },
-                  objectFit: "cover",
+                  height: "auto",
+                  display: "block",
                   borderRadius: 1.5,
                   backgroundColor: "grey.50",
                   border: "1px solid",
