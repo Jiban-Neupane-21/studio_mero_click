@@ -41,8 +41,8 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { PortfolioItem } from "../types";
-import { apiService } from "../utils/supabase";
 import LoadingSpinner from "./common/LoadingSpinner";
+import { useData } from "../context/DataContext";
 
 export default function PortfolioDetail() {
   const { id } = useParams<{ id: string }>();
@@ -50,30 +50,19 @@ export default function PortfolioDetail() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
+  const { portfolioItems, loading: contextLoading } = useData();
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [galleryImage, setGalleryImage] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadPortfolioData = async () => {
-      setLoading(true);
-      try {
-        const list = await apiService.getPortfolioItems();
-        const matched = list.find((item) => item.id === id) ?? null;
-        setSelectedItem(matched);
-      } catch (err) {
-        console.error("Error loading portfolio item:", err);
-        setSelectedItem(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      loadPortfolioData();
+    if (!contextLoading && id) {
+      const matched = portfolioItems.find((item) => item.id === id) ?? null;
+      setSelectedItem(matched);
+      setLoading(false);
     }
-  }, [id]);
+  }, [id, portfolioItems, contextLoading]);
 
   const handleShareClick = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -168,8 +157,8 @@ export default function PortfolioDetail() {
       sx={{
         py: { xs: 6, md: 10 },
         minHeight: "90vh",
-        backgroundColor: "#ffffff",
-        color: "#000000",
+        backgroundColor: "background.default",
+        color: "text.primary",
       }}
     >
       <Container maxWidth="lg" id="portfolio-detail-page">
@@ -227,9 +216,9 @@ export default function PortfolioDetail() {
                 position: "relative",
                 borderRadius: "12px",
                 overflow: "hidden",
-                backgroundColor: "#ffffff",
+                backgroundColor: "background.paper",
                 border: "1px solid",
-                borderColor: "rgba(0,0,0,0.08)",
+                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
                 display: "flex",
                 justifyContent: "center",
                 boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
@@ -239,9 +228,11 @@ export default function PortfolioDetail() {
                 src={selectedItem.imageUrl}
                 alt={selectedItem.title}
                 style={{
+                  display: "block",
                   width: "100%",
+                  height: "auto",
                   maxHeight: "75vh",
-                  objectFit: "contain",
+                  objectFit: "cover",
                 }}
                 referrerPolicy="no-referrer"
                 onError={(e) => {
@@ -494,9 +485,10 @@ export default function PortfolioDetail() {
         maxWidth={false}
         sx={{
           "& .MuiPaper-root": {
-            backgroundColor: "#ffffff",
+            backgroundColor: "background.paper",
             borderRadius: "8px",
-            border: "1px solid rgba(0,0,0,0.08)",
+            border: "1px solid",
+            borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
             margin: "24px",
             maxWidth: "calc(100% - 48px)",
             maxHeight: "calc(100% - 48px)",

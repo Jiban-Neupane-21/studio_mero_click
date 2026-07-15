@@ -2,5 +2,5 @@ export interface FAQItem {
   id: string;
   question: string;
   answer: string;
-  category: "booking" | "preparation" | "resizer" | "pricing";
+  category: "general" | "booking" | "studio" | "pricing";
 }

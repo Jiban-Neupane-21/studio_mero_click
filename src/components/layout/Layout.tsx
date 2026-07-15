@@ -2,11 +2,15 @@
 
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
+import { useContext } from "react";
+import { ColorModeContext } from "../../App";
 
 import Navbar from "./Navbar";
 import Footer from "../common/Footer";
 
 const Layout = () => {
+  const { mode } = useContext(ColorModeContext);
+  
   return (
     <Box
       sx={{
@@ -29,7 +33,7 @@ const Layout = () => {
       </Box>
 
       {/* Uncomment when Footer is ready */}
-      <Footer mode="light" handleScrollToSection={() => {}} />
+      <Footer mode={mode} handleScrollToSection={() => {}} />
     </Box>
   );
 };

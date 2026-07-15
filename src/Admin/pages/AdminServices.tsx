@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -11,12 +11,24 @@ import {
   FormControlLabel,
   Switch,
   Card,
-  CardContent
+  CardContent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  CircularProgress
 } from '@mui/material';
-import { Save, UploadCloud, X, Plus, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Save, UploadCloud, X, Plus, Trash2, Image as ImageIcon, Edit } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { Service, ServiceImage, ServiceSpecification, ServiceFeature, ServiceFAQ } from '../../types/service.type';
+import { servicesApi } from '../../api/services';
+import { uploadImage } from '../../utils/uploadImage';
 
 export default function AdminServices() {
   const [formData, setFormData] = useState<Partial<Service>>({
@@ -40,6 +52,78 @@ export default function AdminServices() {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [galleryPreviews, setGalleryPreviews] = useState<{ id: string; url: string }[]>([]);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<{ id: string; file: File }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const [items, setItems] = useState<any[]>([]);
+  const [loadingItems, setLoadingItems] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const fetchItems = async () => {
+    try {
+      setLoadingItems(true);
+      const data = await servicesApi.getServices();
+      setItems(data);
+    } catch (error) {
+      console.error("Failed to fetch services:", error);
+    } finally {
+      setLoadingItems(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this service?")) return;
+    try {
+      await servicesApi.deleteService(id);
+      fetchItems();
+    } catch (error: any) {
+      alert("Delete failed: " + error.message);
+    }
+  };
+
+  const handleEdit = (item: any) => {
+    setEditingId(item.id);
+    
+    setFormData({
+      title: item.title,
+      category: item.category,
+      about: item.about,
+      description: item.description,
+      oldPrice: item.old_price,
+      newPrice: item.new_price,
+      discountRate: item.discount_rate,
+      thumbnail: item.thumbnail,
+      image: item.image,
+      isFeatured: item.is_featured,
+      isAvailable: item.is_available,
+      images: item.service_images?.map((i: any) => ({ id: i.id, url: i.image_url, alt: i.alt_text })) || [],
+      additionalInfo: item.service_specifications?.map((s: any) => ({ id: s.id, key: s.spec_key, value: s.spec_value })) || [],
+      features: item.service_features?.map((f: any) => ({ id: f.id, title: f.title, description: f.description })) || [],
+      faq: item.service_faqs?.map((f: any) => ({ id: f.id, question: f.question, answer: f.answer })) || [],
+    });
+
+    setThumbnailPreview(item.thumbnail || null);
+    setMainImagePreview(item.image || null);
+    
+    if (item.service_images) {
+      setGalleryPreviews(item.service_images.map((i: any) => ({ id: i.id, url: i.image_url })));
+    } else {
+      setGalleryPreviews([]);
+    }
+    
+    setThumbnailFile(null);
+    setMainImageFile(null);
+    setGalleryFiles([]);
+    
+    setIsDialogOpen(true);
+  };
 
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const mainImageInputRef = useRef<HTMLInputElement>(null);
@@ -71,9 +155,11 @@ export default function AdminServices() {
       const url = URL.createObjectURL(file);
       if (type === 'thumbnail') {
         setThumbnailPreview(url);
+        setThumbnailFile(file);
         setFormData(prev => ({ ...prev, thumbnail: file.name }));
       } else {
         setMainImagePreview(url);
+        setMainImageFile(file);
         setFormData(prev => ({ ...prev, image: file.name }));
       }
     }
@@ -93,7 +179,13 @@ export default function AdminServices() {
         url: URL.createObjectURL(file)
       }));
 
+      const newFiles = files.map((file, i) => ({
+        id: newImages[i].id,
+        file
+      }));
+
       setGalleryPreviews(prev => [...prev, ...newPreviews]);
+      setGalleryFiles(prev => [...prev, ...newFiles]);
       setFormData(prev => ({
         ...prev,
         images: [...(prev.images || []), ...newImages]
@@ -103,6 +195,7 @@ export default function AdminServices() {
 
   const removeGalleryImage = (idToRemove: string) => {
     setGalleryPreviews(prev => prev.filter(p => p.id !== idToRemove));
+    setGalleryFiles(prev => prev.filter(f => f.id !== idToRemove));
     setFormData(prev => ({
       ...prev,
       images: (prev.images || []).filter(img => img.id !== idToRemove)
@@ -140,10 +233,81 @@ export default function AdminServices() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitted Service:', formData);
-    // TODO: Send to Supabase or backend
+    setLoading(true);
+    try {
+      let thumbnailUrl = formData.thumbnail;
+      if (thumbnailFile) {
+        thumbnailUrl = await uploadImage(thumbnailFile);
+      }
+
+      let mainImageUrl = formData.image;
+      if (mainImageFile) {
+        mainImageUrl = await uploadImage(mainImageFile);
+      }
+
+      let finalImages = formData.images || [];
+      if (galleryFiles.length > 0) {
+        finalImages = await Promise.all(
+          finalImages.map(async (img) => {
+            const fileObj = galleryFiles.find(gf => gf.id === img.id);
+            if (fileObj) {
+              const url = await uploadImage(fileObj.file);
+              return { ...img, url };
+            }
+            return img;
+          })
+        );
+      }
+
+      const servicePayload = {
+        title: formData.title,
+        category: formData.category,
+        about: formData.about,
+        description: formData.description,
+        old_price: formData.oldPrice,
+        new_price: formData.newPrice,
+        discount_rate: formData.discountRate,
+        thumbnail: thumbnailUrl || '',
+        image: mainImageUrl || '',
+        is_featured: formData.isFeatured,
+        is_available: formData.isAvailable,
+        images: finalImages,
+        specifications: formData.additionalInfo,
+        features: formData.features,
+        faqs: formData.faq,
+      };
+
+      if (editingId) {
+        await servicesApi.updateService(editingId, servicePayload as any);
+        alert('Successfully updated service!');
+      } else {
+        await servicesApi.createService(servicePayload as any);
+        alert('Successfully saved service!');
+      }
+      
+      // Reset form
+      setFormData({
+        title: '', category: '', about: '', description: '', oldPrice: 0, newPrice: 0,
+        discountRate: 0, thumbnail: '', image: '', images: [], additionalInfo: [],
+        features: [], faq: [], isFeatured: false, isAvailable: true
+      });
+      setThumbnailPreview(null);
+      setThumbnailFile(null);
+      setMainImagePreview(null);
+      setMainImageFile(null);
+      setGalleryPreviews([]);
+      setGalleryPreviews([]);
+      setGalleryFiles([]);
+      setEditingId(null);
+      setIsDialogOpen(false);
+      fetchItems();
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const modules = {
@@ -165,28 +329,112 @@ export default function AdminServices() {
         <Typography variant="h4" fontWeight="bold" color="text.primary">
           Manage Services
         </Typography>
+        <Button 
+          variant="contained" 
+          color="error" 
+          startIcon={<Plus />} 
+          onClick={() => {
+            setFormData({
+              title: '', category: '', about: '', description: '', oldPrice: 0, newPrice: 0,
+              discountRate: 0, thumbnail: '', image: '', images: [], additionalInfo: [],
+              features: [], faq: [], isFeatured: false, isAvailable: true
+            });
+            setThumbnailPreview(null);
+            setThumbnailFile(null);
+            setMainImagePreview(null);
+            setMainImageFile(null);
+            setGalleryPreviews([]);
+            setGalleryFiles([]);
+            setEditingId(null);
+            setIsDialogOpen(true);
+          }}
+        >
+          Create New Service
+        </Button>
       </Box>
 
-      <Paper 
-        sx={{ 
-          p: { xs: 2, md: 4 }, 
-          borderRadius: 3, 
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-          borderTop: '4px solid',
-          borderColor: 'error.main',
-          bgcolor: 'white'
-        }} 
-        elevation={0}
-      >
-        <Typography variant="h5" fontWeight="bold" mb={1} color="error.main">
-          Create New Service
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mb={4}>
-          Fill out the details below to add a new service package.
-        </Typography>
+      {/* Data Table */}
+      <Paper sx={{ width: '100%', mb: 4, borderRadius: 3, overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+        <TableContainer>
+          <Table sx={{ minWidth: 650 }} aria-label="services table">
+            <TableHead sx={{ bgcolor: 'grey.50' }}>
+              <TableRow>
+                <TableCell>Thumbnail</TableCell>
+                <TableCell>Title</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Price</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loadingItems ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                    <CircularProgress color="error" />
+                  </TableCell>
+                </TableRow>
+              ) : items.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                    No services found. Click "Create New Service" to add one.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                items.map((item) => (
+                  <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                    <TableCell>
+                      {item.thumbnail ? (
+                        <Box
+                          component="img"
+                          src={item.thumbnail}
+                          sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }}
+                        />
+                      ) : (
+                        <Box sx={{ width: 60, height: 60, bgcolor: 'grey.200', borderRadius: 1 }} />
+                      )}
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <Typography variant="body2" fontWeight="600">{item.title}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">{item.category}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" color="error.main" fontWeight="bold">Rs. {item.new_price}</Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton color="primary" onClick={() => handleEdit(item)} sx={{ mr: 1 }}>
+                        <Edit size={18} />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => handleDelete(item.id)}>
+                        <Trash2 size={18} />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={4}>
+      <Dialog 
+        open={isDialogOpen} 
+        onClose={() => !loading && setIsDialogOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider', pb: 2 }}>
+          <Typography variant="h5" fontWeight="bold" color="error.main">
+            {editingId ? 'Edit Service' : 'Create New Service'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {editingId ? 'Update the details for this service package.' : 'Fill out the details below to add a new service package.'}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2, p: { xs: 2, md: 4 } }}>
+          <form onSubmit={handleSubmit} id="service-form">
+            <Grid container spacing={4}>
             
             {/* Left Column: Basic Info & MS Word Editor */}
             <Grid item xs={12} lg={7}>
@@ -482,21 +730,36 @@ export default function AdminServices() {
             {/* Submit Button */}
             <Grid item xs={12}>
               <Divider sx={{ mb: 3 }} />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <Button 
-                  type="submit" 
-                  variant="contained" 
-                  color="error"
-                  startIcon={<Save size={20} />}
-                  sx={{ px: 6, py: 1.5, borderRadius: 2, textTransform: 'none', fontSize: '1.05rem', boxShadow: 2 }}
+                  onClick={() => setIsDialogOpen(false)} 
+                  disabled={loading}
                 >
-                  Save Service
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  form="service-form"
+                  variant="contained"
+                  color="error"
+                  size="large"
+                  disabled={loading}
+                  startIcon={<Save />}
+                  sx={{
+                    px: 4,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  {loading ? 'Saving...' : (editingId ? 'Update Service' : 'Save Service')}
                 </Button>
               </Box>
             </Grid>
           </Grid>
         </form>
-      </Paper>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
