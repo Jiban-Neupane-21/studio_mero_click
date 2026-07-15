@@ -1,5 +1,5 @@
 import { supabase } from '../utils/supabase';
-import type { OfferAd } from '../types/offer.type';
+import type { OfferItem } from '../types/offer.type';
 
 export const offerAdsApi = {
   /**

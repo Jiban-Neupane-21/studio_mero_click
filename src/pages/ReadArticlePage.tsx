@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, {  useEffect, useContext, useMemo } from 'react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import { 
   Box, 
   Container, 
   Typography, 
-  CircularProgress, 
+
   Divider, 
   Grid,
   Card,
@@ -81,7 +81,7 @@ export default function ReadArticlePage() {
   if (!article) {
     return (
       <Container maxWidth="md" sx={{ py: 10, textAlign: 'center' }}>
-        <Typography variant="h4" mb={2}>Article not found</Typography>
+        <Typography variant="h4" sx={{ mb: 2 }}>Article not found</Typography>
         <Button variant="outlined" color="error" startIcon={<ArrowLeft />} onClick={() => navigate('/learn')}>
           Back to Learn Page
         </Button>
@@ -128,7 +128,7 @@ export default function ReadArticlePage() {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 5, pb: 4, borderBottom: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <User size={18} color="#E50914" />
-            <Typography variant="body2" fontWeight="600">{article.author}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>{article.author}</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Calendar size={18} color="#64748b" />
@@ -194,10 +194,10 @@ export default function ReadArticlePage() {
           </Typography>
           </ScrollReveal>
           <StaggerContainer staggerDelay={0.1}>
-          <Grid container spacing={4} justifyContent="center">
+          <Grid container spacing={4} sx={{ justifyContent: "center" }}>
             {recommended.map(rec => (
               <StaggerItem key={rec.id}>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Card 
                   component={RouterLink}
                   to={`/learn/${rec.id}`}
