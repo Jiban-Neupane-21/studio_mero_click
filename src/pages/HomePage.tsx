@@ -4,6 +4,7 @@ import FeatureProduct from "../components/homepage/FeaturedProductGrid";
 import RestorationShowcase from "../components/homepage/RestorationShowcase";
 import SpecialitySection from "../components/Speciality";
 import FaqSection from "../components/FaqSection";
+import PortraitsGrid from "../components/homepage/PortraitsGrid";
 
 export default function HomePage() {
   return (
@@ -12,6 +13,7 @@ export default function HomePage() {
       <ServiceGrid />
       <FeatureProduct />
       <RestorationShowcase />
+      <PortraitsGrid />
       <SpecialitySection />
       <FaqSection />
     </>

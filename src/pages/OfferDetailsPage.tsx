@@ -12,7 +12,8 @@ import {
   CardMedia,
   CardContent,
   CardActions,
-  CircularProgress
+  CircularProgress,
+  useTheme
 } from "@mui/material";
 import { ArrowLeft, Tag, Calendar } from "lucide-react";
 import { offerAdsApi } from "../api/offerAds";
@@ -21,14 +22,20 @@ import { OfferAd } from "../types";
 export default function OfferDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
   const [offer, setOffer] = useState<OfferAd | null>(null);
   const [otherOffers, setOtherOffers] = useState<OfferAd[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Theme Constants (matching ServiceDetails)
   const RED_PRIMARY = "#D32F2F";
-  const RED_LIGHT = "#FFEBEE";
+  const RED_LIGHT = isDark ? "rgba(211, 47, 47, 0.12)" : "#FFEBEE";
   const WHITE = "#FFFFFF";
+  const BG_PAPER = theme.palette.background.paper;
+  const BG_DEFAULT = theme.palette.background.default;
+  const BORDER_COLOR = theme.palette.divider;
 
   useEffect(() => {
     const fetchOffer = async () => {
@@ -83,10 +90,10 @@ export default function OfferDetailsPage() {
         sx={{
           overflow: "hidden",
           mb: 4,
-          backgroundColor: WHITE,
+          backgroundColor: BG_PAPER,
           borderRadius: 2,
           border: "1px solid",
-          borderColor: "grey.200",
+          borderColor: BORDER_COLOR,
         }}
       >
         <Grid container>
@@ -98,7 +105,7 @@ export default function OfferDetailsPage() {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
-                backgroundColor: WHITE,
+                backgroundColor: BG_PAPER,
                 height: "100%",
               }}
             >
@@ -112,9 +119,9 @@ export default function OfferDetailsPage() {
                   minHeight: { md: 450 },
                   objectFit: "cover",
                   borderRadius: 1.5,
-                  backgroundColor: "grey.50",
+                  backgroundColor: BG_DEFAULT,
                   border: "1px solid",
-                  borderColor: "grey.100",
+                  borderColor: BORDER_COLOR,
                 }}
               />
             </Box>
@@ -128,7 +135,7 @@ export default function OfferDetailsPage() {
                 flexGrow: 1,
                 display: "flex",
                 flexDirection: "column",
-                backgroundColor: WHITE,
+                backgroundColor: BG_PAPER,
               }}
             >
               {/* Category & Badge Tags */}
@@ -159,7 +166,7 @@ export default function OfferDetailsPage() {
                     variant="outlined"
                     color="default"
                     size="small"
-                    sx={{ fontWeight: "600", color: "grey.600" }}
+                    sx={{ fontWeight: "600", color: "text.secondary" }}
                   />
                 )}
               </Box>
@@ -173,7 +180,7 @@ export default function OfferDetailsPage() {
                   fontFamily: "'Fraunces', serif",
                   fontWeight: 700,
                   fontSize: { xs: "2rem", md: "2.5rem" },
-                  color: "grey.900",
+                  color: "text.primary",
                 }}
               >
                 {offer.title}
@@ -283,7 +290,7 @@ export default function OfferDetailsPage() {
           <Typography
             variant="h4"
             gutterBottom
-            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "grey.900" }}
+            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "text.primary" }}
           >
             Explore Other Offers
           </Typography>
