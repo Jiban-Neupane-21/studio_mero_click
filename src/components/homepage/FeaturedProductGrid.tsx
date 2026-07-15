@@ -29,9 +29,12 @@ export default function FeaturedProducts() {
     <Box
       component="section"
       sx={{
+        minHeight: "calc(100vh - 72px)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
         py: { xs: 6, md: 8 },
         px: { xs: 2, md: 6 },
-        mb: { xs: 6, md: 8 },
       }}
     >
       <Typography

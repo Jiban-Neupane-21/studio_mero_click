@@ -10,6 +10,10 @@ export const SpecialitySection: React.FC = () => {
     <Box
       component="section"
       sx={{
+        minHeight: "calc(100vh - 72px)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
         bgcolor: (theme) =>
           theme.palette.mode === "dark" ? "#0A0A0A" : "#FFFFFF",
         color: (theme) =>

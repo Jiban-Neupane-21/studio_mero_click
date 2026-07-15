@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Layout from "../components/layout/Layout";
 import MainLayout from "../components/layout/MainLayout";
+import PageNotFound from "../components/common/PageNotFound";
 
 import HomePage from "../pages/HomePage";
 import ContactPage from "../pages/ContactPage";
@@ -129,7 +130,7 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <div>Page Not Found</div>,
+    element: <PageNotFound/>
   },
 ]);
 

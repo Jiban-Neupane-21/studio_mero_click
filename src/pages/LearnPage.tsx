@@ -116,7 +116,7 @@ export default function LearnFromUs() {
         return videos.filter(video => {
             const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 video.description.toLowerCase().includes(searchQuery.toLowerCase());
-            
+
             let matchesCategory = true;
             if (selectedCategory === 'YouTube') {
                 matchesCategory = !!video.youtubeId;
@@ -173,107 +173,93 @@ export default function LearnFromUs() {
             <Container maxWidth="xl">
                 {/* ================= HEADER SECTION ================= */}
                 <ScrollReveal animation="fadeUp">
-                <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
-                    <Typography
-                        variant="h2"
-                        sx={{
-                            fontFamily: '"Space Grotesk", sans-serif',
-                            fontWeight: 700,
-                            fontSize: { xs: '2.5rem', md: '3.5rem' },
-                            mb: 2.5,
-                            letterSpacing: '-0.02em',
-                            lineHeight: 1.15
-                        }}
-                    >
-                        Learn From Us: <Box component="span" sx={{ color: '#E50914' }}>Guides & Masterclasses</Box>
-                    </Typography>
-
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            color: isDark ? '#cbd5e1' : '#475569',
-                            maxWidth: '820px',
-                            mx: 'auto',
-                            fontWeight: 300,
-                            fontSize: { xs: '1.025rem', md: '1.15rem' },
-                            lineHeight: 1.7
-                        }}
-                    >
-                        Enhance your photographic knowledge, prepare perfectly for embassy biometric validations, learn standard positioning guidelines, and understand the core crafts behind high-end wooden fabrication.
-                    </Typography>
-                </Box>
+                    <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
+                        <Typography
+                            variant="h2"
+                            sx={{
+                                fontFamily: '"Space Grotesk", sans-serif',
+                                fontWeight: 700,
+                                fontSize: { xs: '2.5rem', md: '3.5rem' },
+                                mb: 2.5,
+                                letterSpacing: '-0.02em',
+                                lineHeight: 1.15
+                            }}
+                        >
+                            Learn From Us: <Box component="span" sx={{ color: '#E50914' }}>Video and Article Guide</Box>
+                        </Typography>
+                    </Box>
                 </ScrollReveal>
 
                 {/* ================= SEARCH & NAVIGATION TOOLBAR ================= */}
                 <ScrollReveal animation="fadeUp" delay={0.1}>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: { xs: 'column', md: 'row' },
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        gap: 3,
-                        mb: 5,
-                        p: 3,
-                        backgroundColor: isDark ? 'rgba(10, 10, 12, 0.6)' : '#ffffff',
-                        border: '1px solid',
-                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-                        borderRadius: '12px',
-                        boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 20px rgba(0,0,0,0.01)'
-                    }}
-                >
-                    {/* Section Selector Tabs */}
-                    <Tabs
-                        value={currentTab}
-                        onChange={handleTabChange}
+                    <Box
                         sx={{
-                            '& .MuiTabs-indicator': { backgroundColor: '#E50914', height: '3px' },
-                            '& .MuiTab-root': {
-                                fontFamily: '"Space Grotesk", sans-serif',
-                                fontWeight: 600,
-                                fontSize: '1rem',
-                                textTransform: 'none',
-                                color: 'text.secondary',
-                                '&.Mui-selected': { color: '#E50914' }
-                            }
+                            display: 'flex',
+                            flexDirection: { xs: 'column', md: 'row' },
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: 3,
+                            mb: 5,
+                            p: 3,
+                            backgroundColor: isDark ? 'rgba(10, 10, 12, 0.6)' : '#ffffff',
+                            border: '1px solid',
+                            borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                            borderRadius: '12px',
+                            boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 20px rgba(0,0,0,0.01)'
                         }}
                     >
-                        <Tab icon={<Video size={18} />} label="Tutorial Videos" iconPosition="start" />
-                        <Tab icon={<BookOpen size={18} />} label="Articles & Handbooks" iconPosition="start" />
-                    </Tabs>
-
-                    {/* Real-time Search Input */}
-                    <TextField
-                        placeholder={currentTab === 0 ? "Search tutorial video..." : "Search educational article..."}
-                        variant="outlined"
-                        size="small"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        slotProps={{
-                            input: {
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <Search size={16} color="#94a3b8" />
-                                    </InputAdornment>
-                                ),
-                                style: {
-                                    color: isDark ? '#ffffff' : '#0f172a',
-                                    fontFamily: '"Inter", sans-serif',
-                                    fontSize: '0.9rem'
+                        {/* Section Selector Tabs */}
+                        <Tabs
+                            value={currentTab}
+                            onChange={handleTabChange}
+                            sx={{
+                                '& .MuiTabs-indicator': { backgroundColor: '#E50914', height: '3px' },
+                                '& .MuiTab-root': {
+                                    fontFamily: '"Space Grotesk", sans-serif',
+                                    fontWeight: 600,
+                                    fontSize: '1rem',
+                                    textTransform: 'none',
+                                    color: 'text.secondary',
+                                    '&.Mui-selected': { color: '#E50914' }
                                 }
-                            }
-                        }}
-                        sx={{
-                            width: { xs: '100%', md: '320px' },
-                            '& .MuiOutlinedInput-root': {
-                                backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
-                                '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
-                                '&:hover fieldset': { borderColor: '#E50914' },
-                                '&.Mui-focused fieldset': { borderColor: '#E50914' }
-                            }
-                        }}
-                    />
-                </Box>
+                            }}
+                        >
+                            <Tab icon={<Video size={18} />} label="Tutorial Videos" iconPosition="start" />
+                            <Tab icon={<BookOpen size={18} />} label="Articles & Handbooks" iconPosition="start" />
+                        </Tabs>
+
+                        {/* Real-time Search Input */}
+                        <TextField
+                            placeholder={currentTab === 0 ? "Search tutorial video..." : "Search educational article..."}
+                            variant="outlined"
+                            size="small"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <Search size={16} color="#94a3b8" />
+                                        </InputAdornment>
+                                    ),
+                                    style: {
+                                        color: isDark ? '#ffffff' : '#0f172a',
+                                        fontFamily: '"Inter", sans-serif',
+                                        fontSize: '0.9rem'
+                                    }
+                                }
+                            }}
+                            sx={{
+                                width: { xs: '100%', md: '320px' },
+                                '& .MuiOutlinedInput-root': {
+                                    backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+                                    '& fieldset': { borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' },
+                                    '&:hover fieldset': { borderColor: '#E50914' },
+                                    '&.Mui-focused fieldset': { borderColor: '#E50914' }
+                                }
+                            }}
+                        />
+                    </Box>
                 </ScrollReveal>
 
                 {/* ================= CATEGORY BARS ================= */}
@@ -743,47 +729,47 @@ export default function LearnFromUs() {
 
                 {/* ================= BOTTOM CTA CALL TO ACTION ================= */}
                 <ScrollReveal animation="scaleUp">
-                <Box
-                    sx={{
-                        mt: 10,
-                        p: { xs: 4, md: 6 },
-                        borderRadius: '12px',
-                        border: '2px solid rgba(229, 9, 20, 0.2)',
-                        background: isDark
-                            ? 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.12) 0%, rgba(5,5,5,1) 80%)'
-                            : 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.05) 0%, rgba(255,255,255,1) 80%)',
-                        textAlign: 'center'
-                    }}
-                >
-                    <Typography variant="overline" sx={{ color: '#E50914', fontWeight: 650, letterSpacing: '0.15em', display: 'block', mb: 1 }}>
-                        Studio Mero Click Booking
-                    </Typography>
-                    <Typography variant="h4" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, mb: 2 }}>
-                        Ready to Book a Slot?
-                    </Typography>
-                    <Typography variant="body1" sx={{ color: isDark ? '#cbd5e1' : '#475569', fontWeight: 300, maxWidth: '750px', mx: 'auto', mb: 4 }}>
-                        Book your  Wedding ,fashion, commercials, cakesmash, maternity, family portraits, ecommerce shoot and many more with Studio Mero Click.
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        href="/book"
+                    <Box
                         sx={{
-                            background: 'linear-gradient(135deg, #E50914 0%, #B71C1C 100%)',
-                            fontFamily: '"Space Grotesk", sans-serif',
-                            fontWeight: 600,
-                            textTransform: 'none',
-                            px: 5,
-                            py: 1.5,
-                            borderRadius: '4px',
-                            '&:hover': {
-                                background: 'linear-gradient(135deg, #ff4c4c 0%, #a60000 100%)',
-                                transform: 'translateY(-1px)'
-                            }
+                            mt: 10,
+                            p: { xs: 4, md: 6 },
+                            borderRadius: '12px',
+                            border: '2px solid rgba(229, 9, 20, 0.2)',
+                            background: isDark
+                                ? 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.12) 0%, rgba(5,5,5,1) 80%)'
+                                : 'radial-gradient(ellipse at bottom, rgba(229,9,20,0.05) 0%, rgba(255,255,255,1) 80%)',
+                            textAlign: 'center'
                         }}
                     >
-                        Schedule On-Site Studio Session
-                    </Button>
-                </Box>
+                        <Typography variant="overline" sx={{ color: '#E50914', fontWeight: 650, letterSpacing: '0.15em', display: 'block', mb: 1 }}>
+                            Studio Mero Click Booking
+                        </Typography>
+                        <Typography variant="h4" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, mb: 2 }}>
+                            Ready to Book a Slot?
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: isDark ? '#cbd5e1' : '#475569', fontWeight: 300, maxWidth: '750px', mx: 'auto', mb: 4 }}>
+                            Book your  Wedding ,fashion, commercials, cakesmash, maternity, family portraits, ecommerce shoot and many more with Studio Mero Click.
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            href="/book"
+                            sx={{
+                                background: 'linear-gradient(135deg, #E50914 0%, #B71C1C 100%)',
+                                fontFamily: '"Space Grotesk", sans-serif',
+                                fontWeight: 600,
+                                textTransform: 'none',
+                                px: 5,
+                                py: 1.5,
+                                borderRadius: '4px',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #ff4c4c 0%, #a60000 100%)',
+                                    transform: 'translateY(-1px)'
+                                }
+                            }}
+                        >
+                            Schedule On-Site Studio Session
+                        </Button>
+                    </Box>
                 </ScrollReveal>
             </Container>
 

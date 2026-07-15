@@ -28,7 +28,7 @@ export default function RestorationShowcase() {
   }
 
   return (
-    <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'background.default', transition: 'background-color 0.3s ease' }}>
+    <Box sx={{ minHeight: "calc(100vh - 72px)", display: "flex", flexDirection: "column", justifyContent: "center", py: { xs: 8, md: 12 }, bgcolor: 'background.default', transition: 'background-color 0.3s ease' }}>
       <Container maxWidth="xl">
         <Box sx={{
           textAlign: "left",

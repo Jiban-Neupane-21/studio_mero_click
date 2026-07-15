@@ -1,490 +1,516 @@
-import React from "react";
 import {
   Box,
   Container,
   Typography,
-  Grid,
   Button,
   useTheme,
-  Card,
-  CardContent,
-  CardHeader,
+  Stack,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import {
   Camera,
   MessageSquare,
   CheckCircle,
-  Aperture
+  Aperture,
 } from "lucide-react";
 import { aboutData } from "../data/about.data";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 
+const iconMap: Record<string, React.ReactNode> = {
+  MessageSquare: <MessageSquare size={24} />,
+  Aperture: <Aperture size={24} />,
+  Camera: <Camera size={24} />,
+  CheckCircle: <CheckCircle size={24} />,
+};
+
 export default function AboutPage() {
   const theme = useTheme();
-
   const isDark = theme.palette.mode === "dark";
-  const RED_PRIMARY = "#D32F2F";
-  const BG_DEFAULT = theme.palette.background.default;
-  const BG_PAPER = theme.palette.background.paper;
-  const GREY_LIGHT = isDark ? "rgba(255, 255, 255, 0.02)" : "#F4F5F7";
+  const RED = "#E50914";
   const TEXT_PRIMARY = theme.palette.text.primary;
   const TEXT_SECONDARY = theme.palette.text.secondary;
-  const BUTTON_BG = isDark ? "#ffffff" : "#2B2B36";
-  const BUTTON_TEXT = isDark ? "#000000" : "#FFFFFF";
-  const HEADER_BG = isDark ? "rgba(255, 255, 255, 0.05)" : "#2B2B36";
-
-  const iconMap: Record<string, React.ReactNode> = {
-    MessageSquare: <MessageSquare size={30} color="#ffffff" />,
-    Aperture: <Aperture size={30} color="#ffffff" />,
-    Camera: <Camera size={30} color="#ffffff" />,
-    CheckCircle: <CheckCircle size={30} color="#ffffff" />,
-  };
+  const BG_DEFAULT = theme.palette.background.default;
 
   return (
     <Box sx={{ width: "100%", backgroundColor: BG_DEFAULT, overflowX: "hidden" }}>
 
-      {/* 1. Header Section */}
+      {/* ─── Hero Header ─── */}
       <ScrollReveal animation="fadeUp">
-        <Container maxWidth="md" sx={{ textAlign: "center", pt: { xs: 8, md: 12 }, pb: { xs: 6, md: 8 } }}>
-        <Typography
-          variant="h2"
-          sx={{
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 300,
-            color: TEXT_PRIMARY,
-            mb: 3,
-            fontSize: { xs: "2.5rem", md: "3.5rem" }
-          }}
-        >
-          {aboutData.header.title}
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: TEXT_SECONDARY,
-            maxWidth: "600px",
-            mx: "auto",
-            mb: 4,
-            fontSize: "1.1rem",
-            lineHeight: 1.6,
-            whiteSpace: "pre-line"
-          }}
-        >
-          {aboutData.header.subtitle}
-        </Typography>
-        <Button
-          component={RouterLink}
-          to={aboutData.header.buttonLink}
-          variant="contained"
-          sx={{
-            backgroundColor: BUTTON_BG,
-            color: BUTTON_TEXT,
-            borderRadius: 0,
-            px: 4,
-            py: 1.5,
-            fontWeight: 600,
-            letterSpacing: 1,
-            boxShadow: "none",
-            "&:hover": { backgroundColor: RED_PRIMARY, boxShadow: "none" }
-          }}
-        >
-          {aboutData.header.buttonText}
-        </Button>
+        <Container maxWidth="md" sx={{ textAlign: "center", pt: { xs: 8, md: 12 }, pb: { xs: 5, md: 7 } }}>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              px: 2,
+              py: 0.5,
+              borderRadius: "100px",
+              backgroundColor: "rgba(229, 9, 20, 0.08)",
+              border: "1px solid rgba(229, 9, 20, 0.25)",
+              mb: 3,
+            }}
+          >
+            <Camera size={14} color={RED} />
+            <Typography
+              variant="caption"
+              sx={{
+                fontFamily: '"Space Grotesk", sans-serif',
+                color: RED,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.1rem",
+              }}
+            >
+              About Studio
+            </Typography>
+          </Box>
+          <Typography
+            variant="h2"
+            sx={{
+              fontFamily: '"Fraunces", serif',
+              fontWeight: 700,
+              color: TEXT_PRIMARY,
+              mb: 2,
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3.2rem" },
+              lineHeight: 1.15,
+            }}
+          >
+            {aboutData.header.title}
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: TEXT_SECONDARY,
+              maxWidth: "560px",
+              mx: "auto",
+              mb: 4,
+              fontSize: { xs: "0.95rem", md: "1.05rem" },
+              lineHeight: 1.7,
+              whiteSpace: "pre-line",
+            }}
+          >
+            {aboutData.header.subtitle}
+          </Typography>
+          <Button
+            component={RouterLink}
+            to={aboutData.header.buttonLink}
+            variant="contained"
+            sx={{
+              backgroundColor: RED,
+              color: "#fff",
+              borderRadius: "8px",
+              px: 4,
+              py: 1.25,
+              fontWeight: 600,
+              fontFamily: '"Space Grotesk", sans-serif',
+              textTransform: "none",
+              letterSpacing: 0.5,
+              "&:hover": { backgroundColor: "#c40812", boxShadow: "0 8px 24px rgba(229,9,20,0.3)" },
+            }}
+          >
+            {aboutData.header.buttonText}
+          </Button>
         </Container>
       </ScrollReveal>
 
-      {/* Stats Section */}
-      <ScrollReveal animation="fadeUp">
-        <Box
-          sx={{
-            width: "100%",
-            py: { xs: 6, md: 10 },
-            backgroundColor: GREY_LIGHT,
-          }}
-        >
-        <Grid
-          container
-          justifyContent="space-evenly"
-          alignItems="center"
-          rowSpacing={5}
-          sx={{
-            maxWidth: "1600px",
-            mx: "auto",
-            px: { xs: 3, sm: 5, md: 8 },
-          }}
-        >
-          {aboutData.stats.map((stat, index) => (
-            <Grid
-              item
-              xs={6}
-              sm={6}
-              md={3}
-              key={index}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
+      {/* ─── Stats ─── */}
+      <ScrollReveal animation="fadeUp" delay={0.05}>
+        <Box sx={{ width: "100%", py: { xs: 5, md: 8 }, backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "#F4F5F7" }}>
+          <Container maxWidth="lg">
+            <StaggerContainer staggerDelay={0.1}>
               <Box
                 sx={{
-                  textAlign: "center",
-                  minWidth: 180,
+                  display: "grid",
+                  gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+                  gap: { xs: 3, md: 4 },
                 }}
               >
-                <Typography
-                  sx={{
-                    fontSize: {
-                      xs: "3rem",
-                      sm: "4rem",
-                      md: "4.8rem",
-                    },
-                    fontWeight: 200,
-                    lineHeight: 1,
-                    color: "#999595ff",
-                  }}
-                >
-                  {stat.number}
-                </Typography>
-
-                <Typography
-                  sx={{
-                    mt: 1.5,
-                    fontWeight: 700,
-                    fontSize: {
-                      xs: "0.9rem",
-                      md: "1rem",
-                    },
-                    letterSpacing: 2,
-                    color: TEXT_PRIMARY,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {stat.label}
-                </Typography>
+                {aboutData.stats.map((stat, index) => (
+                  <StaggerItem key={index}>
+                    <Box sx={{ textAlign: "center" }}>
+                      <Typography
+                        sx={{
+                          fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4.2rem" },
+                          fontWeight: 200,
+                          lineHeight: 1,
+                          color: TEXT_PRIMARY,
+                          opacity: 0.25,
+                        }}
+                      >
+                        {stat.number}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          mt: 1,
+                          fontWeight: 600,
+                          fontSize: { xs: "0.7rem", md: "0.8rem" },
+                          letterSpacing: "0.15em",
+                          color: TEXT_SECONDARY,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {stat.label}
+                      </Typography>
+                    </Box>
+                  </StaggerItem>
+                ))}
               </Box>
-            </Grid>
-          ))}
-        </Grid>
+            </StaggerContainer>
+          </Container>
         </Box>
       </ScrollReveal>
 
-      {/* 3. Hero Image */}
+      {/* ─── Hero Image ─── */}
       <ScrollReveal animation="scaleUp">
-        <Box sx={{ width: "100%", height: { xs: "400px", md: "650px" }, mb: { xs: 8, md: 12 } }}>
         <Box
-          component="img"
-          src={aboutData.heroImage}
-          alt="Studio Team working"
           sx={{
             width: "100%",
-            height: "100%",
-            objectFit: "cover"
+            height: { xs: "300px", sm: "450px", md: "600px" },
+            my: { xs: 6, md: 10 },
+            overflow: "hidden",
           }}
-        />
-      </Box>
+        >
+          <Box
+            component="img"
+            src={aboutData.heroImage}
+            alt="Studio Team working"
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.6s ease",
+              "&:hover": { transform: "scale(1.03)" },
+            }}
+          />
+        </Box>
       </ScrollReveal>
 
-      {/* 4. Statement Section */}
+      {/* ─── Statement ─── */}
       <ScrollReveal animation="fadeUp">
-        <Container maxWidth="md" sx={{ textAlign: "center", pb: { xs: 10, md: 14 } }}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 300,
-            color: TEXT_PRIMARY,
-            mb: 4,
-            fontSize: { xs: "1.8rem", md: "2.5rem" },
-            lineHeight: 1.4
-          }}
-        >
-          {aboutData.statement.title}
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: TEXT_SECONDARY,
-            maxWidth: "700px",
-            mx: "auto",
-            mb: 5,
-            fontSize: "1rem",
-            lineHeight: 1.7
-          }}
-        >
-          {aboutData.statement.description}
-        </Typography>
-        <Button
-          component={RouterLink}
-          to={aboutData.statement.buttonLink}
-          variant="contained"
-          sx={{
-            backgroundColor: BUTTON_BG,
-            color: BUTTON_TEXT,
-            borderRadius: 0,
-            px: 4,
-            py: 1.5,
-            fontWeight: 600,
-            letterSpacing: 1,
-            boxShadow: "none",
-            "&:hover": { backgroundColor: RED_PRIMARY, boxShadow: "none" }
-          }}
-        >
-          {aboutData.statement.buttonText}
-        </Button>
-        </Container>
-      </ScrollReveal>
-
-      {/* 5. Differences Section (Grey Background) */}
-      <ScrollReveal animation="fadeUp">
-        <Box sx={{ backgroundColor: GREY_LIGHT, py: { xs: 10, md: 14 } }}>
-        <Container maxWidth="lg">
+        <Container maxWidth="md" sx={{ textAlign: "center", pb: { xs: 8, md: 12 } }}>
           <Typography
             variant="h3"
             sx={{
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: 300,
+              fontFamily: '"Fraunces", serif',
+              fontWeight: 600,
               color: TEXT_PRIMARY,
-              textAlign: "center",
-              mb: { xs: 6, md: 10 },
-              fontSize: { xs: "2rem", md: "2.8rem" }
+              mb: 3,
+              fontSize: { xs: "1.5rem", sm: "1.8rem", md: "2.3rem" },
+              lineHeight: 1.35,
             }}
           >
-            {aboutData.differences.title}
+            {aboutData.statement.title}
           </Typography>
-          <Grid container spacing={{ xs: 6, md: 10 }}>
-            <Grid item xs={12} md={6}>
-              {aboutData.differences.paragraphsLeft.map((p, idx) => (
-                <Typography key={idx} variant="body1" sx={{ color: TEXT_SECONDARY, mb: idx === aboutData.differences.paragraphsLeft.length - 1 ? 0 : 3, lineHeight: 1.8 }}>
-                  {p}
-                </Typography>
-              ))}
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="body1" sx={{ color: TEXT_SECONDARY, mb: 3, lineHeight: 1.8 }}>
-                {aboutData.differences.paragraphsRightIntro}
-              </Typography>
-              <Box component="ul" sx={{ color: TEXT_SECONDARY, pl: 3, mb: 4, lineHeight: 1.8 }}>
-                {aboutData.differences.list.map((item, idx) => (
-                  <li key={idx} style={{ marginBottom: "8px" }}>{item}</li>
-                ))}
-              </Box>
-              <Typography variant="body1" sx={{ color: TEXT_SECONDARY, lineHeight: 1.8 }}>
-                {aboutData.differences.paragraphsRightOutro}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Container>
-        </Box>
-      </ScrollReveal>
-
-      {/* Team Section */}
-      <ScrollReveal animation="fadeUp">
-        <Container maxWidth="lg" sx={{ py: { xs: 10, md: 14 } }}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 300,
-            color: TEXT_PRIMARY,
-            textAlign: "center",
-            mb: 3,
-            fontSize: { xs: "2rem", md: "2.8rem" }
-          }}
-        >
-          {aboutData.teamSection.title}
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: TEXT_SECONDARY,
-            textAlign: "center",
-            mb: { xs: 6, md: 10 },
-            fontSize: "1.05rem",
-          }}
-        >
-          {aboutData.teamSection.description}
-        </Typography>
-
-        <Grid container spacing={4}>
-          {aboutData.teamSection.members.map((member, idx) => (
-            <Grid item xs={12} sm={6} md={3} key={idx}>
-              <Box sx={{ textAlign: "center" }}>
-                <Box
-                  component="img"
-                  src={member.image}
-                  alt={member.name}
-                  sx={{
-                    width: "100%",
-                    height: 350,
-                    objectFit: "cover",
-                    mb: 2,
-                    filter: "grayscale(100%)",
-                    transition: "filter 0.3s ease",
-                    "&:hover": { filter: "grayscale(0%)" }
-                  }}
-                />
-                <Typography variant="h6" sx={{ color: TEXT_PRIMARY, fontWeight: 600, mb: 0.5 }}>
-                  {member.name}
-                </Typography>
-                <Typography variant="body2" sx={{ color: RED_PRIMARY, fontWeight: 500, letterSpacing: 1, textTransform: "uppercase" }}>
-                  {member.role}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
+          <Typography
+            variant="body1"
+            sx={{
+              color: TEXT_SECONDARY,
+              maxWidth: "620px",
+              mx: "auto",
+              mb: 4,
+              fontSize: { xs: "0.9rem", md: "1rem" },
+              lineHeight: 1.7,
+            }}
+          >
+            {aboutData.statement.description}
+          </Typography>
+          <Button
+            component={RouterLink}
+            to={aboutData.statement.buttonLink}
+            variant="contained"
+            sx={{
+              backgroundColor: RED,
+              color: "#fff",
+              borderRadius: "8px",
+              px: 4,
+              py: 1.25,
+              fontWeight: 600,
+              fontFamily: '"Space Grotesk", sans-serif',
+              textTransform: "none",
+              "&:hover": { backgroundColor: "#c40812", boxShadow: "0 8px 24px rgba(229,9,20,0.3)" },
+            }}
+          >
+            {aboutData.statement.buttonText}
+          </Button>
         </Container>
       </ScrollReveal>
 
-      {/* 6. Process Section */}
+      {/* ─── Differences ─── */}
       <ScrollReveal animation="fadeUp">
-        <Container maxWidth="lg" sx={{ py: { xs: 10, md: 14 }, textAlign: "center" }}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 300,
-            color: TEXT_PRIMARY,
-            mb: 3,
-            fontSize: { xs: "2rem", md: "2.8rem" }
-          }}
-        >
-          {aboutData.processSection.title}
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: TEXT_SECONDARY,
-            maxWidth: "800px",
-            mx: "auto",
-            mb: { xs: 8, md: 12 },
-            fontSize: "1.05rem",
-            lineHeight: 1.7
-          }}
-        >
-          {aboutData.processSection.description}
-        </Typography>
-
-        <Grid
-          container
-          spacing={4}
-          alignItems="stretch"
-          justifyContent="center"
-          sx={{ mb: { xs: 8, md: 10 } }}
-        >
-          {aboutData.processSection.processes.map((process, index) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              lg={3}
-              key={index}
-              sx={{ display: "flex" }}
+        <Box sx={{ backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "#F4F5F7", py: { xs: 8, md: 12 } }}>
+          <Container maxWidth="lg">
+            <Typography
+              variant="h3"
+              sx={{
+                fontFamily: '"Fraunces", serif',
+                fontWeight: 600,
+                color: TEXT_PRIMARY,
+                textAlign: "center",
+                mb: { xs: 5, md: 8 },
+                fontSize: { xs: "1.6rem", sm: "2rem", md: "2.5rem" },
+              }}
             >
-              <Card
-                elevation={3}
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  position: "relative",
-                  borderRadius: 3,
-                  overflow: "visible",
-                  pt: 6,
-                  transition: "0.3s ease",
-                  "&:hover": {
-                    transform: "translateY(-8px)",
-                    boxShadow: 8,
-                  },
-                }}
-              >
-                {/* Icon */}
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: -35,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    width: 70,
-                    height: 70,
-                    borderRadius: "50%",
-                    bgcolor: RED_PRIMARY,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#ffffff",
-                    border: `5px solid ${BG_PAPER}`,
-                    boxShadow: 3,
-                  }}
-                >
-                  {iconMap[process.iconName]}
-                </Box>
+              {aboutData.differences.title}
+            </Typography>
 
-                {/* Header */}
-                <CardHeader
-                  title={process.title}
-                  sx={{
-                    bgcolor: HEADER_BG,
-                    color: "#ffffff",
-                    textAlign: "center",
-                    py: 2,
-                  }}
-                  titleTypographyProps={{
-                    variant: "h6",
-                    fontWeight: 600,
-                  }}
-                />
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gap: { xs: 5, md: 8 },
+              }}
+            >
+              {/* Left column */}
+              <Stack spacing={3}>
+                {aboutData.differences.paragraphsLeft.map((p, idx) => (
+                  <ScrollReveal key={idx} animation="slideLeft" delay={idx * 0.1}>
+                    <Typography variant="body1" sx={{ color: TEXT_SECONDARY, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } }}>
+                      {p}
+                    </Typography>
+                  </ScrollReveal>
+                ))}
+              </Stack>
 
-                {/* Content */}
-                <CardContent
-                  sx={{
-                    flexGrow: 1,
-                    bgcolor: GREY_LIGHT,
-                    px: 3,
-                    py: 3,
-                  }}
-                >
+              {/* Right column */}
+              <Box>
+                <ScrollReveal animation="slideRight">
+                  <Typography variant="body1" sx={{ color: TEXT_SECONDARY, mb: 2, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } }}>
+                    {aboutData.differences.paragraphsRightIntro}
+                  </Typography>
+                </ScrollReveal>
+                <ScrollReveal animation="slideRight" delay={0.1}>
                   <Box
                     component="ul"
                     sx={{
-                      pl: 2,
-                      m: 0,
                       color: TEXT_SECONDARY,
-                      "& li": {
-                        mb: 1.5,
-                        lineHeight: 1.7,
+                      pl: 2,
+                      mb: 3,
+                      "& li": { mb: 1.5, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } },
+                    }}
+                  >
+                    {aboutData.differences.list.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </Box>
+                </ScrollReveal>
+                <ScrollReveal animation="slideRight" delay={0.2}>
+                  <Typography variant="body1" sx={{ color: TEXT_SECONDARY, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } }}>
+                    {aboutData.differences.paragraphsRightOutro}
+                  </Typography>
+                </ScrollReveal>
+              </Box>
+            </Box>
+          </Container>
+        </Box>
+      </ScrollReveal>
+
+      {/* ─── Team ─── */}
+      <ScrollReveal animation="fadeUp">
+        <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
+          <Box sx={{ textAlign: "center", mb: { xs: 5, md: 8 } }}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontFamily: '"Fraunces", serif',
+                fontWeight: 600,
+                color: TEXT_PRIMARY,
+                mb: 1.5,
+                fontSize: { xs: "1.6rem", sm: "2rem", md: "2.5rem" },
+              }}
+            >
+              {aboutData.teamSection.title}
+            </Typography>
+            <Typography variant="body1" sx={{ color: TEXT_SECONDARY, fontSize: { xs: "0.9rem", md: "1rem" } }}>
+              {aboutData.teamSection.description}
+            </Typography>
+          </Box>
+
+          <StaggerContainer staggerDelay={0.12}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+                gap: { xs: 3, md: 4 },
+              }}
+            >
+              {aboutData.teamSection.members.map((member, idx) => (
+                <StaggerItem key={idx}>
+                  <Box
+                    sx={{
+                      textAlign: "center",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      backgroundColor: "background.paper",
+                      border: "1px solid",
+                      borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-6px)",
+                        boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
+                        "& img": { filter: "grayscale(0%)" },
                       },
                     }}
                   >
-                    {process.points.map((point, idx) => (
-                      <li key={idx}>{point}</li>
-                    ))}
+                    <Box
+                      component="img"
+                      src={member.image}
+                      alt={member.name}
+                      sx={{
+                        width: "100%",
+                        height: { xs: 220, sm: 280, md: 320 },
+                        objectFit: "cover",
+                        filter: "grayscale(80%)",
+                        transition: "filter 0.4s ease",
+                      }}
+                    />
+                    <Box sx={{ p: 2 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600, color: TEXT_PRIMARY, fontSize: "0.95rem" }}>
+                        {member.name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: RED, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.7rem" }}>
+                        {member.role}
+                      </Typography>
+                    </Box>
                   </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                </StaggerItem>
+              ))}
+            </Box>
+          </StaggerContainer>
+        </Container>
+      </ScrollReveal>
 
-        <Button
-          component={RouterLink}
-          to={aboutData.processSection.buttonLink}
-          variant="contained"
-          sx={{
-            backgroundColor: BUTTON_BG,
-            color: BUTTON_TEXT,
-            borderRadius: 0,
-            px: 5,
-            py: 1.5,
-            fontWeight: 600,
-            letterSpacing: 1,
-            boxShadow: "none",
-            "&:hover": { backgroundColor: RED_PRIMARY, boxShadow: "none" }
-          }}
-        >
-          {aboutData.processSection.buttonText}
-        </Button>
+      {/* ─── Process ─── */}
+      <ScrollReveal animation="fadeUp">
+        <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 }, textAlign: "center" }}>
+          <Typography
+            variant="h3"
+            sx={{
+              fontFamily: '"Fraunces", serif',
+              fontWeight: 600,
+              color: TEXT_PRIMARY,
+              mb: 1.5,
+              fontSize: { xs: "1.6rem", sm: "2rem", md: "2.5rem" },
+            }}
+          >
+            {aboutData.processSection.title}
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: TEXT_SECONDARY,
+              maxWidth: "640px",
+              mx: "auto",
+              mb: { xs: 6, md: 10 },
+              fontSize: { xs: "0.9rem", md: "1rem" },
+              lineHeight: 1.7,
+            }}
+          >
+            {aboutData.processSection.description}
+          </Typography>
+
+          <StaggerContainer staggerDelay={0.12}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" },
+                gap: { xs: 3, md: 4 },
+                mb: { xs: 6, md: 8 },
+              }}
+            >
+              {aboutData.processSection.processes.map((process, index) => (
+                <StaggerItem key={index}>
+                  <Box
+                    sx={{
+                      position: "relative",
+                      borderRadius: "12px",
+                      overflow: "visible",
+                      pt: 5,
+                      textAlign: "center",
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      "&:hover": {
+                        transform: "translateY(-8px)",
+                        boxShadow: "0 20px 50px rgba(0,0,0,0.12)",
+                      },
+                    }}
+                  >
+                    {/* Icon circle */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: -32,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: 64,
+                        height: 64,
+                        borderRadius: "50%",
+                        bgcolor: RED,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
+                        border: `4px solid ${BG_DEFAULT}`,
+                        boxShadow: "0 4px 20px rgba(229,9,20,0.3)",
+                        zIndex: 2,
+                      }}
+                    >
+                      {iconMap[process.iconName]}
+                    </Box>
+
+                    {/* Card body */}
+                    <Box
+                      sx={{
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        backgroundColor: "background.paper",
+                        border: "1px solid",
+                        borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                      }}
+                    >
+                      <Box sx={{ bgcolor: isDark ? "rgba(255,255,255,0.04)" : "#1a1a2e", py: 2, px: 2 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#fff", fontFamily: '"Space Grotesk", sans-serif' }}>
+                          {process.title}
+                        </Typography>
+                      </Box>
+                      <Box
+                        component="ul"
+                        sx={{
+                          px: 2.5,
+                          py: 2.5,
+                          m: 0,
+                          textAlign: "left",
+                          color: TEXT_SECONDARY,
+                          "& li": { mb: 1, lineHeight: 1.7, fontSize: "0.85rem" },
+                        }}
+                      >
+                        {process.points.map((point, idx) => (
+                          <li key={idx}>{point}</li>
+                        ))}
+                      </Box>
+                    </Box>
+                  </Box>
+                </StaggerItem>
+              ))}
+            </Box>
+          </StaggerContainer>
+
+          <Button
+            component={RouterLink}
+            to={aboutData.processSection.buttonLink}
+            variant="contained"
+            sx={{
+              backgroundColor: RED,
+              color: "#fff",
+              borderRadius: "8px",
+              px: 5,
+              py: 1.25,
+              fontWeight: 600,
+              fontFamily: '"Space Grotesk", sans-serif',
+              textTransform: "none",
+              "&:hover": { backgroundColor: "#c40812", boxShadow: "0 8px 24px rgba(229,9,20,0.3)" },
+            }}
+          >
+            {aboutData.processSection.buttonText}
+          </Button>
         </Container>
       </ScrollReveal>
     </Box>

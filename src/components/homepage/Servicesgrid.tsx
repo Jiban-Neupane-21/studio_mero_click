@@ -49,10 +49,11 @@ const ServiceGrid = () => {
   return (
     <Box
       sx={{
-        py: { xs: 4, md: 6 },
-        mb: { xs: 6, md: 8 },
+        minHeight: "calc(100vh - 72px)",
         display: "flex",
         flexDirection: "column",
+        justifyContent: "center",
+        py: { xs: 4, md: 6 },
       }}
     >
       {/* Header */}

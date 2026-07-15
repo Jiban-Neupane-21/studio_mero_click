@@ -21,6 +21,7 @@ import {
   DialogContent,
   IconButton,
   useTheme,
+  Skeleton,
 } from "@mui/material";
 import {
   Camera,
@@ -34,7 +35,7 @@ import {
 import { PortfolioItem } from "../types";
 import { useNavigate } from "react-router-dom";
 
-export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
+export default function PortfolioGrid({ items, loading }: { items: PortfolioItem[], loading?: boolean }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get("category");
   const navigate = useNavigate();
@@ -205,8 +206,26 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
 
         {/* Portfolio Grid Layout */}
         <Grid container spacing={3} id="portfolio-grid-items">
-          {filteredItems.map((item) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.id}>
+          {loading ? (
+            [1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
+                <Skeleton
+                  variant="rounded"
+                  width="100%"
+                  sx={{ aspectRatio: "4/5" }}
+                />
+                <Skeleton
+                  variant="text"
+                  width="70%"
+                  height={24}
+                  sx={{ mt: 2 }}
+                />
+                <Skeleton variant="text" width="40%" height={20} />
+              </Grid>
+            ))
+          ) : (
+            filteredItems.map((item) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.id}>
               <Card
                 onClick={() => navigate(`/portfolio/${item.id}`)}
                 sx={{
@@ -362,7 +381,8 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
                 </CardContent>
               </Card>
             </Grid>
-          ))}
+          ))
+        )}
         </Grid>
       </Container>
 

@@ -50,6 +50,10 @@ export default function FaqSection() {
   return (
     <Box
       sx={{
+        minHeight: "calc(100vh - 72px)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
         py: { xs: 8, md: 12 },
         backgroundColor: "background.default",
         color: "text.primary",

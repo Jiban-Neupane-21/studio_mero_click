@@ -36,28 +36,26 @@ const Hero = () => {
   return (
     <Box
       sx={{
-        height: {
-          xs: "auto",
-          lg: "calc(100vh - 180px)",
-        },
-        minHeight: {
-          lg: "500px",
-        },
-        maxHeight: {
-          lg: "700px",
-        },
-        mb: { xs: 6, md: 8 },
+        height: "calc(100vh - 72px)",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        py: { xs: 3, md: 4 },
+        boxSizing: "border-box",
       }}
     >
       <Grid
         container
-        spacing={3}
+        spacing={{ xs: 2, md: 3 }}
         sx={{
-          height: "100%",
+          flex: 1,
+          minHeight: 0,
+          alignItems: "stretch",
         }}
       >
-        {/* Left */}
-        <Grid size={{ xs: 12, lg: 8.5 }} sx={{ height: { xs: "auto", lg: "100%" } }}>
+        {/* Left — Image (70%) */}
+        <Grid size={{ xs: 12, lg: 8.4 }} sx={{ minHeight: 0, height: { xs: "auto", lg: "100%" } }}>
           <Paper
             elevation={3}
             sx={{
@@ -95,10 +93,8 @@ const Hero = () => {
           </Paper>
         </Grid>
 
-        {/* Right */}
-        {/* Offer Section */}
-
-        <Grid size={{ xs: 12, lg: 3.5 }} sx={{ height: { xs: "auto", lg: "100%" } }}>
+        {/* Right — Offer (30%) */}
+        <Grid size={{ xs: 12, lg: 3.6 }} sx={{ minHeight: 0, height: { xs: "auto", lg: "100%" } }}>
           {loading ? (
             <Skeleton variant="rounded" width="100%" height="100%" sx={{ minHeight: { xs: "360px", sm: "450px", lg: "100%" }, borderRadius: 4 }} animation="wave" />
           ) : activeOffer ? (
