@@ -203,6 +203,16 @@ CREATE TABLE public.home_items (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Restoration Images Table (for Before and After image comparisons)
+CREATE TABLE public.restoration_images (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title TEXT NOT NULL,
+    description TEXT,
+    before_image_url TEXT NOT NULL,
+    after_image_url TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- ==========================================
 -- 3. ROW LEVEL SECURITY (RLS) POLICIES
 -- ==========================================
@@ -224,6 +234,7 @@ ALTER TABLE public.product_specifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.product_features ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.product_faqs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.home_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restoration_images ENABLE ROW LEVEL SECURITY;
 
 
 -- Create default read-only policies for public access
@@ -243,6 +254,7 @@ CREATE POLICY "Allow public read access" ON public.product_specifications FOR SE
 CREATE POLICY "Allow public read access" ON public.product_features FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON public.product_faqs FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON public.home_items FOR SELECT USING (true);
+CREATE POLICY "Allow public read access" ON public.restoration_images FOR SELECT USING (true);
 
 
 -- Functions and Triggers for updated_at timestamps
@@ -265,7 +277,7 @@ BEGIN
     FOR t IN 
         SELECT table_name FROM information_schema.tables 
         WHERE table_schema = 'public' 
-          AND table_name IN ('offer_ads', 'video_items', 'tutorial_videos', 'learning_articles', 'portfolio_items', 'services', 'service_images', 'service_specifications', 'service_features', 'service_faqs', 'products', 'product_images', 'product_specifications', 'product_features', 'product_faqs', 'home_items')
+          AND table_name IN ('offer_ads', 'video_items', 'tutorial_videos', 'learning_articles', 'portfolio_items', 'services', 'service_images', 'service_specifications', 'service_features', 'service_faqs', 'products', 'product_images', 'product_specifications', 'product_features', 'product_faqs', 'home_items', 'restoration_images')
     LOOP
         EXECUTE format('CREATE POLICY "Allow authenticated insert" ON public.%I FOR INSERT TO authenticated WITH CHECK (true);', t);
         EXECUTE format('CREATE POLICY "Allow authenticated update" ON public.%I FOR UPDATE TO authenticated USING (true);', t);

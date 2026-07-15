@@ -11,7 +11,11 @@ export const homeItemsApi = {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data.map((item: any) => ({
+      id: item.id,
+      imageUrl: item.image_url,
+      createdAt: item.created_at,
+    }));
   },
 
   /**
@@ -25,7 +29,11 @@ export const homeItemsApi = {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      id: data.id,
+      imageUrl: data.image_url,
+      createdAt: data.created_at,
+    };
   },
 
   /**

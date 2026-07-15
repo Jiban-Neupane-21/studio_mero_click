@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -41,7 +42,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { TutorialVideo, LearningArticle } from '../types';
 import { ColorModeContext } from '../App';
-import { supabase } from '../utils/supabase';
+import { tutorialVideosApi } from '../api/tutorialVideos';
+import { learningArticlesApi } from '../api/learningArticles';
 
 const extractTiktokId = (url: string) => {
     try {
@@ -60,6 +62,7 @@ const extractTiktokId = (url: string) => {
 export default function LearnFromUs() {
     const { mode } = useContext(ColorModeContext);
     const isDark = mode === 'dark';
+    const navigate = useNavigate();
 
     // Core Data Lists State
     const [videos, setVideos] = useState<TutorialVideo[]>([]);
@@ -73,30 +76,38 @@ export default function LearnFromUs() {
 
     // Modal Interactive States
     const [theaterVideo, setTheaterVideo] = useState<TutorialVideo | null>(null);
-    const [selectedArticle, setSelectedArticle] = useState<LearningArticle | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                if (!supabase) {
-                    console.warn('Supabase is not configured');
-                    return;
-                }
-
                 const [videosResponse, articlesResponse] = await Promise.all([
-                    supabase.from('tutorials').select('*').order('id', { ascending: false }),
-                    supabase.from('articles').select('*').order('id', { ascending: false })
+                    tutorialVideosApi.getTutorialVideos(),
+                    learningArticlesApi.getLearningArticles()
                 ]);
 
-                if (videosResponse.error) throw videosResponse.error;
-                if (articlesResponse.error) throw articlesResponse.error;
+                // Map database snake_case to frontend camelCase expected by types
+                const mappedVideos: TutorialVideo[] = videosResponse.map((v: any) => ({
+                    ...v,
+                    youtubeId: v.youtube_id || v.youtubeId,
+                    facebookLink: v.facebook_link || v.facebookLink,
+                    tiktokLink: v.tiktok_link || v.tiktokLink,
+                    uploadDate: v.upload_date || v.uploadDate,
+                    publishedAt: v.published_at || v.publishedAt,
+                }));
 
-                setVideos(videosResponse.data as TutorialVideo[] || []);
-                setArticles(articlesResponse.data as LearningArticle[] || []);
+                const mappedArticles: LearningArticle[] = articlesResponse.map((a: any) => ({
+                    ...a,
+                    readTime: a.read_time || a.readTime,
+                    publishedAt: a.published_at || a.publishedAt,
+                    imageUrl: a.image_url || a.image || a.imageUrl,
+                }));
+
+                setVideos(mappedVideos);
+                setArticles(mappedArticles);
             } catch (err) {
-                console.error('Error loading tutorials/articles data from Supabase:', err);
+                console.error('Error loading tutorials/articles data:', err);
             } finally {
                 setLoading(false);
             }
@@ -104,13 +115,11 @@ export default function LearnFromUs() {
         fetchData();
     }, []);
 
-    // Filter Categories derived from both videos or articles
+    // Categories: specific platforms for videos, none for articles
     const categories = useMemo(() => {
-        const defaultCats = ['All'];
-        const currentList = currentTab === 0 ? videos : articles;
-        const itemCats = Array.from(new Set(currentList.map(item => item.category)));
-        return [...defaultCats, ...itemCats];
-    }, [currentTab, videos, articles]);
+        if (currentTab === 1) return []; // No categories for articles
+        return ['All', 'YouTube', 'Facebook', 'TikTok'];
+    }, [currentTab]);
 
     // Reset category filter when switching tabs
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -124,7 +133,18 @@ export default function LearnFromUs() {
         return videos.filter(video => {
             const matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 video.description.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesCategory = selectedCategory === 'All' || video.category === selectedCategory;
+            
+            let matchesCategory = true;
+            if (selectedCategory === 'YouTube') {
+                matchesCategory = !!video.youtubeId;
+            } else if (selectedCategory === 'Facebook') {
+                matchesCategory = !!video.facebookLink;
+            } else if (selectedCategory === 'TikTok') {
+                matchesCategory = !!video.tiktokLink;
+            } else {
+                matchesCategory = selectedCategory === 'All';
+            }
+
             return matchesSearch && matchesCategory;
         });
     }, [videos, searchQuery, selectedCategory]);
@@ -134,10 +154,9 @@ export default function LearnFromUs() {
             const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 article.content.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesCategory = selectedCategory === 'All' || article.category === selectedCategory;
-            return matchesSearch && matchesCategory;
+            return matchesSearch;
         });
-    }, [articles, searchQuery, selectedCategory]);
+    }, [articles, searchQuery]);
 
     const handleShareVideo = (video: TutorialVideo, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -171,34 +190,6 @@ export default function LearnFromUs() {
             <Container maxWidth="xl">
                 {/* ================= HEADER SECTION ================= */}
                 <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
-                    <Box
-                        sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 1.25,
-                            backgroundColor: isDark ? 'rgba(229, 9, 20, 0.08)' : 'rgba(229, 9, 20, 0.05)',
-                            border: '1px solid rgba(229, 9, 20, 0.15)',
-                            borderRadius: '99px',
-                            px: 2.25,
-                            py: 0.75,
-                            mb: 2.5
-                        }}
-                    >
-                        <Sparkles size={14} color="#E50914" />
-                        <Typography
-                            variant="caption"
-                            sx={{
-                                fontFamily: '"Space Grotesk", sans-serif',
-                                fontWeight: 650,
-                                color: '#E50914',
-                                letterSpacing: '0.12em',
-                                textTransform: 'uppercase'
-                            }}
-                        >
-                            Kathmandu Media Academy
-                        </Typography>
-                    </Box>
-
                     <Typography
                         variant="h2"
                         sx={{
@@ -639,7 +630,7 @@ export default function LearnFromUs() {
 
                                                     <Typography
                                                         variant="h6"
-                                                        onClick={() => setSelectedArticle(article)}
+                                                        onClick={() => navigate(`/learn/${article.id}`)}
                                                         sx={{
                                                             fontFamily: '"Space Grotesk", sans-serif',
                                                             fontWeight: 700,
@@ -698,7 +689,7 @@ export default function LearnFromUs() {
                                                             </IconButton>
                                                             <Button
                                                                 size="small"
-                                                                onClick={() => setSelectedArticle(article)}
+                                                                onClick={() => navigate(`/learn/${article.id}`)}
                                                                 sx={{
                                                                     textTransform: 'none',
                                                                     color: '#E50914',
@@ -866,203 +857,6 @@ export default function LearnFromUs() {
                 )}
             </AnimatePresence>
 
-            {/* ================= INTERACTIVE COMPACT MODAL: ARTICLE READER ================= */}
-            <AnimatePresence>
-                {selectedArticle && (
-                    <Dialog
-                        fullWidth
-                        maxWidth="md"
-                        open={Boolean(selectedArticle)}
-                        onClose={() => setSelectedArticle(null)}
-                        sx={{
-                            '& .MuiPaper-root': {
-                                backgroundColor: isDark ? '#121214' : '#ffffff',
-                                border: '1px solid',
-                                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
-                                borderRadius: '12px',
-                                color: 'text.primary',
-                                boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-                            }
-                        }}
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            transition={{ duration: 0.25 }}
-                        >
-                            {/* Header Image with overlays */}
-                            <Box sx={{ position: 'relative', height: { xs: '180px', sm: '300px' }, overflow: 'hidden' }}>
-                                <img
-                                    src={selectedArticle.imageUrl}
-                                    alt={selectedArticle.title}
-                                    referrerPolicy="no-referrer"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        inset: 0,
-                                        background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.1) 100%)'
-                                    }}
-                                />
-
-                                <IconButton
-                                    onClick={() => setSelectedArticle(null)}
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 16,
-                                        right: 16,
-                                        backgroundColor: 'rgba(0,0,0,0.6)',
-                                        color: '#ffffff',
-                                        '&:hover': { backgroundColor: 'rgba(0,0,0,0.8)' }
-                                    }}
-                                >
-                                    <X size={18} />
-                                </IconButton>
-
-                                {/* Article Overlay text */}
-                                <Box sx={{ position: 'absolute', bottom: 24, left: 24, right: 24, color: '#ffffff' }}>
-                                    <Chip
-                                        label={selectedArticle.category}
-                                        size="small"
-                                        sx={{
-                                            backgroundColor: '#E50914',
-                                            color: '#ffffff',
-                                            fontWeight: 700,
-                                            mb: 1.5,
-                                            borderRadius: '4px'
-                                        }}
-                                    />
-                                    <Typography
-                                        variant="h4"
-                                        sx={{
-                                            fontFamily: '"Space Grotesk", sans-serif',
-                                            fontWeight: 700,
-                                            fontSize: { xs: '1.4rem', sm: '2rem' },
-                                            lineHeight: 1.2,
-                                            mb: 1
-                                        }}
-                                    >
-                                        {selectedArticle.title}
-                                    </Typography>
-
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', opacity: 0.85 }}>
-                                        <Typography component="span" sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
-                                            <User size={12} color="#E50914" /> {selectedArticle.author}
-                                        </Typography>
-                                        <Typography component="span" sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
-                                            <Calendar size={12} color="#E50914" /> Published {selectedArticle.publishedAt}
-                                        </Typography>
-                                        <Typography component="span" sx={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 500 }}>
-                                            <Clock size={12} color="#E50914" /> {selectedArticle.readTime}
-                                        </Typography>
-                                    </Box>
-                                </Box>
-                            </Box>
-
-                            {/* Main reading content container */}
-                            <Box sx={{ p: { xs: 3, md: 5 }, maxHeight: '55vh', overflowY: 'auto' }}>
-                                <Typography
-                                    variant="body1"
-                                    sx={{
-                                        fontStyle: 'italic',
-                                        color: 'text.secondary',
-                                        fontSize: '1.05rem',
-                                        lineHeight: 1.6,
-                                        mb: 4,
-                                        pb: 2,
-                                        borderBottom: '1px solid',
-                                        borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'
-                                    }}
-                                >
-                                    {selectedArticle.excerpt}
-                                </Typography>
-
-                                {/* Curated content paragraphs parser */}
-                                <Box
-                                    sx={{
-                                        fontFamily: '"Inter", sans-serif',
-                                        fontSize: '0.98rem',
-                                        lineHeight: 1.8,
-                                        color: isDark ? '#e2e8f0' : '#334155',
-                                        '& h3': {
-                                            fontFamily: '"Space Grotesk", sans-serif',
-                                            fontWeight: 700,
-                                            fontSize: '1.25rem',
-                                            color: isDark ? '#ffffff' : '#0f172a',
-                                            mt: 4,
-                                            mb: 2
-                                        },
-                                        '& p': { mb: 2.5 },
-                                        '& ul': { pl: 3, mb: 3, listStyleType: 'disc' },
-                                        '& li': { mb: 1 }
-                                    }}
-                                >
-                                    {selectedArticle.content.split('\n\n').map((block, idx) => {
-                                        if (block.startsWith('### ')) {
-                                            return <h3 key={idx}>{block.replace('### ', '')}</h3>;
-                                        }
-                                        if (block.startsWith('- ')) {
-                                            return (
-                                                <ul key={idx}>
-                                                    {block.split('\n').map((li, lIdx) => (
-                                                        <li key={lIdx}>{li.replace('- ', '')}</li>
-                                                    ))}
-                                                </ul>
-                                            );
-                                        }
-                                        return <p key={idx}>{block}</p>;
-                                    })}
-                                </Box>
-                            </Box>
-
-                            {/* Footer sharing & dismiss tools */}
-                            <Box
-                                sx={{
-                                    p: 3,
-                                    borderTop: '1px solid',
-                                    borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
-                                }}
-                            >
-                                <Button
-                                    variant="outlined"
-                                    size="small"
-                                    onClick={(e) => handleShareArticle(selectedArticle, e)}
-                                    startIcon={<Share2 size={13} />}
-                                    sx={{
-                                        fontFamily: '"Space Grotesk"',
-                                        textTransform: 'none',
-                                        color: copiedId === selectedArticle.id ? '#10b981' : 'text.secondary',
-                                        borderColor: copiedId === selectedArticle.id ? 'rgba(16,185,129,0.3)' : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
-                                        borderRadius: '4px'
-                                    }}
-                                >
-                                    {copiedId === selectedArticle.id ? 'Saved Link!' : 'Share Guide'}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => setSelectedArticle(null)}
-                                    sx={{
-                                        backgroundColor: '#E50914',
-                                        fontFamily: '"Space Grotesk"',
-                                        textTransform: 'none',
-                                        fontWeight: 600,
-                                        borderRadius: '4px',
-                                        px: 3,
-                                        '&:hover': { backgroundColor: '#b91c1c' }
-                                    }}
-                                >
-                                    Close Handbook
-                                </Button>
-                            </Box>
-                        </motion.div>
-                    </Dialog>
-                )}
-            </AnimatePresence>
         </Box>
     );
 }

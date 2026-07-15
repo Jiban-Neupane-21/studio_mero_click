@@ -1,9 +1,27 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, CircularProgress } from "@mui/material";
 
-import { services } from "../data/service.data";
+import { servicesApi } from "../api/services";
 
 const ServicePage = () => {
+  const [services, setServices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const data = await servicesApi.getServices();
+        // optionally filter for is_available if you want
+        setServices(data.filter((s: any) => s.is_available));
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
   return (
     <Box
       sx={{
@@ -31,7 +49,16 @@ const ServicePage = () => {
       </Typography>
 
       <Grid container spacing={4}>
-        {services.map((service) => (
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 8 }}>
+            <CircularProgress color="error" />
+          </Box>
+        ) : services.length === 0 ? (
+          <Box sx={{ width: '100%', textAlign: 'center', mt: 8 }}>
+            <Typography variant="h6" color="text.secondary">No services available at the moment.</Typography>
+          </Box>
+        ) : (
+          services.map((service) => (
           <Grid
             key={service.id}
             size={{
@@ -96,7 +123,7 @@ const ServicePage = () => {
               </Box>
             </Box>
           </Grid>
-        ))}
+        )))}
       </Grid>
     </Box>
   );

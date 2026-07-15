@@ -11,8 +11,10 @@ import ServiceDetails from "../components/ServiceDetails";
 import ProductDetails from "../components/ProductDetails";
 import PortfolioPage from "../pages/PortfolioPage";
 import PortfolioDetail from "../components/PortfolioDetails";
+import RestorationDetails from "../components/RestorationDetails";
 import VideoSection from "../pages/VideoPage";
 import LearnFromUs from "../pages/LearnPage";
+import ReadArticlePage from "../pages/ReadArticlePage";
 import ClaimOffer from "../components/ClaimOffer";
 import OfferDetailsPage from "../pages/OfferDetailsPage";
 
@@ -25,6 +27,7 @@ import AdminVideos from "../Admin/pages/AdminVideos";
 import AdminTutorials from "../Admin/pages/AdminTutorials";
 import AdminLearning from "../Admin/pages/AdminLearning";
 import AdminOfferAds from "../Admin/pages/AdminOfferAds";
+import AdminRestoration from "../Admin/pages/AdminRestoration";
 import Login from "../Admin/Login";
 import ProtectedRoute from "../Admin/ProtectedRoute";
 
@@ -61,12 +64,20 @@ const router = createBrowserRouter([
             element: <PortfolioDetail />,
           },
           {
+            path: "restorations/:id",
+            element: <RestorationDetails />,
+          },
+          {
             path: "videos",
             element: <VideoSection />,
           },
           {
             path: "learn",
             element: <LearnFromUs />,
+          },
+          {
+            path: "learn/:id",
+            element: <ReadArticlePage />,
           },
           {
             path: "claim-offer",
@@ -111,6 +122,7 @@ const router = createBrowserRouter([
           { path: "tutorials", element: <AdminTutorials /> },
           { path: "learning", element: <AdminLearning /> },
           { path: "offer-ads", element: <AdminOfferAds /> },
+          { path: "restorations", element: <AdminRestoration /> },
         ],
       }
     ]

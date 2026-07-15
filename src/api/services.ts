@@ -40,34 +40,99 @@ export const servicesApi = {
     return data;
   },
 
-  /**
-   * Create a new service (main table only)
-   * Note: Related items (images, faqs, etc.) must be inserted separately
-   */
   async createService(serviceData: any) {
-    const { data, error } = await supabase
+    const { images, specifications, features, faqs, ...mainData } = serviceData;
+
+    const { data: service, error } = await supabase
       .from('services')
-      .insert(serviceData)
+      .insert(mainData)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+
+    // Insert related data if available
+    if (images && images.length > 0) {
+      await supabase.from('service_images').insert(
+        images.map((img: any) => ({ service_id: service.id, url: img.url, alt: img.alt || '' }))
+      );
+    }
+    
+    if (specifications && specifications.length > 0) {
+      await supabase.from('service_specifications').insert(
+        specifications.map((s: any) => ({ service_id: service.id, spec_key: s.key, spec_value: s.value }))
+      );
+    }
+
+    if (features && features.length > 0) {
+      await supabase.from('service_features').insert(
+        features.map((f: any) => ({ service_id: service.id, title: f.title, description: f.description }))
+      );
+    }
+
+    if (faqs && faqs.length > 0) {
+      await supabase.from('service_faqs').insert(
+        faqs.map((f: any) => ({ service_id: service.id, question: f.question, answer: f.answer }))
+      );
+    }
+
+    return service;
   },
 
   /**
-   * Update an existing service (main table only)
+   * Update an existing service (main table and related tables)
    */
   async updateService(id: string, serviceData: any) {
-    const { data, error } = await supabase
+    const { images, specifications, features, faqs, ...mainData } = serviceData;
+
+    const { data: service, error } = await supabase
       .from('services')
-      .update(serviceData)
+      .update(mainData)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+
+    // For related data, the simplest approach is to delete existing and re-insert
+    
+    if (images !== undefined) {
+      await supabase.from('service_images').delete().eq('service_id', id);
+      if (images.length > 0) {
+        await supabase.from('service_images').insert(
+          images.map((img: any) => ({ service_id: id, url: img.url, alt: img.alt || '' }))
+        );
+      }
+    }
+
+    if (specifications !== undefined) {
+      await supabase.from('service_specifications').delete().eq('service_id', id);
+      if (specifications.length > 0) {
+        await supabase.from('service_specifications').insert(
+          specifications.map((s: any) => ({ service_id: id, spec_key: s.key, spec_value: s.value }))
+        );
+      }
+    }
+
+    if (features !== undefined) {
+      await supabase.from('service_features').delete().eq('service_id', id);
+      if (features.length > 0) {
+        await supabase.from('service_features').insert(
+          features.map((f: any) => ({ service_id: id, title: f.title, description: f.description }))
+        );
+      }
+    }
+
+    if (faqs !== undefined) {
+      await supabase.from('service_faqs').delete().eq('service_id', id);
+      if (faqs.length > 0) {
+        await supabase.from('service_faqs').insert(
+          faqs.map((f: any) => ({ service_id: id, question: f.question, answer: f.answer }))
+        );
+      }
+    }
+
+    return service;
   },
 
   /**

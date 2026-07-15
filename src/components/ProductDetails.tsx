@@ -22,33 +22,82 @@ import {
   CardMedia,
   CardContent,
   CardActions,
+  CircularProgress
 } from "@mui/material";
-// Assuming 'Products' is typed as Product[] inside your product.data file
-import { Products } from "../data/product.data";
+import { productsApi } from "../api/products";
 import { ArrowLeft, ChevronDown, Tag, CheckCircle, Calendar } from "lucide-react";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const product = Products.find((p) => p.id === id);
+  
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const [activeImage, setActiveImage] = useState<string>("");
-  const [randomProducts, setRandomProducts] = useState<typeof Products>([]);
+  const [randomProducts, setRandomProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    if (product) {
-      setActiveImage(product.thumbnail || "");
-      
-      const otherProducts = Products.filter((p) => p.id !== product.id);
-      const shuffled = otherProducts.sort(() => 0.5 - Math.random());
-      setRandomProducts(shuffled.slice(0, 3));
-    }
-  }, [product]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(false);
+        if (!id) return;
 
-  if (!product) {
+        const [data, allProductsData] = await Promise.all([
+          productsApi.getProductById(id),
+          productsApi.getProducts()
+        ]);
+
+        const mappedProduct = {
+          ...data,
+          oldPrice: data.old_price,
+          newPrice: data.new_price,
+          discountRate: data.discount_rate,
+          isFeatured: data.is_featured,
+          isAvailable: data.is_available,
+          images: data.product_images?.map((img: any) => ({ url: img.image_url || img.url, alt: img.alt_text || img.alt })) || [],
+          additionalInfo: data.product_specifications?.map((s: any) => ({ key: s.spec_key || s.key_name, value: s.spec_value || s.value_text })) || [],
+          features: data.product_features || [],
+          faq: data.product_faqs || [],
+        };
+
+        setProduct(mappedProduct);
+        setActiveImage(mappedProduct.thumbnail || "");
+
+        const allMapped = allProductsData.map((p: any) => ({
+          ...p,
+          oldPrice: p.old_price,
+          newPrice: p.new_price,
+          discountRate: p.discount_rate
+        }));
+
+        const otherProducts = allMapped.filter((p: any) => p.id !== data.id);
+        const shuffled = [...otherProducts].sort(() => 0.5 - Math.random());
+        setRandomProducts(shuffled.slice(0, 3));
+      } catch (err) {
+        console.error(err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress color="error" />
+      </Container>
+    );
+  }
+
+  if (error || !product) {
     return <Navigate to="/404" replace />;
   }
 
-  const formatPrice = (value: number) => `Rs. ${value.toLocaleString("en-IN")}`;
+  const formatPrice = (value: number) => `Rs. ${Number(value).toLocaleString("en-IN")}`;
 
   // Dedicated Theme Constants for the Red & White Palette
   const RED_PRIMARY = "#D32F2F"; // Rich Red

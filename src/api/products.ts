@@ -40,34 +40,99 @@ export const productsApi = {
     return data;
   },
 
-  /**
-   * Create a new product (main table only)
-   * Note: Related items (images, faqs, etc.) must be inserted separately
-   */
   async createProduct(productData: any) {
-    const { data, error } = await supabase
+    const { images, specifications, features, faqs, ...mainData } = productData;
+
+    const { data: product, error } = await supabase
       .from('products')
-      .insert(productData)
+      .insert(mainData)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+
+    // Insert related data if available
+    if (images && images.length > 0) {
+      await supabase.from('product_images').insert(
+        images.map((img: any) => ({ product_id: product.id, url: img.url, alt: img.alt || '' }))
+      );
+    }
+    
+    if (specifications && specifications.length > 0) {
+      await supabase.from('product_specifications').insert(
+        specifications.map((s: any) => ({ product_id: product.id, spec_key: s.key, spec_value: s.value }))
+      );
+    }
+
+    if (features && features.length > 0) {
+      await supabase.from('product_features').insert(
+        features.map((f: any) => ({ product_id: product.id, title: f.title, description: f.description }))
+      );
+    }
+
+    if (faqs && faqs.length > 0) {
+      await supabase.from('product_faqs').insert(
+        faqs.map((f: any) => ({ product_id: product.id, question: f.question, answer: f.answer }))
+      );
+    }
+
+    return product;
   },
 
   /**
-   * Update an existing product (main table only)
+   * Update an existing product (main table and related tables)
    */
   async updateProduct(id: string, productData: any) {
-    const { data, error } = await supabase
+    const { images, specifications, features, faqs, ...mainData } = productData;
+
+    const { data: product, error } = await supabase
       .from('products')
-      .update(productData)
+      .update(mainData)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+
+    // For related data, the simplest approach is to delete existing and re-insert
+    
+    if (images !== undefined) {
+      await supabase.from('product_images').delete().eq('product_id', id);
+      if (images.length > 0) {
+        await supabase.from('product_images').insert(
+          images.map((img: any) => ({ product_id: id, url: img.url, alt: img.alt || '' }))
+        );
+      }
+    }
+
+    if (specifications !== undefined) {
+      await supabase.from('product_specifications').delete().eq('product_id', id);
+      if (specifications.length > 0) {
+        await supabase.from('product_specifications').insert(
+          specifications.map((s: any) => ({ product_id: id, spec_key: s.key, spec_value: s.value }))
+        );
+      }
+    }
+
+    if (features !== undefined) {
+      await supabase.from('product_features').delete().eq('product_id', id);
+      if (features.length > 0) {
+        await supabase.from('product_features').insert(
+          features.map((f: any) => ({ product_id: id, title: f.title, description: f.description }))
+        );
+      }
+    }
+
+    if (faqs !== undefined) {
+      await supabase.from('product_faqs').delete().eq('product_id', id);
+      if (faqs.length > 0) {
+        await supabase.from('product_faqs').insert(
+          faqs.map((f: any) => ({ product_id: id, question: f.question, answer: f.answer }))
+        );
+      }
+    }
+
+    return product;
   },
 
   /**

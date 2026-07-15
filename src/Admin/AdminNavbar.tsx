@@ -19,6 +19,7 @@ import {
   Briefcase,
   Package,
   Image as ImageIcon,
+  ImagePlus,
   Video,
   PlaySquare,
   BookOpen,
@@ -44,6 +45,7 @@ const adminLinks = [
   { name: 'Video Items', path: '/admin/videos', icon: Video },
   { name: 'Tutorial Videos', path: '/admin/tutorials', icon: PlaySquare },
   { name: 'Learning Articles', path: '/admin/learning', icon: BookOpen },
+  { name: 'Image Restoration', path: '/admin/restorations', icon: ImagePlus },
   { name: 'Offer Ads', path: '/admin/offer-ads', icon: Megaphone },
 ];
 

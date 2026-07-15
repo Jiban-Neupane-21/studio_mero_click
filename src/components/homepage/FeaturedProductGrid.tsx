@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 import { useState, useEffect } from "react";
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography, Grid, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../ProductCard";
 import type { Product } from "../../types/featureProduct.type";
@@ -15,20 +15,39 @@ export default function FeaturedProducts() {
   };
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
+        setError(false);
         const data = await productsApi.getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
+        
+        console.log("Fetched raw products from Supabase:", data);
+        
+        const mappedData = data.map((p: any) => ({
+          ...p,
+          oldPrice: p.old_price,
+          newPrice: p.new_price,
+          discountRate: p.discount_rate,
+          isFeatured: p.is_featured
+        }));
+        
+        console.log("Mapped products array:", mappedData);
+        setProducts(mappedData);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
   }, []);
 
-  const featured = products.filter((p) => p.is_featured);
+  const featured = products.filter((p: any) => p.isFeatured);
 
   return (
     <Box
@@ -63,24 +82,42 @@ export default function FeaturedProducts() {
           }
         }}
       >
-        {featured.map((product) => (
-          <Grid
-            key={product.id}
-            size={{
-              xs: 12,
-              sm: 6,
-              md: 4,
-              lg: 3,
-              xl: 2.4,
-            }}
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <ProductCard product={product} onViewDetails={handleViewDetails} />
-          </Grid>
-        ))}
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 4 }}>
+            <CircularProgress color="error" />
+          </Box>
+        ) : error ? (
+          <Box sx={{ width: '100%', textAlign: 'center', mt: 4 }}>
+            <Typography variant="body1" color="error">
+              Error loading featured products.
+            </Typography>
+          </Box>
+        ) : featured.length === 0 ? (
+          <Box sx={{ width: '100%', textAlign: 'center', mt: 4 }}>
+            <Typography variant="body1" color="text.secondary">
+              No featured products available at the moment.
+            </Typography>
+          </Box>
+        ) : (
+          featured.map((product) => (
+            <Grid
+              key={product.id}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 4,
+                lg: 3,
+                xl: 2.4,
+              }}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <ProductCard product={product} onViewDetails={handleViewDetails} />
+            </Grid>
+          ))
+        )}
       </Grid>
     </Box>
   );

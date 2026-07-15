@@ -1,6 +1,7 @@
 import HeroImage from "../components/homepage/HeroImage";
 import ServiceGrid from "../components/homepage/Servicesgrid";
 import FeatureProduct from "../components/homepage/FeaturedProductGrid";
+import RestorationShowcase from "../components/homepage/RestorationShowcase";
 import SpecialitySection from "../components/Speciality";
 import FaqSection from "../components/FaqSection";
 
@@ -10,6 +11,7 @@ export default function HomePage() {
       <HeroImage />
       <ServiceGrid />
       <FeatureProduct />
+      <RestorationShowcase />
       <SpecialitySection />
       <FaqSection />
     </>

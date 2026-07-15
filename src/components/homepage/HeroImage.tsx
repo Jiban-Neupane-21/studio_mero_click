@@ -29,7 +29,7 @@ const Hero = () => {
         ]);
         setOffers(offersData);
         if (homeData && homeData.length > 0) {
-          setHomeImage(homeData[0].image_url);
+          setHomeImage(homeData[0].imageUrl);
         }
       } catch (error) {
         console.error("Error fetching hero data:", error);
