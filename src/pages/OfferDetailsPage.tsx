@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
@@ -13,11 +13,14 @@ import {
   CardContent,
   CardActions,
   CircularProgress,
+  Skeleton,
   useTheme
 } from "@mui/material";
 import { ArrowLeft, Tag, Calendar } from "lucide-react";
-import { offerAdsApi } from "../api/offerAds";
 import { OfferAd } from "../types";
+import { useData } from "../context/DataContext";
+import { useMinDelay } from "../hooks/useMinDelay";
+import ScrollReveal, { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 
 export default function OfferDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,11 +28,25 @@ export default function OfferDetailsPage() {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
-  const [offer, setOffer] = useState<OfferAd | null>(null);
-  const [otherOffers, setOtherOffers] = useState<OfferAd[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { offerAds: allOffers, loading: contextLoading } = useData();
+  const loadingSkeleton = useMinDelay(contextLoading);
 
-  // Theme Constants (matching ServiceDetails)
+  const offer = useMemo(() => {
+    if (!id || allOffers.length === 0) return null;
+    return allOffers.find((o) => o.id === id) ?? null;
+  }, [id, allOffers]);
+
+  const otherOffers = useMemo(() => {
+    if (!id) return allOffers;
+    return allOffers.filter((o) => o.id !== id);
+  }, [id, allOffers]);
+
+  useEffect(() => {
+    if (!contextLoading && !offer && allOffers.length > 0) {
+      navigate("/claim-offer");
+    }
+  }, [contextLoading, offer, allOffers, navigate]);
+
   const RED_PRIMARY = "#D32F2F";
   const RED_LIGHT = isDark ? "rgba(211, 47, 47, 0.12)" : "#FFEBEE";
   const WHITE = "#FFFFFF";
@@ -37,32 +54,38 @@ export default function OfferDetailsPage() {
   const BG_DEFAULT = theme.palette.background.default;
   const BORDER_COLOR = theme.palette.divider;
 
-  useEffect(() => {
-    const fetchOffer = async () => {
-      setLoading(true);
-      try {
-        const data = await offerAdsApi.getOfferAds();
-        const found = data.find((o) => o.id === id);
-        if (found) {
-          setOffer(found);
-          setOtherOffers(data.filter((o) => o.id !== id));
-        } else {
-          navigate("/claim-offer");
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOffer();
-  }, [id, navigate]);
-
-  if (loading) {
+  if (loadingSkeleton) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <CircularProgress sx={{ color: RED_PRIMARY }} />
-      </Box>
+      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+        <Skeleton variant="rounded" width={140} height={36} sx={{ mb: 3 }} />
+        <Paper elevation={3} sx={{ overflow: "hidden", mb: 4, backgroundColor: BG_PAPER, borderRadius: 2, border: "1px solid", borderColor: BORDER_COLOR }}>
+          <Grid container>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ p: 2 }}>
+                <Skeleton variant="rounded" width="100%" sx={{ height: { xs: 300, md: 450 }, borderRadius: 1.5 }} animation="wave" />
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ p: { xs: 3, md: 4 }, display: "flex", flexDirection: "column", gap: 2 }}>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Skeleton variant="rounded" width={80} height={24} />
+                  <Skeleton variant="rounded" width={60} height={24} />
+                  <Skeleton variant="rounded" width={120} height={24} />
+                </Box>
+                <Skeleton variant="text" width="70%" height={48} />
+                <Skeleton variant="text" width="100%" height={20} />
+                <Skeleton variant="text" width="90%" height={20} />
+                <Skeleton variant="text" width="60%" height={20} />
+                <Skeleton variant="text" width="40%" height={40} sx={{ my: 2 }} />
+                <Box sx={{ display: "flex", gap: 2, mt: "auto" }}>
+                  <Skeleton variant="rounded" width="50%" height={48} />
+                  <Skeleton variant="rounded" width="50%" height={48} />
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+      </Container>
     );
   }
 
@@ -71,6 +94,7 @@ export default function OfferDetailsPage() {
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
       {/* Back Navigation */}
+      <ScrollReveal animation="fadeUp">
       <Button
         onClick={() => navigate("/claim-offer")}
         startIcon={<ArrowLeft size={16} />}
@@ -83,8 +107,10 @@ export default function OfferDetailsPage() {
       >
         Back to Offers
       </Button>
+      </ScrollReveal>
 
       {/* Main Hero Card */}
+      <ScrollReveal animation="fadeUp" delay={0.1}>
       <Paper
         elevation={3}
         sx={{
@@ -267,8 +293,10 @@ export default function OfferDetailsPage() {
           </Grid>
         </Grid>
       </Paper>
+      </ScrollReveal>
 
       {/* Secondary Information Layout Stack - Terms & Conditions */}
+      <ScrollReveal animation="fadeUp" delay={0.15}>
       <Grid container spacing={4}>
         <Grid size={{ xs: 12 }}>
           <Typography
@@ -283,9 +311,11 @@ export default function OfferDetailsPage() {
           </Typography>
         </Grid>
       </Grid>
+      </ScrollReveal>
 
       {/* Other Offers Section */}
       {otherOffers.length > 0 && (
+        <ScrollReveal animation="fadeUp">
         <Box sx={{ mt: 8 }}>
           <Typography
             variant="h4"
@@ -294,9 +324,11 @@ export default function OfferDetailsPage() {
           >
             Explore Other Offers
           </Typography>
+          <StaggerContainer staggerDelay={0.08}>
           <Grid container spacing={4}>
             {otherOffers.map((other) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={other.id}>
+              <StaggerItem key={other.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <Card
                   elevation={2}
                   sx={{
@@ -359,9 +391,12 @@ export default function OfferDetailsPage() {
                   </CardActions>
                 </Card>
               </Grid>
+              </StaggerItem>
             ))}
           </Grid>
+          </StaggerContainer>
         </Box>
+        </ScrollReveal>
       )}
     </Container>
   );

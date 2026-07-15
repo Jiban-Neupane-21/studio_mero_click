@@ -1,11 +1,10 @@
 /* eslint-disable */
 // @ts-nocheck
-import { useState, useEffect } from "react";
 import { Box, Typography, Grid, CircularProgress, Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../ProductCard";
 import type { Product } from "../../types/featureProduct.type";
-import { productsApi } from "../../api/products";
+import { useData } from "../../context/DataContext";
 
 export default function FeaturedProducts() {
   const navigate = useNavigate();
@@ -14,41 +13,15 @@ export default function FeaturedProducts() {
     navigate(`/products/${product.id}`);
   };
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { products: rawProducts, loading, error } = useData();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        setError(false);
-        const [data] = await Promise.all([
-          productsApi.getProducts(),
-          new Promise((resolve) => setTimeout(resolve, 2000))
-        ]);
-        
-        console.log("Fetched raw products from Supabase:", data);
-        
-        const mappedData = data.map((p: any) => ({
-          ...p,
-          oldPrice: p.old_price,
-          newPrice: p.new_price,
-          discountRate: p.discount_rate,
-          isFeatured: p.is_featured
-        }));
-        
-        console.log("Mapped products array:", mappedData);
-        setProducts(mappedData);
-      } catch (err) {
-        console.error("Failed to fetch products:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
+  const products = rawProducts.map((p: any) => ({
+    ...p,
+    oldPrice: p.old_price,
+    newPrice: p.new_price,
+    discountRate: p.discount_rate,
+    isFeatured: p.is_featured
+  }));
 
   const featured = products.filter((p: any) => p.isFeatured);
 

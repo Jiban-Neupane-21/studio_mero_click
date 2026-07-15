@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Navigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
@@ -24,66 +24,50 @@ import {
   CardActions,
   CircularProgress
 } from "@mui/material";
-import { productsApi } from "../api/products";
 import { ArrowLeft, ChevronDown, Tag, CheckCircle, Calendar } from "lucide-react";
+import { useData } from "../context/DataContext";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { products: allProducts, loading: contextLoading } = useData();
   
-  const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const [activeImage, setActiveImage] = useState<string>("");
   const [randomProducts, setRandomProducts] = useState<any[]>([]);
 
+  const product = useMemo(() => {
+    if (!id || allProducts.length === 0) return null;
+    const data = allProducts.find((p: any) => p.id === id);
+    if (!data) return null;
+    return {
+      ...data,
+      oldPrice: data.old_price,
+      newPrice: data.new_price,
+      discountRate: data.discount_rate,
+      isFeatured: data.is_featured,
+      isAvailable: data.is_available,
+      images: data.product_images?.map((img: any) => ({ url: img.image_url || img.url, alt: img.alt_text || img.alt })) || [],
+      additionalInfo: data.product_specifications?.map((s: any) => ({ key: s.spec_key || s.key_name, value: s.spec_value || s.value_text })) || [],
+      features: data.product_features || [],
+      faq: data.product_faqs || [],
+    };
+  }, [id, allProducts]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(false);
-        if (!id) return;
-
-        const [data, allProductsData] = await Promise.all([
-          productsApi.getProductById(id),
-          productsApi.getProducts()
-        ]);
-
-        const mappedProduct = {
-          ...data,
-          oldPrice: data.old_price,
-          newPrice: data.new_price,
-          discountRate: data.discount_rate,
-          isFeatured: data.is_featured,
-          isAvailable: data.is_available,
-          images: data.product_images?.map((img: any) => ({ url: img.image_url || img.url, alt: img.alt_text || img.alt })) || [],
-          additionalInfo: data.product_specifications?.map((s: any) => ({ key: s.spec_key || s.key_name, value: s.spec_value || s.value_text })) || [],
-          features: data.product_features || [],
-          faq: data.product_faqs || [],
-        };
-
-        setProduct(mappedProduct);
-        setActiveImage(mappedProduct.thumbnail || "");
-
-        const allMapped = allProductsData.map((p: any) => ({
-          ...p,
-          oldPrice: p.old_price,
-          newPrice: p.new_price,
-          discountRate: p.discount_rate
-        }));
-
-        const otherProducts = allMapped.filter((p: any) => p.id !== data.id);
+    if (!contextLoading && id) {
+      setLoading(false);
+      if (product) {
+        setActiveImage(product.thumbnail || "");
+        const otherProducts = allProducts.filter((p: any) => p.id !== id);
         const shuffled = [...otherProducts].sort(() => 0.5 - Math.random());
         setRandomProducts(shuffled.slice(0, 3));
-      } catch (err) {
-        console.error(err);
+      } else if (allProducts.length > 0) {
         setError(true);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchData();
-  }, [id]);
+    }
+  }, [contextLoading, id, product, allProducts]);
 
   if (loading) {
     return (

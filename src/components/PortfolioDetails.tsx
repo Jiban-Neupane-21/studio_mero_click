@@ -41,8 +41,8 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { PortfolioItem } from "../types";
-import { portfolioApi } from "../api/portfolio";
 import LoadingSpinner from "./common/LoadingSpinner";
+import { useData } from "../context/DataContext";
 
 export default function PortfolioDetail() {
   const { id } = useParams<{ id: string }>();
@@ -50,30 +50,19 @@ export default function PortfolioDetail() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
+  const { portfolioItems, loading: contextLoading } = useData();
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [galleryImage, setGalleryImage] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadPortfolioData = async () => {
-      setLoading(true);
-      try {
-        const list = await portfolioApi.getPortfolioItems();
-        const matched = list.find((item) => item.id === id) ?? null;
-        setSelectedItem(matched);
-      } catch (err) {
-        console.error("Error loading portfolio item:", err);
-        setSelectedItem(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      loadPortfolioData();
+    if (!contextLoading && id) {
+      const matched = portfolioItems.find((item) => item.id === id) ?? null;
+      setSelectedItem(matched);
+      setLoading(false);
     }
-  }, [id]);
+  }, [id, portfolioItems, contextLoading]);
 
   const handleShareClick = () => {
     navigator.clipboard.writeText(window.location.href);

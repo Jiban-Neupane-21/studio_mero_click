@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import { 
   Box, 
@@ -10,12 +10,15 @@ import {
   Card,
   CardContent,
   CardMedia,
-  Button
+  Button,
+  Skeleton
 } from '@mui/material';
 import { Clock, User, Calendar, ArrowLeft, ChevronRight } from 'lucide-react';
 import { ColorModeContext } from '../App';
-import { learningArticlesApi } from '../api/learningArticles';
 import { LearningArticle } from '../types';
+import { useData } from '../context/DataContext';
+import { useMinDelay } from '../hooks/useMinDelay';
+import ScrollReveal, { StaggerContainer, StaggerItem } from '../components/common/ScrollReveal';
 
 export default function ReadArticlePage() {
   const { id } = useParams<{ id: string }>();
@@ -23,53 +26,54 @@ export default function ReadArticlePage() {
   const { mode } = useContext(ColorModeContext);
   const isDark = mode === 'dark';
 
-  const [article, setArticle] = useState<LearningArticle | null>(null);
-  const [recommended, setRecommended] = useState<LearningArticle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { learningArticles: rawArticles, loading: contextLoading } = useData();
+  const loadingSkeleton = useMinDelay(contextLoading);
+
+  const allArticles: LearningArticle[] = useMemo(() => {
+    return rawArticles.map((a: any) => ({
+      ...a,
+      readTime: a.read_time || a.readTime,
+      publishedAt: a.published_at || a.publishedAt,
+      imageUrl: a.image_url || a.image || a.imageUrl,
+    }));
+  }, [rawArticles]);
+
+  const article = useMemo(() => {
+    if (!id || allArticles.length === 0) return null;
+    return allArticles.find(a => a.id === id) ?? null;
+  }, [id, allArticles]);
+
+  const recommended = useMemo(() => {
+    if (!article || allArticles.length === 0) return [];
+    const others = allArticles.filter(a => a.id !== id);
+    const shuffled = others.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  }, [article, allArticles, id]);
 
   useEffect(() => {
-    const fetchArticleData = async () => {
-      if (!id) return;
-      setLoading(true);
-      try {
-        // Fetch specific article
-        const data = await learningArticlesApi.getLearningArticleById(id);
-        const mappedArticle: LearningArticle = {
-          ...data,
-          readTime: data.read_time || data.readTime,
-          publishedAt: data.published_at || data.publishedAt,
-          imageUrl: data.image_url || data.image || data.imageUrl,
-        };
-        setArticle(mappedArticle);
-
-        // Fetch all articles to pick random recommendations
-        const allData = await learningArticlesApi.getLearningArticles();
-        const mappedAll: LearningArticle[] = allData.map((a: any) => ({
-          ...a,
-          readTime: a.read_time || a.readTime,
-          publishedAt: a.published_at || a.publishedAt,
-          imageUrl: a.image_url || a.image || a.imageUrl,
-        }));
-        
-        // Filter out current article and shuffle
-        const others = mappedAll.filter(a => a.id !== id);
-        const shuffled = others.sort(() => 0.5 - Math.random());
-        setRecommended(shuffled.slice(0, 3));
-      } catch (error) {
-        console.error("Error fetching article:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticleData();
-    window.scrollTo(0, 0); // Scroll to top on load or ID change
+    window.scrollTo(0, 0);
   }, [id]);
 
-  if (loading) {
+  if (loadingSkeleton) {
     return (
-      <Box sx={{ minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: isDark ? '#020202' : '#f8fafc' }}>
-        <CircularProgress color="error" />
+      <Box sx={{ bgcolor: isDark ? '#020202' : '#f8fafc', minHeight: '100vh', py: { xs: 4, md: 8 } }}>
+        <Container maxWidth="md">
+          <Skeleton variant="rounded" width={140} height={36} sx={{ mb: 4 }} />
+          <Skeleton variant="text" width="80%" height={56} sx={{ mb: 1.5 }} />
+          <Skeleton variant="text" width="50%" height={56} sx={{ mb: 3 }} />
+          <Skeleton variant="text" width="60%" height={24} sx={{ mb: 4 }} />
+          <Box sx={{ display: 'flex', gap: 3, mb: 5, pb: 4, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Skeleton variant="text" width={100} height={20} />
+            <Skeleton variant="text" width={120} height={20} />
+            <Skeleton variant="text" width={80} height={20} />
+          </Box>
+          <Skeleton variant="rounded" width="100%" sx={{ height: 400, borderRadius: 4, mb: 6 }} />
+          <Skeleton variant="text" width="100%" height={24} />
+          <Skeleton variant="text" width="100%" height={24} />
+          <Skeleton variant="text" width="90%" height={24} />
+          <Skeleton variant="text" width="100%" height={24} />
+          <Skeleton variant="text" width="70%" height={24} />
+        </Container>
       </Box>
     );
   }
@@ -89,6 +93,7 @@ export default function ReadArticlePage() {
     <Box sx={{ bgcolor: isDark ? '#020202' : '#f8fafc', color: 'text.primary', minHeight: '100vh', py: { xs: 4, md: 8 } }}>
       <Container maxWidth="md">
         {/* Back Button */}
+        <ScrollReveal animation="fadeUp">
         <Button 
           startIcon={<ArrowLeft size={18} />} 
           onClick={() => navigate('/learn')}
@@ -96,8 +101,10 @@ export default function ReadArticlePage() {
         >
           Back to all articles
         </Button>
+        </ScrollReveal>
 
         {/* Article Header */}
+        <ScrollReveal animation="fadeUp" delay={0.1}>
         <Typography 
           variant="h2" 
           sx={{ 
@@ -114,8 +121,10 @@ export default function ReadArticlePage() {
         <Typography variant="subtitle1" sx={{ color: 'text.secondary', fontSize: '1.2rem', mb: 4, fontStyle: 'italic' }}>
           {article.excerpt}
         </Typography>
+        </ScrollReveal>
 
         {/* Meta Info */}
+        <ScrollReveal animation="fadeUp" delay={0.15}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 5, pb: 4, borderBottom: '1px solid', borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <User size={18} color="#E50914" />
@@ -132,9 +141,11 @@ export default function ReadArticlePage() {
             <Typography variant="body2" color="text.secondary">{article.readTime}</Typography>
           </Box>
         </Box>
+        </ScrollReveal>
 
         {/* Hero Image */}
         {article.imageUrl && (
+          <ScrollReveal animation="scaleUp">
           <Box 
             component="img"
             src={article.imageUrl}
@@ -149,9 +160,11 @@ export default function ReadArticlePage() {
               boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.5)' : '0 10px 30px rgba(0,0,0,0.05)'
             }}
           />
+          </ScrollReveal>
         )}
 
         {/* Content Body */}
+        <ScrollReveal animation="fadeUp" delay={0.1}>
         <Box 
           sx={{
             fontFamily: '"Inter", sans-serif',
@@ -166,6 +179,7 @@ export default function ReadArticlePage() {
           }}
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
+        </ScrollReveal>
 
         <Divider sx={{ my: 8, borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }} />
 
@@ -174,12 +188,16 @@ export default function ReadArticlePage() {
       {/* Recommended Articles Section */}
       {recommended.length > 0 && (
         <Container maxWidth="xl" sx={{ pb: 8 }}>
+          <ScrollReveal animation="fadeUp">
           <Typography variant="h4" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, mb: 4, textAlign: 'center' }}>
             Read Next
           </Typography>
+          </ScrollReveal>
+          <StaggerContainer staggerDelay={0.1}>
           <Grid container spacing={4} justifyContent="center">
             {recommended.map(rec => (
-              <Grid item xs={12} sm={6} md={4} key={rec.id}>
+              <StaggerItem key={rec.id}>
+              <Grid item xs={12} sm={6} md={4}>
                 <Card 
                   component={RouterLink}
                   to={`/learn/${rec.id}`}
@@ -214,8 +232,10 @@ export default function ReadArticlePage() {
                   </CardContent>
                 </Card>
               </Grid>
+              </StaggerItem>
             ))}
           </Grid>
+          </StaggerContainer>
         </Container>
       )}
     </Box>

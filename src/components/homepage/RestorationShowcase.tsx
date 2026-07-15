@@ -1,37 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box, Typography, Container, Grid, Button, Skeleton } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import { restorationApi } from "../../api/restoration";
 import { RestorationImage } from "../../types/restoration.type";
 import { MoveHorizontal } from "lucide-react";
+import { useData } from "../../context/DataContext";
 
 export default function RestorationShowcase() {
-  const [restorations, setRestorations] = useState<RestorationImage[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { restorations, loading } = useData();
   const [sliderPositions, setSliderPositions] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    const fetchRestorations = async () => {
-      try {
-        const [data] = await Promise.all([
-          restorationApi.getRestorations(),
-          new Promise((resolve) => setTimeout(resolve, 2000))
-        ]);
-        setRestorations(data);
-        // Initialize all sliders to 50%
-        const initialPositions: { [key: string]: number } = {};
-        data.forEach(item => {
-          initialPositions[item.id] = 50;
-        });
-        setSliderPositions(initialPositions);
-      } catch (error) {
-        console.error("Failed to fetch restoration images:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRestorations();
-  }, []);
+    if (restorations.length > 0) {
+      const initialPositions: { [key: string]: number } = {};
+      restorations.forEach(item => {
+        initialPositions[item.id] = 50;
+      });
+      setSliderPositions(initialPositions);
+    }
+  }, [restorations]);
 
   const handleSliderChange = (id: string, value: number) => {
     setSliderPositions(prev => ({ ...prev, [id]: value }));

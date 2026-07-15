@@ -20,6 +20,8 @@ import {
   Divider,
   Skeleton,
 } from "@mui/material";
+import { useMinDelay } from "../hooks/useMinDelay";
+import ScrollReveal, { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 import {
   Play,
   Film,
@@ -40,37 +42,27 @@ import { motion, AnimatePresence } from "motion/react";
 import { VideoItem } from "../types";
 import { ColorModeContext } from "../App";
 import { useNavigate } from "react-router-dom";
-import { videoItemsApi } from "../api/videoItems";
+import { useData } from "../context/DataContext";
 
 export default function VideoSection() {
   const { mode } = useContext(ColorModeContext);
   const isDark = mode === "dark";
   const navigate = useNavigate();
 
+  const { videoItems: videos, loading } = useData();
+  const loadingSkeleton = useMinDelay(loading);
+
   // State managers
-  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [spotlightVideo, setSpotlightVideo] = useState<VideoItem | null>(null);
   const [theaterVideo, setTheaterVideo] = useState<VideoItem | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadVideos = async () => {
-      try {
-        const data = await videoItemsApi.getVideoItems();
-        setVideos(data);
-        if (data.length > 0) {
-          setSpotlightVideo(data[0]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch videos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadVideos();
-  }, []);
+    if (videos.length > 0 && !spotlightVideo) {
+      setSpotlightVideo(videos[0]);
+    }
+  }, [videos, spotlightVideo]);
 
   const categories = useMemo(() => {
     return ["All", "YouTube", "Facebook", "TikTok"];
@@ -110,7 +102,7 @@ export default function VideoSection() {
       }}
     >
       <Container maxWidth="xl">
-        {loading ? (
+        {loadingSkeleton ? (
           <Box sx={{ py: { xs: 2, md: 4 } }}>
             {/* Header Skeleton */}
             <Box sx={{ textAlign: "center", mb: { xs: 5, md: 8 }, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -155,6 +147,7 @@ export default function VideoSection() {
         ) : (
           <>
             {/* Animated Header Section */}
+            <ScrollReveal animation="fadeUp">
             <Box sx={{ textAlign: "center", mb: { xs: 5, md: 8 } }}>
               <Box
                 sx={{
@@ -222,8 +215,10 @@ export default function VideoSection() {
                 Powered by global-grade lens selection and pristine audio details.
               </Typography>
             </Box>
+            </ScrollReveal>
 
             {/* Dynamic Category Filter bar */}
+            <ScrollReveal animation="fadeUp" delay={0.1}>
             <Box
               sx={{
                 display: "flex",
@@ -278,8 +273,10 @@ export default function VideoSection() {
                 );
               })}
             </Box>
+            </ScrollReveal>
 
             {/* ACTIVE VIDEOS GRID & SPOTLIGHT */}
+            <ScrollReveal animation="fadeUp" delay={0.15}>
             <Grid container spacing={4} sx={{ mb: 8 }}>
               {/* Main Large Spotlight Theater Player (Left or Top) */}
               <Grid size={{ xs: 12, lg: 8 }}>
@@ -682,6 +679,7 @@ export default function VideoSection() {
                 </Box>
               </Grid>
             </Grid>
+            </ScrollReveal>
 
             <Divider
               sx={{
@@ -691,6 +689,7 @@ export default function VideoSection() {
             />
 
             {/* Dense Showcase GRID of ALL Video Options */}
+            <ScrollReveal animation="fadeUp">
             <Typography
               variant="h5"
               sx={{
@@ -947,8 +946,10 @@ export default function VideoSection() {
                 </Grid>
               ))}
             </Grid>
+            </ScrollReveal>
 
             {/* BOTTOM CALL-TO-ACTION FOR KATHMANDU VIDEOGRAPHY SERVICES */}
+            <ScrollReveal animation="scaleUp">
             <Box
               sx={{
                 mt: 10,
@@ -1030,6 +1031,7 @@ export default function VideoSection() {
                 </Grid>
               </Grid>
             </Box>
+            </ScrollReveal>
           </>
         )}
       </Container>

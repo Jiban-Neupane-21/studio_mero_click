@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Navigate, Link as RouterLink } from "react-router-dom";
 import {
   Box,
@@ -9,44 +9,35 @@ import {
   Button,
   CircularProgress
 } from "@mui/material";
-import { restorationApi } from "../api/restoration";
 import { RestorationImage } from "../types/restoration.type";
 import { ArrowLeft } from "lucide-react";
+import { useData } from "../context/DataContext";
 
 export default function RestorationDetails() {
   const { id } = useParams<{ id: string }>();
+  const { restorations: allRestorations, loading: contextLoading } = useData();
   
-  const [restoration, setRestoration] = useState<RestorationImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [randomRestorations, setRandomRestorations] = useState<RestorationImage[]>([]);
 
+  const restoration = useMemo(() => {
+    if (!id || allRestorations.length === 0) return null;
+    return allRestorations.find((r: any) => r.id === id) ?? null;
+  }, [id, allRestorations]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(false);
-        if (!id) return;
-
-        const [data, allData] = await Promise.all([
-          restorationApi.getRestorationById(id),
-          restorationApi.getRestorations()
-        ]);
-
-        setRestoration(data);
-
-        const otherItems = allData.filter(r => r.id !== data.id);
+    if (!contextLoading && id) {
+      setLoading(false);
+      if (restoration) {
+        const otherItems = allRestorations.filter((r: any) => r.id !== id);
         const shuffled = [...otherItems].sort(() => 0.5 - Math.random());
         setRandomRestorations(shuffled.slice(0, 3));
-      } catch (err) {
-        console.error(err);
+      } else if (allRestorations.length > 0) {
         setError(true);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchData();
-  }, [id]);
+    }
+  }, [contextLoading, id, restoration, allRestorations]);
 
   if (loading) {
     return (

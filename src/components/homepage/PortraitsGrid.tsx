@@ -2,32 +2,23 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Box, Button, Skeleton } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import { portfolioApi } from "../../api/portfolio";
 import { PortfolioItem } from "../../types";
+import { useData } from "../../context/DataContext";
 
 export default function PortraitsGrid() {
     const theme = useTheme();
     const mode = theme.palette.mode;
     const navigate = useNavigate();
 
+    const { portfolioItems, loading } = useData();
     const [randomPortfolios, setRandomPortfolios] = useState<PortfolioItem[]>([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchPortfolios = async () => {
-            try {
-                const items = await portfolioApi.getPortfolioItems();
-                // Shuffle and pick 5 random portraits
-                const shuffled = items.sort(() => 0.5 - Math.random());
-                setRandomPortfolios(shuffled.slice(0, 5));
-            } catch (error) {
-                console.error("Failed to fetch portfolios", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPortfolios();
-    }, []);
+        if (portfolioItems.length > 0) {
+            const shuffled = [...portfolioItems].sort(() => 0.5 - Math.random());
+            setRandomPortfolios(shuffled.slice(0, 5));
+        }
+    }, [portfolioItems]);
 
     const onNavigate = (path: string) => {
         navigate(`/${path}`);

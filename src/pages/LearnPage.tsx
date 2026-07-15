@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
@@ -22,7 +22,8 @@ import {
     TextField,
     InputAdornment,
     Tabs,
-    Tab
+    Tab,
+    Skeleton
 } from '@mui/material';
 import {
     Play,
@@ -42,8 +43,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { TutorialVideo, LearningArticle } from '../types';
 import { ColorModeContext } from '../App';
-import { tutorialVideosApi } from '../api/tutorialVideos';
-import { learningArticlesApi } from '../api/learningArticles';
+import { useData } from '../context/DataContext';
+import { useMinDelay } from '../hooks/useMinDelay';
+import ScrollReveal, { StaggerContainer, StaggerItem } from '../components/common/ScrollReveal';
 
 const extractTiktokId = (url: string) => {
     try {
@@ -64,10 +66,28 @@ export default function LearnFromUs() {
     const isDark = mode === 'dark';
     const navigate = useNavigate();
 
-    // Core Data Lists State
-    const [videos, setVideos] = useState<TutorialVideo[]>([]);
-    const [articles, setArticles] = useState<LearningArticle[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const { tutorialVideos: rawVideos, learningArticles: rawArticles, loading } = useData();
+    const loadingSkeleton = useMinDelay(loading);
+
+    const videos: TutorialVideo[] = useMemo(() => {
+        return rawVideos.map((v: any) => ({
+            ...v,
+            youtubeId: v.youtube_id || v.youtubeId,
+            facebookLink: v.facebook_link || v.facebookLink,
+            tiktokLink: v.tiktok_link || v.tiktokLink,
+            uploadDate: v.upload_date || v.uploadDate,
+            publishedAt: v.published_at || v.publishedAt,
+        }));
+    }, [rawVideos]);
+
+    const articles: LearningArticle[] = useMemo(() => {
+        return rawArticles.map((a: any) => ({
+            ...a,
+            readTime: a.read_time || a.readTime,
+            publishedAt: a.published_at || a.publishedAt,
+            imageUrl: a.image_url || a.image || a.imageUrl,
+        }));
+    }, [rawArticles]);
 
     // Filter/Search States
     const [currentTab, setCurrentTab] = useState<number>(0); // 0 = Videos, 1 = Articles
@@ -77,43 +97,6 @@ export default function LearnFromUs() {
     // Modal Interactive States
     const [theaterVideo, setTheaterVideo] = useState<TutorialVideo | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const [videosResponse, articlesResponse] = await Promise.all([
-                    tutorialVideosApi.getTutorialVideos(),
-                    learningArticlesApi.getLearningArticles()
-                ]);
-
-                // Map database snake_case to frontend camelCase expected by types
-                const mappedVideos: TutorialVideo[] = videosResponse.map((v: any) => ({
-                    ...v,
-                    youtubeId: v.youtube_id || v.youtubeId,
-                    facebookLink: v.facebook_link || v.facebookLink,
-                    tiktokLink: v.tiktok_link || v.tiktokLink,
-                    uploadDate: v.upload_date || v.uploadDate,
-                    publishedAt: v.published_at || v.publishedAt,
-                }));
-
-                const mappedArticles: LearningArticle[] = articlesResponse.map((a: any) => ({
-                    ...a,
-                    readTime: a.read_time || a.readTime,
-                    publishedAt: a.published_at || a.publishedAt,
-                    imageUrl: a.image_url || a.image || a.imageUrl,
-                }));
-
-                setVideos(mappedVideos);
-                setArticles(mappedArticles);
-            } catch (err) {
-                console.error('Error loading tutorials/articles data:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
 
     // Categories: specific platforms for videos, none for articles
     const categories = useMemo(() => {
@@ -189,6 +172,7 @@ export default function LearnFromUs() {
         >
             <Container maxWidth="xl">
                 {/* ================= HEADER SECTION ================= */}
+                <ScrollReveal animation="fadeUp">
                 <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
                     <Typography
                         variant="h2"
@@ -218,8 +202,10 @@ export default function LearnFromUs() {
                         Enhance your photographic knowledge, prepare perfectly for embassy biometric validations, learn standard positioning guidelines, and understand the core crafts behind high-end wooden fabrication.
                     </Typography>
                 </Box>
+                </ScrollReveal>
 
                 {/* ================= SEARCH & NAVIGATION TOOLBAR ================= */}
+                <ScrollReveal animation="fadeUp" delay={0.1}>
                 <Box
                     sx={{
                         display: 'flex',
@@ -288,6 +274,7 @@ export default function LearnFromUs() {
                         }}
                     />
                 </Box>
+                </ScrollReveal>
 
                 {/* ================= CATEGORY BARS ================= */}
                 {categories.length > 1 && (
@@ -337,9 +324,50 @@ export default function LearnFromUs() {
                 )}
 
                 {/* ================= LOADER OR GRID LISTINGS ================= */}
-                {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 12 }}>
-                        <CircularProgress sx={{ color: '#E50914' }} />
+                {loadingSkeleton ? (
+                    <Box>
+                        {/* Header Skeleton */}
+                        <Box sx={{ textAlign: 'center', mb: { xs: 5, md: 8 } }}>
+                            <Skeleton variant="text" width="60%" height={56} sx={{ mx: 'auto', mb: 2 }} />
+                            <Skeleton variant="text" width="40%" height={56} sx={{ mx: 'auto', mb: 3 }} />
+                            <Skeleton variant="text" width="70%" height={24} sx={{ mx: 'auto' }} />
+                            <Skeleton variant="text" width="50%" height={24} sx={{ mx: 'auto' }} />
+                        </Box>
+
+                        {/* Toolbar Skeleton */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5, p: 3, borderRadius: '12px', border: '1px solid', borderColor: 'divider' }}>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Skeleton variant="rounded" width={140} height={36} />
+                                <Skeleton variant="rounded" width={160} height={36} />
+                            </Box>
+                            <Skeleton variant="rounded" width={280} height={36} />
+                        </Box>
+
+                        {/* Category Chips Skeleton */}
+                        <Box sx={{ display: 'flex', gap: 1.25, mb: 6, justifyContent: 'center' }}>
+                            {[1, 2, 3, 4].map((i) => (
+                                <Skeleton key={i} variant="rounded" width={100} height={36} sx={{ borderRadius: '100px' }} />
+                            ))}
+                        </Box>
+
+                        {/* Cards Grid Skeleton */}
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 4 }}>
+                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                                <Card key={i} sx={{ background: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: '10px', overflow: 'hidden' }}>
+                                    <Skeleton variant="rectangular" sx={{ aspectRatio: '16/10' }} animation="wave" />
+                                    <CardContent sx={{ p: 3 }}>
+                                        <Skeleton variant="text" width="80%" height={28} sx={{ mb: 1 }} />
+                                        <Skeleton variant="text" width="100%" height={16} />
+                                        <Skeleton variant="text" width="90%" height={16} />
+                                        <Skeleton variant="text" width="60%" height={16} sx={{ mb: 2 }} />
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                                            <Skeleton variant="text" width="30%" height={14} />
+                                            <Skeleton variant="text" width="20%" height={14} />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </Box>
                     </Box>
                 ) : (
                     <Box>
@@ -714,6 +742,7 @@ export default function LearnFromUs() {
                 )}
 
                 {/* ================= BOTTOM CTA CALL TO ACTION ================= */}
+                <ScrollReveal animation="scaleUp">
                 <Box
                     sx={{
                         mt: 10,
@@ -755,6 +784,7 @@ export default function LearnFromUs() {
                         Schedule On-Site Studio Session
                     </Button>
                 </Box>
+                </ScrollReveal>
             </Container>
 
             {/* ================= INTERACTIVE COMPACT MODAL: THEATER MODE PLAYER ================= */}

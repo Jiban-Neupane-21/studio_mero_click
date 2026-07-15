@@ -12,35 +12,15 @@ import {
   Skeleton
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { offerAdsApi } from "../../api/offerAds";
-import { homeItemsApi } from "../../api/homeItems";
+import { useData } from "../../context/DataContext";
 
 const Hero = () => {
+  const { offerAds, homeItems, loading } = useData();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [offers, setOffers] = useState<any[]>([]);
-  const [homeImage, setHomeImage] = useState<string>("/Images/CompressJPEG.Online_img(1280x720).jpg");
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [offersData, homeData] = await Promise.all([
-          offerAdsApi.getOfferAds(),
-          homeItemsApi.getHomeItems()
-        ]);
-        setOffers(offersData);
-        if (homeData && homeData.length > 0) {
-          setHomeImage(homeData[0].imageUrl);
-        }
-      } catch (error) {
-        console.error("Error fetching hero data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const offers = offerAds;
+  const homeImage = homeItems && homeItems.length > 0 ? homeItems[0].imageUrl : "/Images/CompressJPEG.Online_img(1280x720).jpg";
 
   useEffect(() => {
     if (offers.length === 0) return;

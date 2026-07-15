@@ -3,6 +3,8 @@ import { createContext, useState, useMemo } from "react";
 import { Approutes } from "./routes/Approutes";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { DataProvider } from "./context/DataContext";
+import DataPreloader from "./components/common/DataPreloader";
 
 export const ColorModeContext = createContext<{ 
   mode: "light" | "dark"; 
@@ -37,14 +39,18 @@ function App() {
   );
 
   return (
-    <ColorModeContext.Provider value={{ mode, toggleMode }}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div>
-          <Approutes />
-        </div>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+    <DataProvider>
+      <DataPreloader>
+        <ColorModeContext.Provider value={{ mode, toggleMode }}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <div>
+              <Approutes />
+            </div>
+          </ThemeProvider>
+        </ColorModeContext.Provider>
+      </DataPreloader>
+    </DataProvider>
   );
 }
 

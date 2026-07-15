@@ -364,8 +364,11 @@ const Navbar = () => {
                       textTransform: "none",
                       display: "flex",
                       "&.active": {
-                        color: "#fff",
-                        bgcolor: "#E50914",
+                        color: "inherit",
+                        textDecoration: "underline",
+                        textDecorationColor: "#E50914",
+                        textUnderlineOffset: "5px",
+                        textDecorationThickness: "2px",
                       },
                     }}
                   >

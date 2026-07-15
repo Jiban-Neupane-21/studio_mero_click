@@ -30,6 +30,7 @@ import {
   Navigation,
 } from "lucide-react";
 import { socialMediaData } from "../data/socialmedia";
+import ScrollReveal, { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 
 export default function ContactSection() {
   const location = useLocation();
@@ -90,7 +91,8 @@ export default function ContactSection() {
       <Container maxWidth="xl" id="contact-container">
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(12, 1fr)" }, gap: 6 }}>
           {/* Left Branch Contact Details */}
-          <Box sx={{ gridColumn: { md: "span 5" } }}>
+          <ScrollReveal animation="slideLeft">
+            <Box sx={{ gridColumn: { md: "span 5" } }}>
             <Box sx={{ mb: 4 }}>
               <Box
                 sx={{
@@ -319,9 +321,11 @@ export default function ContactSection() {
               </Box>
             </Stack>
           </Box>
+          </ScrollReveal>
 
           {/* Right Interactive Messaging Form / Map representation */}
-          <Box sx={{ gridColumn: { md: "span 7" } }}>
+          <ScrollReveal animation="slideRight">
+            <Box sx={{ gridColumn: { md: "span 7" } }}>
             <Box sx={{ display: "grid", gridTemplateColumns: "1fr", gap: 3 }}>
               {/* Form card */}
               <Box>
@@ -707,7 +711,9 @@ export default function ContactSection() {
               </Box>
             </Box>
           </Box>
+          </ScrollReveal>
         </Box>
+        <ScrollReveal animation="fadeUp">
         <Box
           sx={{
             mt: 5,
@@ -849,6 +855,7 @@ export default function ContactSection() {
             })}
           </Box>
         </Box>
+        </ScrollReveal>
       </Container>
     </Box>
   );

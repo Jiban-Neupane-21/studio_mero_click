@@ -5,17 +5,32 @@ import RestorationShowcase from "../components/homepage/RestorationShowcase";
 import SpecialitySection from "../components/Speciality";
 import FaqSection from "../components/FaqSection";
 import PortraitsGrid from "../components/homepage/PortraitsGrid";
+import ScrollReveal from "../components/common/ScrollReveal";
 
 export default function HomePage() {
   return (
     <>
-      <HeroImage />
-      <ServiceGrid />
-      <FeatureProduct />
-      <RestorationShowcase />
-      <PortraitsGrid />
-      <SpecialitySection />
-      <FaqSection />
+      <ScrollReveal animation="scaleUp">
+        <HeroImage />
+      </ScrollReveal>
+      <ScrollReveal animation="fadeUp" delay={0.1}>
+        <ServiceGrid />
+      </ScrollReveal>
+      <ScrollReveal animation="fadeUp" delay={0.1}>
+        <FeatureProduct />
+      </ScrollReveal>
+      <ScrollReveal animation="fadeUp" delay={0.1}>
+        <RestorationShowcase />
+      </ScrollReveal>
+      <ScrollReveal animation="fadeUp" delay={0.1}>
+        <PortraitsGrid />
+      </ScrollReveal>
+      <ScrollReveal animation="fadeUp" delay={0.1}>
+        <SpecialitySection />
+      </ScrollReveal>
+      <ScrollReveal animation="fadeUp" delay={0.1}>
+        <FaqSection />
+      </ScrollReveal>
     </>
   );
 }

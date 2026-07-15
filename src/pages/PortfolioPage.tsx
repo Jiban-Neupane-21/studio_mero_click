@@ -3,35 +3,32 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Container, Skeleton, Grid } from "@mui/material";
-import { Image as ImageIcon, Sparkles, Filter } from "lucide-react";
-import { portfolioApi } from "../api/portfolio";
 import PortfolioGrid from "../components/PortfolioGrid";
 import { PortfolioItem } from "../types";
+import { useData } from "../context/DataContext";
+import { useMinDelay } from "../hooks/useMinDelay";
+import ScrollReveal from "../components/common/ScrollReveal";
 
 export default function PortfolioPage() {
+  const { portfolioItems, loading } = useData();
+  const loadingSkeleton = useMinDelay(loading);
   const [items, setItems] = useState<PortfolioItem[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-    const loadPortfolio = async () => {
-      try {
-        const data = await portfolioApi.getPortfolioItems();
-        setItems(data);
-      } catch (err) {
-        console.error("Failed to load live portfolio:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadPortfolio();
   }, []);
+
+  useEffect(() => {
+    if (portfolioItems.length > 0) {
+      setItems(portfolioItems);
+    }
+  }, [portfolioItems]);
 
   return (
     <Box id="page-portfolio" sx={{ minHeight: "80vh", backgroundColor: "background.default" }}>
-      {loading ? (
+      {loadingSkeleton ? (
         <Box sx={{ pt: { xs: 4, md: 6 }, pb: { xs: 10, md: 14 } }}>
           <Container maxWidth="xl">
             {/* Tabs Skeleton */}
@@ -71,7 +68,9 @@ export default function PortfolioPage() {
           </Container>
         </Box>
       ) : (
-        <PortfolioGrid items={items} />
+        <ScrollReveal animation="fadeUp">
+          <PortfolioGrid items={items} />
+        </ScrollReveal>
       )}
     </Box>
   );

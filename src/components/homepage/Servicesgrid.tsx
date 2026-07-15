@@ -12,9 +12,8 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForwardIos";
 
-import { useState, useEffect } from "react";
+import { useData } from "../../context/DataContext";
 import { Service } from "../../types/service.type";
-import { servicesApi } from "../../api/services";
 
 const GAP = 24;
 
@@ -28,25 +27,7 @@ const ServiceGrid = () => {
   const isMd = useMediaQuery(theme.breakpoints.between("md", "lg"));
   const isLg = useMediaQuery(theme.breakpoints.between("lg", "xl"));
 
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const [data] = await Promise.all([
-          servicesApi.getServices(),
-          new Promise((resolve) => setTimeout(resolve, 2000)),
-        ]);
-        setServices(data);
-      } catch (error) {
-        console.error("Failed to fetch services:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchServices();
-  }, []);
+  const { services, loading } = useData();
 
   const getCardWidth = () => {
     if (isXs) return window.innerWidth * 0.85;

@@ -18,6 +18,7 @@ import {
   Aperture
 } from "lucide-react";
 import { aboutData } from "../data/about.data";
+import ScrollReveal, { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 
 export default function AboutPage() {
   const theme = useTheme();
@@ -44,7 +45,8 @@ export default function AboutPage() {
     <Box sx={{ width: "100%", backgroundColor: BG_DEFAULT, overflowX: "hidden" }}>
 
       {/* 1. Header Section */}
-      <Container maxWidth="md" sx={{ textAlign: "center", pt: { xs: 8, md: 12 }, pb: { xs: 6, md: 8 } }}>
+      <ScrollReveal animation="fadeUp">
+        <Container maxWidth="md" sx={{ textAlign: "center", pt: { xs: 8, md: 12 }, pb: { xs: 6, md: 8 } }}>
         <Typography
           variant="h2"
           sx={{
@@ -89,16 +91,18 @@ export default function AboutPage() {
         >
           {aboutData.header.buttonText}
         </Button>
-      </Container>
+        </Container>
+      </ScrollReveal>
 
       {/* Stats Section */}
-      <Box
-        sx={{
-          width: "100%",
-          py: { xs: 6, md: 10 },
-          backgroundColor: GREY_LIGHT,
-        }}
-      >
+      <ScrollReveal animation="fadeUp">
+        <Box
+          sx={{
+            width: "100%",
+            py: { xs: 6, md: 10 },
+            backgroundColor: GREY_LIGHT,
+          }}
+        >
         <Grid
           container
           justifyContent="space-evenly"
@@ -162,10 +166,12 @@ export default function AboutPage() {
             </Grid>
           ))}
         </Grid>
-      </Box>
+        </Box>
+      </ScrollReveal>
 
       {/* 3. Hero Image */}
-      <Box sx={{ width: "100%", height: { xs: "400px", md: "650px" }, mb: { xs: 8, md: 12 } }}>
+      <ScrollReveal animation="scaleUp">
+        <Box sx={{ width: "100%", height: { xs: "400px", md: "650px" }, mb: { xs: 8, md: 12 } }}>
         <Box
           component="img"
           src={aboutData.heroImage}
@@ -177,9 +183,11 @@ export default function AboutPage() {
           }}
         />
       </Box>
+      </ScrollReveal>
 
       {/* 4. Statement Section */}
-      <Container maxWidth="md" sx={{ textAlign: "center", pb: { xs: 10, md: 14 } }}>
+      <ScrollReveal animation="fadeUp">
+        <Container maxWidth="md" sx={{ textAlign: "center", pb: { xs: 10, md: 14 } }}>
         <Typography
           variant="h3"
           sx={{
@@ -224,10 +232,12 @@ export default function AboutPage() {
         >
           {aboutData.statement.buttonText}
         </Button>
-      </Container>
+        </Container>
+      </ScrollReveal>
 
       {/* 5. Differences Section (Grey Background) */}
-      <Box sx={{ backgroundColor: GREY_LIGHT, py: { xs: 10, md: 14 } }}>
+      <ScrollReveal animation="fadeUp">
+        <Box sx={{ backgroundColor: GREY_LIGHT, py: { xs: 10, md: 14 } }}>
         <Container maxWidth="lg">
           <Typography
             variant="h3"
@@ -265,10 +275,12 @@ export default function AboutPage() {
             </Grid>
           </Grid>
         </Container>
-      </Box>
+        </Box>
+      </ScrollReveal>
 
       {/* Team Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 10, md: 14 } }}>
+      <ScrollReveal animation="fadeUp">
+        <Container maxWidth="lg" sx={{ py: { xs: 10, md: 14 } }}>
         <Typography
           variant="h3"
           sx={{
@@ -322,10 +334,12 @@ export default function AboutPage() {
             </Grid>
           ))}
         </Grid>
-      </Container>
+        </Container>
+      </ScrollReveal>
 
       {/* 6. Process Section */}
-      <Container maxWidth="lg" sx={{ py: { xs: 10, md: 14 }, textAlign: "center" }}>
+      <ScrollReveal animation="fadeUp">
+        <Container maxWidth="lg" sx={{ py: { xs: 10, md: 14 }, textAlign: "center" }}>
         <Typography
           variant="h3"
           sx={{
@@ -471,7 +485,8 @@ export default function AboutPage() {
         >
           {aboutData.processSection.buttonText}
         </Button>
-      </Container>
+        </Container>
+      </ScrollReveal>
     </Box>
   );
 }
