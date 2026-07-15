@@ -1,4 +1,16 @@
 import { supabase } from '../utils/supabase';
+import { PortfolioItem } from '../types';
+
+const mapPortfolioItem = (item: any): PortfolioItem => ({
+  id: item.id,
+  title: item.title,
+  category: item.category,
+  imageUrl: item.image_url,
+  specLabel: item.spec_label,
+  author: item.author,
+  description: item.description,
+  secondaryImages: item.secondary_images,
+});
 
 export const portfolioApi = {
   /**
@@ -11,7 +23,7 @@ export const portfolioApi = {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return (data || []).map(mapPortfolioItem);
   },
 
   /**
@@ -25,7 +37,7 @@ export const portfolioApi = {
       .single();
 
     if (error) throw error;
-    return data;
+    return mapPortfolioItem(data);
   },
 
   /**

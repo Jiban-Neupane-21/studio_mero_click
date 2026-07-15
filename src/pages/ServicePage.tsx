@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Box, Grid, Typography, CircularProgress } from "@mui/material";
+import { Box, Grid, Typography, Skeleton } from "@mui/material";
 
 import { servicesApi } from "../api/services";
 
@@ -11,7 +11,10 @@ const ServicePage = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const data = await servicesApi.getServices();
+        const [data] = await Promise.all([
+          servicesApi.getServices(),
+          new Promise((resolve) => setTimeout(resolve, 2000))
+        ]);
         // optionally filter for is_available if you want
         setServices(data.filter((s: any) => s.is_available));
       } catch (error) {
@@ -50,9 +53,35 @@ const ServicePage = () => {
 
       <Grid container spacing={4}>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 8 }}>
-            <CircularProgress color="error" />
-          </Box>
+          [...Array(8)].map((_, index) => (
+            <Grid
+              key={`skeleton-${index}`}
+              size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  bgcolor: "background.paper",
+                  boxShadow: 2,
+                  height: { xs: "auto", sm: "calc((100vh - 280px) / 2)" },
+                  minHeight: { sm: 250 },
+                }}
+              >
+                <Skeleton
+                  variant="rectangular"
+                  width="100%"
+                  sx={{ flexGrow: 1, minHeight: { xs: 250, sm: 0 } }}
+                  animation="wave"
+                />
+                <Box sx={{ py: 2, px: 2, borderTop: "1px solid", borderColor: "divider" }}>
+                  <Skeleton variant="text" sx={{ fontSize: "1.25rem", mx: "auto" }} width="60%" animation="wave" />
+                </Box>
+              </Box>
+            </Grid>
+          ))
         ) : services.length === 0 ? (
           <Box sx={{ width: '100%', textAlign: 'center', mt: 8 }}>
             <Typography variant="h6" color="text.secondary">No services available at the moment.</Typography>

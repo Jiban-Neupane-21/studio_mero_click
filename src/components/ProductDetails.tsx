@@ -155,8 +155,8 @@ const ProductDetails: React.FC = () => {
                 alt={product.title}
                 sx={{
                   width: "100%",
-                  height: { xs: 300, sm: 400, md: 450 },
-                  objectFit: "cover",
+                  height: "auto",
+                  display: "block",
                   borderRadius: 1.5,
                   backgroundColor: "grey.50",
                   border: "1px solid",

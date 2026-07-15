@@ -73,19 +73,17 @@ export default function VideoSection() {
   }, []);
 
   const categories = useMemo(() => {
-    return [
-      "All",
-      "Wedding Reel",
-      "Fashion",
-      "Behind the Scenes",
-      "UCG Ads",
-      "Commercial",
-    ];
+    return ["All", "YouTube", "Facebook", "TikTok"];
   }, []);
 
   const filteredVideos = useMemo(() => {
     if (selectedCategory === "All") return videos;
-    return videos.filter((video) => video.category === selectedCategory);
+    return videos.filter((video) => {
+      if (selectedCategory === "YouTube") return !!video.youtubeId;
+      if (selectedCategory === "Facebook") return !!video.facebookLink;
+      if (selectedCategory === "TikTok") return !!video.tiktokLink;
+      return false;
+    });
   }, [selectedCategory, videos]);
 
   const handleShare = (video: VideoItem, e: React.MouseEvent) => {

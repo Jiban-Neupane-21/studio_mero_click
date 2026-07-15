@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useColorScheme } from "@mui/material/styles";
+import { useState, useContext } from "react";
+import { motion } from "motion/react";
 import {
   AppBar,
   Box,
@@ -23,16 +23,19 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { Link, NavLink } from "react-router-dom";
+import LockIcon from "@mui/icons-material/Lock";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { navItems } from "../../data/navitem";
 import { socialMediaData } from "../../data/socialmedia";
+import { ColorModeContext } from "../../App";
 
 const drawerWidth = 280;
 
 const Navbar = () => {
-  const { mode, setMode } = useColorScheme();
+  const { mode, toggleMode } = useContext(ColorModeContext);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleDrawer = (value: boolean) => () => {
     setOpen(value);
@@ -67,13 +70,18 @@ const Navbar = () => {
             position: "sticky",
             top: 0,
             // backgroundColor: mode === "dark" ? "#000000" : "#111111",
-            color: "rgba(0, 0, 0, 0.7)",
+            color: "text.secondary",
             py: 1.25,
             width: "100%",
             zIndex: 1100,
             borderBottom: `1px solid ${mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)"}`,
             fontSize: "0.75rem",
             fontFamily: '"Space Grotesk", sans-serif',
+            "@keyframes slideDownBar": {
+              "0%": { opacity: 0, transform: "translateY(-100%)" },
+              "100%": { opacity: 1, transform: "translateY(0)" },
+            },
+            animation: "slideDownBar 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
           }}
           id="navbar-top-utility-bar"
         >
@@ -104,7 +112,7 @@ const Navbar = () => {
                     alignItems: "center",
                     gap: 0.75,
                     transition: "color 0.2s",
-                    "&:hover": { color: "#000000ff" },
+                    "&:hover": { color: "text.primary" },
                     cursor: "pointer",
                   }}
                 >
@@ -122,7 +130,7 @@ const Navbar = () => {
                     alignItems: "center",
                     gap: 0.75,
                     transition: "color 0.2s",
-                    "&:hover": { color: "#000000ff" },
+                    "&:hover": { color: "text.primary" },
                     cursor: "pointer",
                   }}
                 >
@@ -147,8 +155,8 @@ const Navbar = () => {
                   borderRadius: 1,
                   p: 0.5,
                   px: 1.5,
-                  background: "#FFFFFF",
-                  border: "1px solid #000000",
+                  background: mode === 'dark' ? "#1E1E1E" : "#FFFFFF",
+                  border: mode === 'dark' ? "1px solid #444" : "1px solid #000000",
                   "@keyframes shimmer": {
                     "0%": { transform: "translateX(-100%)" },
                     "100%": { transform: "translateX(100%)" },
@@ -158,10 +166,11 @@ const Navbar = () => {
                     "50%": { boxShadow: "5px 5px 0px #000000" },
                   },
                   "@keyframes iconBounce": {
-                    "0%, 100%": { transform: "translateY(0) scale(1)" },
-                    "50%": { transform: "translateY(-3px) scale(1.08)" },
+                    "0%": { transform: "translateY(0) scale(1)" },
+                    "50%": { transform: "translateY(-5px) scale(1.15)" },
+                    "100%": { transform: "translateY(0) scale(1)" },
                   },
-                  animation: "pulseGlow 3s ease-in-out infinite",
+                  animation: "pulseGlow 3s ease-in-out 1",
                   "&::after": {
                     content: '""',
                     position: "absolute",
@@ -171,14 +180,14 @@ const Navbar = () => {
                     height: "100%",
                     background:
                       "linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.1), transparent)",
-                    animation: "shimmer 3s infinite linear",
+                    animation: "shimmer 2s linear 1",
                   },
                 }}
               >
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "#000000",
+                    color: "text.primary",
                     fontWeight: 800,
                     textTransform: "uppercase",
                     letterSpacing: "0.14em",
@@ -208,18 +217,17 @@ const Navbar = () => {
                         height: "26px",
                         borderRadius: "4px",
                         p: 0,
-                        backgroundColor: "#000000",
+                        backgroundColor: mode === 'dark' ? "#333" : "#000000",
                         border: "1px solid #E50914",
                         color: "#FFFFFF",
                         transition:
                           "all 0.25s ease",
-                        animation: `iconBounce 2.4s ease-in-out ${i * 0.25}s infinite`,
+                        animation: `iconBounce 1s ease-in-out ${i * 0.15}s 1`,
                         "&:hover": {
                           color: "#E50914",
                           backgroundColor: "#FFFFFF",
                           borderColor: "#000000",
                           boxShadow: "2px 2px 0px #E50914",
-                          animationPlayState: "paused",
                           transform: "translateY(-3px) scale(1.15)",
                         },
                       }}
@@ -228,6 +236,38 @@ const Navbar = () => {
                     </Button>
                   );
                 })}
+              </Box>
+
+              {/* Utility Icons (Theme Toggle & Login) */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: { xs: 0, sm: 2 } }}>
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    fontWeight: 600, 
+                    textTransform: 'capitalize',
+                    color: 'text.primary',
+                    display: { xs: 'none', sm: 'block' }
+                  }}
+                >
+                  {mode} Mode
+                </Typography>
+                <IconButton
+                  onClick={toggleMode}
+                  size="small"
+                  sx={{ color: mode === 'dark' ? '#fff' : '#000' }}
+                  title="Toggle Theme"
+                >
+                  {mode === 'dark' ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
+                </IconButton>
+
+                <IconButton
+                  onClick={() => navigate('/login')}
+                  size="small"
+                  sx={{ color: mode === 'dark' ? '#fff' : '#000' }}
+                  title="Admin Login"
+                >
+                  <LockIcon fontSize="small" />
+                </IconButton>
               </Box>
             </Box>
           </Box>
@@ -310,26 +350,40 @@ const Navbar = () => {
                 gap: 1,
               }}
             >
-              {navItems.map((item) => (
-                <Button
-                  key={item.id}
-                  component={NavLink}
-                  to={item.path}
-                  color="inherit"
-                  sx={{
-                    px: 2,
-                    py: 1,
-                    borderRadius: 2,
-                    fontWeight: 600,
-                    textTransform: "none",
-                    "&.active": {
-                      color: "#fff",
-                      bgcolor: "#E50914",
-                    },
-                  }}
-                >
-                  {item.title}
-                </Button>
+              {navItems.map((item, index) => (
+                <Box key={item.id}>
+                  <Button
+                    component={NavLink}
+                    to={item.path}
+                    color="inherit"
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2,
+                      fontWeight: 600,
+                      textTransform: "none",
+                      display: "flex",
+                      "&.active": {
+                        color: "#fff",
+                        bgcolor: "#E50914",
+                      },
+                    }}
+                  >
+                    {item.title.split('').map((char, charIndex) => (
+                      <motion.span
+                        key={charIndex}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ 
+                          duration: 0.01, 
+                          delay: (index * 0.15) + (charIndex * 0.04) 
+                        }}
+                      >
+                        {char === ' ' ? '\u00A0' : char}
+                      </motion.span>
+                    ))}
+                  </Button>
+                </Box>
               ))}
               <Button
                 component={Link}
@@ -453,7 +507,7 @@ const Navbar = () => {
                 to={item.path}
                 onClick={toggleDrawer(false)}
                 sx={{
-                  color: "#000000",
+                  color: "text.primary",
                   "&.active": {
                     bgcolor: "action.selected",
                     color: "#E50914",

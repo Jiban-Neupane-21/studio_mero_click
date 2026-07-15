@@ -85,10 +85,10 @@ export default function RestorationDetails() {
         sx={{
           overflow: "hidden",
           mb: 6,
-          backgroundColor: "white",
+          backgroundColor: "background.paper",
           borderRadius: 4,
           border: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           p: { xs: 2, md: 4 }
         }}
       >
@@ -103,7 +103,7 @@ export default function RestorationDetails() {
                     borderRadius: 3,
                     overflow: 'hidden',
                     aspectRatio: '4/5',
-                    bgcolor: '#eee',
+                    bgcolor: 'background.default',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
                     position: 'relative'
                   }}
@@ -126,7 +126,7 @@ export default function RestorationDetails() {
                     borderRadius: 3,
                     overflow: 'hidden',
                     aspectRatio: '4/5',
-                    bgcolor: '#eee',
+                    bgcolor: 'background.default',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
                     position: 'relative'
                   }}
@@ -148,7 +148,7 @@ export default function RestorationDetails() {
           {/* Right Column: Text Details */}
           <Grid item xs={12} lg={4}>
             <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', pt: 2 }}>
-              <Typography variant="h3" fontWeight="800" color="#102a43" gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, lineHeight: 1.2 }}>
+              <Typography variant="h3" fontWeight="800" color="text.primary" gutterBottom sx={{ fontSize: { xs: '2rem', md: '2.5rem' }, lineHeight: 1.2 }}>
                 {restoration.title}
               </Typography>
               
@@ -194,10 +194,10 @@ export default function RestorationDetails() {
                   sx={{ 
                     display: 'block',
                     textDecoration: 'none',
-                    bgcolor: 'white',
+                    bgcolor: 'background.paper',
                     borderRadius: 4,
                     border: '1px solid',
-                    borderColor: 'grey.200',
+                    borderColor: 'divider',
                     overflow: 'hidden',
                     transition: 'transform 0.2s, box-shadow 0.2s',
                     '&:hover': {
@@ -211,13 +211,13 @@ export default function RestorationDetails() {
                       position: 'relative',
                       width: '100%',
                       aspectRatio: '4/5',
-                      bgcolor: '#eee'
+                      bgcolor: 'background.default'
                     }}
                   >
                     <Box component="img" src={item.after_image_url} alt="After" sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                   </Box>
                   <Box sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="subtitle1" fontWeight="700" color="#102a43" noWrap>
+                    <Typography variant="subtitle1" fontWeight="700" color="text.primary" noWrap>
                       {item.title}
                     </Typography>
                     <Typography variant="body2" color="error.main" fontWeight="600" sx={{ mt: 0.5 }}>

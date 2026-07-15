@@ -168,8 +168,8 @@ export default function PortfolioDetail() {
       sx={{
         py: { xs: 6, md: 10 },
         minHeight: "90vh",
-        backgroundColor: "#ffffff",
-        color: "#000000",
+        backgroundColor: "background.default",
+        color: "text.primary",
       }}
     >
       <Container maxWidth="lg" id="portfolio-detail-page">
@@ -227,9 +227,9 @@ export default function PortfolioDetail() {
                 position: "relative",
                 borderRadius: "12px",
                 overflow: "hidden",
-                backgroundColor: "#ffffff",
+                backgroundColor: "background.paper",
                 border: "1px solid",
-                borderColor: "rgba(0,0,0,0.08)",
+                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
                 display: "flex",
                 justifyContent: "center",
                 boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
@@ -239,9 +239,11 @@ export default function PortfolioDetail() {
                 src={selectedItem.imageUrl}
                 alt={selectedItem.title}
                 style={{
+                  display: "block",
                   width: "100%",
+                  height: "auto",
                   maxHeight: "75vh",
-                  objectFit: "contain",
+                  objectFit: "cover",
                 }}
                 referrerPolicy="no-referrer"
                 onError={(e) => {
@@ -494,9 +496,10 @@ export default function PortfolioDetail() {
         maxWidth={false}
         sx={{
           "& .MuiPaper-root": {
-            backgroundColor: "#ffffff",
+            backgroundColor: "background.paper",
             borderRadius: "8px",
-            border: "1px solid rgba(0,0,0,0.08)",
+            border: "1px solid",
+            borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
             margin: "24px",
             maxWidth: "calc(100% - 48px)",
             maxHeight: "calc(100% - 48px)",

@@ -9,6 +9,7 @@ import {
   Paper,
   Typography,
   IconButton,
+  Skeleton
 } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { offerAdsApi } from "../../api/offerAds";
@@ -18,6 +19,7 @@ const Hero = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [offers, setOffers] = useState<any[]>([]);
   const [homeImage, setHomeImage] = useState<string>("/Images/CompressJPEG.Online_img(1280x720).jpg");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +35,8 @@ const Hero = () => {
         }
       } catch (error) {
         console.error("Error fetching hero data:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -92,17 +96,21 @@ const Hero = () => {
                 overflow: "hidden",
               }}
             >
-              <Box
-                component="img"
-                src={homeImage}
-                alt="Hero"
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
+              {loading ? (
+                <Skeleton variant="rectangular" width="100%" height="100%" animation="wave" />
+              ) : (
+                <Box
+                  component="img"
+                  src={homeImage}
+                  alt="Hero"
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+              )}
             </Box>
           </Paper>
         </Grid>
@@ -111,7 +119,9 @@ const Hero = () => {
         {/* Offer Section */}
 
         <Grid size={{ xs: 12, lg: 3.5 }} sx={{ height: { xs: "auto", lg: "100%" } }}>
-          {activeOffer ? (
+          {loading ? (
+            <Skeleton variant="rounded" width="100%" height="100%" sx={{ minHeight: { xs: "360px", sm: "450px", lg: "100%" }, borderRadius: 4 }} animation="wave" />
+          ) : activeOffer ? (
             <Paper
               elevation={3}
               sx={{

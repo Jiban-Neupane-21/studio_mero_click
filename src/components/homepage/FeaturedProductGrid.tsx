@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 import { useState, useEffect } from "react";
-import { Box, Typography, Grid, CircularProgress } from "@mui/material";
+import { Box, Typography, Grid, CircularProgress, Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ProductCard from "../ProductCard";
 import type { Product } from "../../types/featureProduct.type";
@@ -23,7 +23,10 @@ export default function FeaturedProducts() {
       try {
         setLoading(true);
         setError(false);
-        const data = await productsApi.getProducts();
+        const [data] = await Promise.all([
+          productsApi.getProducts(),
+          new Promise((resolve) => setTimeout(resolve, 2000))
+        ]);
         
         console.log("Fetched raw products from Supabase:", data);
         
@@ -83,9 +86,29 @@ export default function FeaturedProducts() {
         }}
       >
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 4 }}>
-            <CircularProgress color="error" />
-          </Box>
+          [...Array(5)].map((_, index) => (
+            <Grid
+              key={`skeleton-${index}`}
+              size={{
+                xs: 12,
+                sm: 6,
+                md: 4,
+                lg: 3,
+                xl: 2.4,
+              }}
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Box sx={{ width: '100%', maxWidth: { xs: 320, sm: 280 }, p: 1 }}>
+                <Skeleton variant="rectangular" width="100%" height={260} sx={{ borderRadius: 2 }} animation="wave" />
+                <Skeleton variant="text" sx={{ mt: 2, fontSize: '1.25rem' }} animation="wave" />
+                <Skeleton variant="text" width="60%" animation="wave" />
+                <Skeleton variant="rectangular" width="100%" height={42} sx={{ mt: 2, borderRadius: 1 }} animation="wave" />
+              </Box>
+            </Grid>
+          ))
         ) : error ? (
           <Box sx={{ width: '100%', textAlign: 'center', mt: 4 }}>
             <Typography variant="body1" color="error">

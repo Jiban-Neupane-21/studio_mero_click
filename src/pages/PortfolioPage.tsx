@@ -30,7 +30,7 @@ export default function PortfolioPage() {
   }, []);
 
   return (
-    <Box id="page-portfolio" sx={{ minHeight: "80vh", backgroundColor: "#ffffff" }}>
+    <Box id="page-portfolio" sx={{ minHeight: "80vh", backgroundColor: "background.default" }}>
       {loading ? (
         <Box sx={{ pt: { xs: 4, md: 6 }, pb: { xs: 10, md: 14 } }}>
           <Container maxWidth="xl">
@@ -45,7 +45,7 @@ export default function PortfolioPage() {
               }}
             >
               {[1, 2, 3, 4, 5].map((i) => (
-                <Skeleton key={i} variant="rounded" width={120} height={40} sx={{ bgcolor: "rgba(0, 0, 0, 0.05)" }} />
+                <Skeleton key={i} variant="rounded" width={120} height={40} />
               ))}
             </Box>
 
@@ -56,15 +56,15 @@ export default function PortfolioPage() {
                   <Skeleton
                     variant="rounded"
                     width="100%"
-                    sx={{ aspectRatio: "4/5", bgcolor: "rgba(0, 0, 0, 0.05)" }}
+                    sx={{ aspectRatio: "4/5" }}
                   />
                   <Skeleton
                     variant="text"
                     width="70%"
                     height={24}
-                    sx={{ mt: 2, bgcolor: "rgba(0, 0, 0, 0.05)" }}
+                    sx={{ mt: 2 }}
                   />
-                  <Skeleton variant="text" width="40%" height={20} sx={{ bgcolor: "rgba(0, 0, 0, 0.05)" }} />
+                  <Skeleton variant="text" width="40%" height={20} />
                 </Grid>
               ))}
             </Grid>

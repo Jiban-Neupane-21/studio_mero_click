@@ -140,8 +140,8 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
       sx={{
         pt: { xs: 3, md: 5 },
         pb: { xs: 10, md: 14 },
-        backgroundColor: "#ffffff",
-        color: "#000000",
+        backgroundColor: "background.default",
+        color: "text.primary",
         transition: "background-color 0.3s, color 0.3s",
         minHeight: "100vh",
       }}
@@ -154,7 +154,8 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
             display: "flex",
             justifyContent: "center",
             mb: 6,
-            borderBottom: "1.5px solid rgba(0, 0, 0, 0.08)",
+            borderBottom: "1.5px solid",
+            borderColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)",
           }}
           id="portfolio-filters"
         >
@@ -174,19 +175,19 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
                 fontSize: { xs: "0.85rem", md: "0.95rem" },
                 textTransform: "none",
                 fontWeight: 700,
-                color: "#52525b",
+                color: "text.secondary",
                 opacity: 0.75,
                 minWidth: "auto",
                 px: { xs: 2.5, md: 4 },
                 py: 2,
                 transition: "opacity 0.2s ease, color 0.2s ease",
                 "&.Mui-selected": { 
-                  color: "#000000",
+                  color: "text.primary",
                   opacity: 1, 
                 },
                 "&:hover": {
                   opacity: 1,
-                  color: "#000000",
+                  color: "text.primary",
                 }
               },
             }}
@@ -210,8 +211,9 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
                 onClick={() => navigate(`/portfolio/${item.id}`)}
                 sx={{
                   cursor: "pointer",
-                  backgroundColor: "#ffffff",
-                  border: "1px solid rgba(0, 0, 0, 0.08)",
+                  backgroundColor: "background.paper",
+                  border: "1px solid",
+                  borderColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)",
                   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.03)",
                   borderRadius: "8px",
                   overflow: "hidden",
@@ -238,7 +240,7 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
                     position: "relative",
                     overflow: "hidden",
                     aspectRatio: "4/5",
-                    backgroundColor: "#f4f4f5",
+                    backgroundColor: "background.default",
                   }}
                 >
                   <CardMedia
@@ -309,7 +311,7 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
                 <CardContent 
                   sx={{ 
                     p: 2.5, 
-                    backgroundColor: "#ffffff",
+                    backgroundColor: "background.paper",
                     display: "flex", 
                     alignItems: "center",
                     justifyContent: "space-between",
@@ -323,7 +325,7 @@ export default function PortfolioGrid({ items }: { items: PortfolioItem[] }) {
                       fontWeight: 700,
                       fontFamily: '"Space Grotesk", sans-serif',
                       fontSize: "0.95rem",
-                      color: "#18181b",
+                      color: "text.primary",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",

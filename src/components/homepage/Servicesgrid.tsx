@@ -7,6 +7,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Skeleton,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForwardIos";
@@ -28,14 +29,20 @@ const ServiceGrid = () => {
   const isLg = useMediaQuery(theme.breakpoints.between("lg", "xl"));
 
   const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const data = await servicesApi.getServices();
+        const [data] = await Promise.all([
+          servicesApi.getServices(),
+          new Promise((resolve) => setTimeout(resolve, 2000)),
+        ]);
         setServices(data);
       } catch (error) {
         console.error("Failed to fetch services:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchServices();
@@ -161,8 +168,63 @@ const ServiceGrid = () => {
           },
         }}
       >
-        {services.map((service) => (
-          <Box
+        {loading ? (
+          [...Array(4)].map((_, index) => (
+            <Box
+              key={`skeleton-${index}`}
+              sx={{
+                flex: {
+                  xs: "0 0 85vw",
+                  sm: "0 0 320px",
+                  md: "0 0 360px",
+                  lg: "0 0 420px",
+                  xl: "0 0 440px",
+                },
+                maxWidth: {
+                  xs: "85vw",
+                  sm: "320px",
+                  md: "360px",
+                  lg: "420px",
+                  xl: "440px",
+                },
+                scrollSnapAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: 3,
+                overflow: "hidden",
+                bgcolor: "background.paper",
+                boxShadow: 2,
+              }}
+            >
+              <Skeleton
+                variant="rectangular"
+                animation="wave"
+                sx={{
+                  width: "100%",
+                  height: {
+                    xs: "425px",
+                    sm: "427px",
+                    md: "480px",
+                    lg: "max(500px, calc(100vh - 320px))",
+                    xl: "max(520px, calc(100vh - 320px))",
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  px: 3,
+                  py: 2.5,
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Skeleton variant="text" width="60%" height={32} animation="wave" sx={{ mx: "auto" }} />
+              </Box>
+            </Box>
+          ))
+        ) : (
+          services.map((service) => (
+            <Box
             key={service.id}
             component={Link}
             to={`/services/${service.id}`}
@@ -218,8 +280,8 @@ const ServiceGrid = () => {
                   xs: "425px",
                   sm: "427px",
                   md: "480px",
-                  lg: "560px",
-                  xl: "587px",
+                  lg: "max(500px, calc(100vh - 320px))",
+                  xl: "max(520px, calc(100vh - 320px))",
                 },
                 backgroundImage: `url(${service.thumbnail})`,
                 backgroundSize: "cover",
@@ -251,7 +313,7 @@ const ServiceGrid = () => {
               </Typography>
             </Box>
           </Box>
-        ))}
+        )))}
       </Box>
     </Box>
   );

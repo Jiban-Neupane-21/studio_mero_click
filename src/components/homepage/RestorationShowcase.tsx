@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, Container, CircularProgress, Grid, Button } from "@mui/material";
+import { Box, Typography, Container, Grid, Button, Skeleton } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { restorationApi } from "../../api/restoration";
 import { RestorationImage } from "../../types/restoration.type";
@@ -13,7 +13,10 @@ export default function RestorationShowcase() {
   useEffect(() => {
     const fetchRestorations = async () => {
       try {
-        const data = await restorationApi.getRestorations();
+        const [data] = await Promise.all([
+          restorationApi.getRestorations(),
+          new Promise((resolve) => setTimeout(resolve, 2000))
+        ]);
         setRestorations(data);
         // Initialize all sliders to 50%
         const initialPositions: { [key: string]: number } = {};
@@ -34,20 +37,12 @@ export default function RestorationShowcase() {
     setSliderPositions(prev => ({ ...prev, [id]: value }));
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress color="error" />
-      </Box>
-    );
-  }
-
-  if (restorations.length === 0) {
+  if (!loading && restorations.length === 0) {
     return null; // Don't render section if no items
   }
 
   return (
-    <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fafafa" }}>
+    <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'background.default', transition: 'background-color 0.3s ease' }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: "center", mb: 6 }}>
           <Typography
@@ -70,16 +65,45 @@ export default function RestorationShowcase() {
         </Box>
 
         <Grid container spacing={4}>
-          {restorations.map((item) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
+          {loading ? (
+            [...Array(4)].map((_, index) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={`skeleton-${index}`}>
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    bgcolor: 'background.paper',
+                    borderRadius: 4,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    overflow: 'hidden',
+                    height: '100%'
+                  }}
+                >
+                  <Box sx={{ p: 1.5 }}>
+                    <Skeleton variant="rectangular" width="100%" sx={{ aspectRatio: '4/5', borderRadius: 3 }} animation="wave" />
+                  </Box>
+                  <Box sx={{ p: 2, pt: 1, textAlign: 'left', flexGrow: 1 }}>
+                    <Skeleton variant="text" sx={{ fontSize: '1.25rem', mb: 1 }} animation="wave" />
+                    <Skeleton variant="text" width="60%" animation="wave" />
+                    <Box sx={{ mt: 'auto', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+                      <Skeleton variant="rectangular" width="100%" height={36} animation="wave" />
+                    </Box>
+                  </Box>
+                </Box>
+              </Grid>
+            ))
+          ) : (
+            restorations.map((item) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={item.id}>
               <Box 
                 sx={{ 
                   display: 'flex', 
                   flexDirection: 'column', 
-                  bgcolor: 'white',
+                  bgcolor: 'background.paper',
                   borderRadius: 4,
                   border: '1px solid',
-                  borderColor: 'grey.200',
+                  borderColor: 'divider',
                   overflow: 'hidden',
                   height: '100%'
                 }}
@@ -92,7 +116,7 @@ export default function RestorationShowcase() {
                       borderRadius: 3,
                       overflow: 'hidden',
                       aspectRatio: '4/5',
-                      bgcolor: '#eee'
+                      bgcolor: 'background.default'
                     }}
                   >
                 {/* Before Image (Base) */}
@@ -183,7 +207,7 @@ export default function RestorationShowcase() {
             </Box>
 
             <Box sx={{ p: 2, pt: 1, textAlign: 'left', flexGrow: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#102a43', lineHeight: 1.3, mb: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1.3, mb: 1 }}>
                 {item.title}
               </Typography>
               {item.description && (
@@ -191,7 +215,7 @@ export default function RestorationShowcase() {
                   {item.description}
                 </Typography>
               )}
-              <Box sx={{ mt: 'auto', pt: 1, borderTop: '1px solid', borderColor: 'grey.100' }}>
+              <Box sx={{ mt: 'auto', pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
                 <Button 
                   component={RouterLink} 
                   to={`/restorations/${item.id}`}
@@ -205,10 +229,11 @@ export default function RestorationShowcase() {
               </Box>
             </Box>
           </Box>
-            </Grid>
-          ))}
         </Grid>
-      </Container>
-    </Box>
-  );
+      ))
+    )}
+  </Grid>
+</Container>
+</Box>
+);
 }

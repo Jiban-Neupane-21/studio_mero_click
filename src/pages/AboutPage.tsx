@@ -22,22 +22,26 @@ import { aboutData } from "../data/about.data";
 export default function AboutPage() {
   const theme = useTheme();
 
-  // Theme Constants (Red and White Theme)
+  const isDark = theme.palette.mode === "dark";
   const RED_PRIMARY = "#D32F2F";
-  const WHITE = "#FFFFFF";
-  const GREY_LIGHT = "#F4F5F7";
-  const TEXT_PRIMARY = "#2B2B36";
-  const TEXT_SECONDARY = "#666666";
+  const BG_DEFAULT = theme.palette.background.default;
+  const BG_PAPER = theme.palette.background.paper;
+  const GREY_LIGHT = isDark ? "rgba(255, 255, 255, 0.02)" : "#F4F5F7";
+  const TEXT_PRIMARY = theme.palette.text.primary;
+  const TEXT_SECONDARY = theme.palette.text.secondary;
+  const BUTTON_BG = isDark ? "#ffffff" : "#2B2B36";
+  const BUTTON_TEXT = isDark ? "#000000" : "#FFFFFF";
+  const HEADER_BG = isDark ? "rgba(255, 255, 255, 0.05)" : "#2B2B36";
 
   const iconMap: Record<string, React.ReactNode> = {
-    MessageSquare: <MessageSquare size={30} color={WHITE} />,
-    Aperture: <Aperture size={30} color={WHITE} />,
-    Camera: <Camera size={30} color={WHITE} />,
-    CheckCircle: <CheckCircle size={30} color={WHITE} />,
+    MessageSquare: <MessageSquare size={30} color="#ffffff" />,
+    Aperture: <Aperture size={30} color="#ffffff" />,
+    Camera: <Camera size={30} color="#ffffff" />,
+    CheckCircle: <CheckCircle size={30} color="#ffffff" />,
   };
 
   return (
-    <Box sx={{ width: "100%", backgroundColor: WHITE, overflowX: "hidden" }}>
+    <Box sx={{ width: "100%", backgroundColor: BG_DEFAULT, overflowX: "hidden" }}>
 
       {/* 1. Header Section */}
       <Container maxWidth="md" sx={{ textAlign: "center", pt: { xs: 8, md: 12 }, pb: { xs: 6, md: 8 } }}>
@@ -72,8 +76,8 @@ export default function AboutPage() {
           to={aboutData.header.buttonLink}
           variant="contained"
           sx={{
-            backgroundColor: TEXT_PRIMARY,
-            color: WHITE,
+            backgroundColor: BUTTON_BG,
+            color: BUTTON_TEXT,
             borderRadius: 0,
             px: 4,
             py: 1.5,
@@ -207,8 +211,8 @@ export default function AboutPage() {
           to={aboutData.statement.buttonLink}
           variant="contained"
           sx={{
-            backgroundColor: TEXT_PRIMARY,
-            color: WHITE,
+            backgroundColor: BUTTON_BG,
+            color: BUTTON_TEXT,
             borderRadius: 0,
             px: 4,
             py: 1.5,
@@ -395,8 +399,8 @@ export default function AboutPage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: WHITE,
-                    border: `5px solid ${WHITE}`,
+                    color: "#ffffff",
+                    border: `5px solid ${BG_PAPER}`,
                     boxShadow: 3,
                   }}
                 >
@@ -407,8 +411,8 @@ export default function AboutPage() {
                 <CardHeader
                   title={process.title}
                   sx={{
-                    bgcolor: TEXT_PRIMARY,
-                    color: WHITE,
+                    bgcolor: HEADER_BG,
+                    color: "#ffffff",
                     textAlign: "center",
                     py: 2,
                   }}
@@ -454,8 +458,8 @@ export default function AboutPage() {
           to={aboutData.processSection.buttonLink}
           variant="contained"
           sx={{
-            backgroundColor: TEXT_PRIMARY,
-            color: WHITE,
+            backgroundColor: BUTTON_BG,
+            color: BUTTON_TEXT,
             borderRadius: 0,
             px: 5,
             py: 1.5,
