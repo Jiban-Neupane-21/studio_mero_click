@@ -183,13 +183,7 @@ const ServiceGrid = () => {
                 animation="wave"
                 sx={{
                   width: "100%",
-                  height: {
-                    xs: "425px",
-                    sm: "427px",
-                    md: "480px",
-                    lg: "max(500px, calc(100vh - 320px))",
-                    xl: "max(520px, calc(100vh - 320px))",
-                  },
+                  aspectRatio: "1/1",
                 }}
               />
               <Box
@@ -251,25 +245,27 @@ const ServiceGrid = () => {
           >
             <Box
               sx={{
-                width: {
-                  xs: "319px",
-                  sm: "320px",
-                  md: "360px",
-                  lg: "420px",
-                  xl: "440px",
-                },
-                height: {
-                  xs: "425px",
-                  sm: "427px",
-                  md: "480px",
-                  lg: "max(500px, calc(100vh - 320px))",
-                  xl: "max(520px, calc(100vh - 320px))",
-                },
-                backgroundImage: `url(${service.thumbnail})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                width: "100%",
+                aspectRatio: "1/1",
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bgcolor: "grey.100",
               }}
-            />
+            >
+              <Box
+                component="img"
+                src={service.thumbnail}
+                alt={service.title}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
+            </Box>
 
             <Box
               sx={{

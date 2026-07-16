@@ -28,6 +28,7 @@ CREATE TABLE public.offer_ads (
     terms TEXT,
     target_category TEXT NOT NULL,
     image TEXT NOT NULL,
+    accent_color TEXT,
     badge TEXT,
     valid_until TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -95,6 +96,18 @@ CREATE TABLE public.portfolio_items (
     author TEXT,
     description TEXT,
     secondary_images JSONB DEFAULT '[]'::jsonb, -- Array of strings
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Service Categories Table
+CREATE TABLE public.service_categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    description TEXT,
+    icon TEXT,
+    sort_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -200,6 +213,7 @@ CREATE TABLE public.product_faqs (
 CREATE TABLE public.home_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     image_url TEXT NOT NULL,
+    description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -210,6 +224,9 @@ CREATE TABLE public.restoration_images (
     description TEXT,
     before_image_url TEXT NOT NULL,
     after_image_url TEXT NOT NULL,
+    old_price NUMERIC(10, 2) DEFAULT 0,
+    new_price NUMERIC(10, 2) DEFAULT 0,
+    discount_rate NUMERIC DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -223,6 +240,7 @@ ALTER TABLE public.video_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tutorial_videos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.learning_articles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.portfolio_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.service_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_specifications ENABLE ROW LEVEL SECURITY;
@@ -243,6 +261,7 @@ CREATE POLICY "Allow public read access" ON public.video_items FOR SELECT USING 
 CREATE POLICY "Allow public read access" ON public.tutorial_videos FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON public.learning_articles FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON public.portfolio_items FOR SELECT USING (true);
+CREATE POLICY "Allow public read access" ON public.service_categories FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON public.services FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON public.service_images FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON public.service_specifications FOR SELECT USING (true);
@@ -277,7 +296,7 @@ BEGIN
     FOR t IN 
         SELECT table_name FROM information_schema.tables 
         WHERE table_schema = 'public' 
-          AND table_name IN ('offer_ads', 'video_items', 'tutorial_videos', 'learning_articles', 'portfolio_items', 'services', 'service_images', 'service_specifications', 'service_features', 'service_faqs', 'products', 'product_images', 'product_specifications', 'product_features', 'product_faqs', 'home_items', 'restoration_images')
+          AND table_name IN ('offer_ads', 'video_items', 'tutorial_videos', 'learning_articles', 'portfolio_items', 'service_categories', 'services', 'service_images', 'service_specifications', 'service_features', 'service_faqs', 'products', 'product_images', 'product_specifications', 'product_features', 'product_faqs', 'home_items', 'restoration_images')
     LOOP
         EXECUTE format('CREATE POLICY "Allow authenticated insert" ON public.%I FOR INSERT TO authenticated WITH CHECK (true);', t);
         EXECUTE format('CREATE POLICY "Allow authenticated update" ON public.%I FOR UPDATE TO authenticated USING (true);', t);

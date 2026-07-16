@@ -145,9 +145,25 @@ export default function RestorationDetails() {
               
               <Box sx={{ width: 60, height: 4, bgcolor: RED_PRIMARY, borderRadius: 2, mb: 4 }} />
               
-              <Typography variant="body1" color="text.secondary" sx={{ whiteSpace: 'pre-line', fontSize: '1.1rem', lineHeight: 1.7 }}>
-                {restoration.description || "No description provided for this restoration."}
-              </Typography>
+              <Box
+                sx={{
+                  color: "text.secondary",
+                  fontSize: "1.1rem",
+                  lineHeight: 1.7,
+                  whiteSpace: "pre-line",
+                  "& p": { margin: 0, mb: 1 },
+                  "& h1, & h2, & h3, & h4": {
+                    color: "text.primary",
+                    mt: 2,
+                    mb: 1,
+                  },
+                  "& ul, & ol": { pl: 2.5 },
+                  "& li": { mb: 0.5 },
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: restoration.description || "No description provided for this restoration.",
+                }}
+              />
               
               <Box sx={{ mt: 'auto', pt: 4 }}>
                 <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1, mb: 2 }}>
