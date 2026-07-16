@@ -14,6 +14,7 @@ export const homeItemsApi = {
     return data.map((item: any) => ({
       id: item.id,
       imageUrl: item.image_url,
+      description: item.description,
       createdAt: item.created_at,
     }));
   },
@@ -32,6 +33,7 @@ export const homeItemsApi = {
     return {
       id: data.id,
       imageUrl: data.image_url,
+      description: data.description,
       createdAt: data.created_at,
     };
   },

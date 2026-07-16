@@ -70,20 +70,24 @@ export default function VideoSection() {
 
   const filteredVideos = useMemo(() => {
     if (selectedCategory === "All") return videos;
-    return videos.filter((video) => {
-      if (selectedCategory === "YouTube") return !!video.youtubeId;
-      if (selectedCategory === "Facebook") return !!video.facebookLink;
-      if (selectedCategory === "TikTok") return !!video.tiktokLink;
-      return false;
-    });
+    return videos.filter((video) => video.category === selectedCategory);
   }, [selectedCategory, videos]);
 
   const handleShare = (video: VideoItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = `https://www.youtube.com/watch?v=${video.youtubeId}`;
-    navigator.clipboard.writeText(url);
-    setCopiedId(video.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    let url = '';
+    if (video.youtube_id) {
+      url = `https://www.youtube.com/watch?v=${video.youtube_id}`;
+    } else if (video.facebook_link) {
+      url = video.facebook_link;
+    } else if (video.tiktok_link) {
+      url = video.tiktok_link;
+    }
+    if (url) {
+      navigator.clipboard.writeText(url);
+      setCopiedId(video.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
   };
 
   const handleBookRedirect = () => {
@@ -236,33 +240,34 @@ export default function VideoSection() {
                           : "0 15px 30px rgba(0,0,0,0.04)",
                       }}
                     >
-                      {/* Responsive 16:9 YouTube Container */}
+                      {/* Responsive video container — adapts to platform */}
                       <Box
                         sx={{
                           position: 'relative', width: '100%', overflow: 'hidden',
-                          aspectRatio: "16/9",
+                          aspectRatio: spotlightVideo.category === 'TikTok' ? '9/16' : '16/9',
+                          maxHeight: spotlightVideo.category === 'TikTok' ? '70vh' : 'none',
                           backgroundColor: "#000000",
                           borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
                         }}
                       >
-                        {spotlightVideo.youtubeId ? (
+                        {spotlightVideo.youtube_id ? (
                           <iframe
                             title={spotlightVideo.title}
-                            src={`https://www.youtube.com/embed/${spotlightVideo.youtubeId}?autoplay=0&rel=0`}
+                            src={`https://www.youtube.com/embed/${spotlightVideo.youtube_id}?autoplay=0&rel=0`}
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowFullScreen
                             style={{ position: 'absolute', inset: 0, width: "100%", height: "100%", border: "none" }}
                           />
-                        ) : spotlightVideo.facebookLink ? (
+                        ) : spotlightVideo.facebook_link ? (
                           <iframe
-                            src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(spotlightVideo.facebookLink)}&show_text=false&width=auto`}
+                            src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(spotlightVideo.facebook_link)}&show_text=false&width=auto`}
                             style={{ position: 'absolute', inset: 0, width: "100%", height: "100%", border: "none", overflow: "hidden" }}
                             allowFullScreen
                             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                           />
-                        ) : spotlightVideo.tiktokLink ? (
+                        ) : spotlightVideo.tiktok_link ? (
                           <iframe
-                            src={`https://www.tiktok.com/embed/v2/${(spotlightVideo.tiktokLink.match(/\/video\/(\d+)/) || [])[1] || ''}`}
+                            src={`https://www.tiktok.com/embed/v2/${(spotlightVideo.tiktok_link.match(/\/video\/(\d+)/) || [])[1] || ''}`}
                             style={{ position: 'absolute', inset: 0, width: "100%", height: "100%", border: "none", overflow: "hidden" }}
                           />
                         ) : (
@@ -323,7 +328,7 @@ export default function VideoSection() {
                               }}
                             >
                               <Calendar size={12} />
-                              <span>{spotlightVideo.uploadDate}</span>
+                              <span>{spotlightVideo.upload_date}</span>
                             </Box>
                           </Box>
 
@@ -357,11 +362,11 @@ export default function VideoSection() {
                                 ? "Saved Link!"
                                 : "Copy Link"}
                             </Button>
-                            {spotlightVideo.youtubeId && (
+                            {spotlightVideo.youtube_id && (
                               <Button
                                 variant="outlined"
                                 size="small"
-                                href={`https://www.youtube.com/watch?v=${spotlightVideo.youtubeId}`}
+                                href={`https://www.youtube.com/watch?v=${spotlightVideo.youtube_id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 startIcon={<ExternalLink size={13} />}
@@ -382,11 +387,11 @@ export default function VideoSection() {
                                 YouTube
                               </Button>
                             )}
-                            {spotlightVideo.facebookLink && (
+                            {spotlightVideo.facebook_link && (
                               <Button
                                 variant="outlined"
                                 size="small"
-                                href={spotlightVideo.facebookLink}
+                                href={spotlightVideo.facebook_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 startIcon={<ExternalLink size={13} />}
@@ -407,11 +412,11 @@ export default function VideoSection() {
                                 Facebook
                               </Button>
                             )}
-                            {spotlightVideo.tiktokLink && (
+                            {spotlightVideo.tiktok_link && (
                               <Button
                                 variant="outlined"
                                 size="small"
-                                href={spotlightVideo.tiktokLink}
+                                href={spotlightVideo.tiktok_link}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 startIcon={<ExternalLink size={13} />}
@@ -547,9 +552,9 @@ export default function VideoSection() {
                               backgroundColor: "#000000",
                             }}
                           >
-                            {video.youtubeId ? (
+                            {video.youtube_id ? (
                               <img
-                                src={`https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`}
+                                src={`https://img.youtube.com/vi/${video.youtube_id}/mqdefault.jpg`}
                                 alt={video.title}
                                 style={{
                                   width: "100%",
@@ -558,8 +563,8 @@ export default function VideoSection() {
                                 }}
                               />
                             ) : (
-                              <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: video.facebookLink ? "#1877F2" : video.tiktokLink ? "#000000" : "#222", border: video.tiktokLink ? "1px solid #333" : "none" }}>
-                                <Video size={20} color={video.facebookLink || video.tiktokLink ? "#ffffff" : "rgba(255,255,255,0.3)"} />
+                              <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: video.facebook_link ? "#1877F2" : video.tiktok_link ? "#000000" : "#222", border: video.tiktok_link ? "1px solid #333" : "none" }}>
+                                <Video size={20} color={video.facebook_link || video.tiktok_link ? "#ffffff" : "rgba(255,255,255,0.3)"} />
                               </Box>
                             )}
                             <Box
@@ -611,7 +616,7 @@ export default function VideoSection() {
                               {video.title}
                             </Typography>
                             <Typography sx={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 300 }}>
-                              {video.duration} Mins • {video.uploadDate}
+                              {video.duration} Mins • {video.upload_date}
                             </Typography>
                           </Box>
                         </Box>
@@ -691,11 +696,11 @@ export default function VideoSection() {
                       >
                         <CardMedia
                           component="img"
-                          image={`https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`}
+                          image={`https://img.youtube.com/vi/${video.youtube_id}/maxresdefault.jpg`}
                           alt={video.title}
                           className="thumbnail-cover-img"
                           onError={(e: any) => {
-                            e.target.src = `https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`;
+                            e.target.src = `https://img.youtube.com/vi/${video.youtube_id}/mqdefault.jpg`;
                           }}
                           sx={{
                             width: "100%",
@@ -847,7 +852,7 @@ export default function VideoSection() {
                           }}
                         >
                           <Typography sx={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 300 }}>
-                            Exported {video.uploadDate}
+                            Exported {video.upload_date}
                           </Typography>
                           <Box sx={{ display: "flex", gap: 0.5 }}>
                             <IconButton
@@ -1042,12 +1047,13 @@ export default function VideoSection() {
                   </IconButton>
                 </Box>
 
-                {/* Main 16:9 Cinema Screen */}
+                {/* Main video player — adapts to platform */}
                 <Box
                   sx={{
                     position: "relative",
                     width: "100%",
-                    aspectRatio: "16/9",
+                    aspectRatio: theaterVideo.category === 'TikTok' ? '9/16' : '16/9',
+                    maxHeight: theaterVideo.category === 'TikTok' ? '80vh' : 'none',
                     borderRadius: "8px",
                     overflow: "hidden",
                     backgroundColor: "#000000",
@@ -1055,13 +1061,31 @@ export default function VideoSection() {
                     boxShadow: "0 20px 50px rgba(0,0,0,0.85)",
                   }}
                 >
-                  <iframe
-                    title={theaterVideo.title}
-                    src={`https://www.youtube.com/embed/${theaterVideo.youtubeId}?autoplay=1&rel=0`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    style={{ width: "100%", height: "100%", border: "none" }}
-                  />
+                  {theaterVideo.youtube_id ? (
+                    <iframe
+                      title={theaterVideo.title}
+                      src={`https://www.youtube.com/embed/${theaterVideo.youtube_id}?autoplay=1&rel=0`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      style={{ width: "100%", height: "100%", border: "none" }}
+                    />
+                  ) : theaterVideo.facebook_link ? (
+                    <iframe
+                      src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(theaterVideo.facebook_link)}&show_text=false&width=auto`}
+                      style={{ width: "100%", height: "100%", border: "none", overflow: "hidden" }}
+                      allowFullScreen
+                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    />
+                  ) : theaterVideo.tiktok_link ? (
+                    <iframe
+                      src={`https://www.tiktok.com/embed/v2/${(theaterVideo.tiktok_link.match(/\/video\/(\d+)/) || [])[1] || ''}`}
+                      style={{ width: "100%", height: "100%", border: "none", overflow: "hidden" }}
+                    />
+                  ) : (
+                    <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#111111", color: "rgba(255,255,255,0.6)" }}>
+                      <Video size={48} style={{ opacity: 0.5 }} />
+                    </Box>
+                  )}
                 </Box>
 
                 {/* Video Info Foot */}

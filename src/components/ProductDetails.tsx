@@ -26,6 +26,7 @@ import {
 } from "@mui/material";
 import { ArrowLeft, ChevronDown, Tag, CheckCircle, Calendar } from "lucide-react";
 import { useData } from "../context/DataContext";
+import ProductCard from "./ProductCard";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -262,14 +263,26 @@ const ProductDetails: React.FC = () => {
               </Typography>
 
               {/* Detailed Long Description */}
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                component="p"
-                sx={{ lineHeight: 1.7, mb: 3 }}
-              >
-                {product.description}
-              </Typography>
+              <Box
+                sx={{
+                  color: "text.secondary",
+                  lineHeight: 1.7,
+                  mb: 3,
+                  "& p": { margin: 0, mb: 1 },
+                  "& h1, & h2, & h3, & h4": {
+                    color: "text.primary",
+                    mt: 2,
+                    mb: 1,
+                    fontFamily: "'Fraunces', serif",
+                  },
+                  "& ul, & ol": { pl: 2.5 },
+                  "& li": { mb: 0.5 },
+                  "& a": { color: "#D32F2F" },
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: product.description || "",
+                }}
+              />
 
               {/* Pricing Blocks */}
               <Box
@@ -292,30 +305,25 @@ const ProductDetails: React.FC = () => {
                   {formatPrice(product.newPrice)}
                 </Typography>
 
-                {product.oldPrice > product.newPrice && (
-                  <>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: "text.disabled",
-                        textDecoration: "line-through",
-                      }}
-                    >
-                      {formatPrice(product.oldPrice)}
-                    </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "text.disabled",
+                    textDecoration: "line-through",
+                  }}
+                >
+                  {formatPrice(product.oldPrice)}
+                </Typography>
 
-                    {/* Discount rate badge */}
-                    <Chip
-                      label={`${product.discountRate}% OFF`}
-                      sx={{
-                        backgroundColor: RED_LIGHT,
-                        color: RED_PRIMARY,
-                        fontWeight: "bold",
-                      }}
-                      size="small"
-                    />
-                  </>
-                )}
+                <Chip
+                  label={`${product.discountRate}% OFF`}
+                  sx={{
+                    backgroundColor: RED_LIGHT,
+                    color: RED_PRIMARY,
+                    fontWeight: "bold",
+                  }}
+                  size="small"
+                />
               </Box>
 
               {/* Action Buttons */}
@@ -506,77 +514,24 @@ const ProductDetails: React.FC = () => {
           >
             Explore More Products
           </Typography>
-          <Grid container spacing={4}>
-            {randomProducts.map((randomProd) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={randomProd.id}>
-                <Card
-                  elevation={2}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    borderRadius: 2,
-                    transition: 'transform 0.2s',
-                    '&:hover': { transform: 'translateY(-4px)' }
-                  }}
+          <Grid container spacing={2.5} sx={{ justifyContent: { xs: "center", sm: "center", md: "center", lg: "flex-start" } }}>
+            {randomProducts.map((randomProd) => {
+              const mapped = {
+                ...randomProd,
+                oldPrice: randomProd.old_price,
+                newPrice: randomProd.new_price,
+                discountRate: randomProd.discount_rate,
+              };
+              return (
+                <Grid
+                  key={randomProd.id}
+                  size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
+                  sx={{ display: "flex", justifyContent: "center" }}
                 >
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={randomProd.thumbnail || randomProd.image}
-                    alt={randomProd.title}
-                    sx={{ objectFit: 'cover' }}
-                  />
-                  <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Chip
-                      label={randomProd.category}
-                      sx={{
-                        backgroundColor: RED_LIGHT,
-                        color: RED_PRIMARY,
-                        fontWeight: "bold",
-                        width: "fit-content",
-                        mb: 2
-                      }}
-                      size="small"
-                    />
-                    <Typography gutterBottom variant="h6" component="div" sx={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}>
-                      {randomProd.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, flexGrow: 1 }}>
-                      {randomProd.about?.substring(0, 100) || randomProd.description?.substring(0, 100)}...
-                    </Typography>
-                    <Typography variant="subtitle1" sx={{ color: RED_PRIMARY, fontWeight: 'bold' }}>
-                      {formatPrice(randomProd.newPrice)}
-                    </Typography>
-                    {randomProd.oldPrice > randomProd.newPrice && (
-                      <Typography variant="subtitle1" sx={{ color: "grey.500", textDecoration: 'line-through' }}>
-                        {formatPrice(randomProd.oldPrice)}
-                      </Typography>
-                    )}
-                  </CardContent>
-                  <CardActions sx={{ p: 2, pt: 0 }}>
-                    <Button
-                      component={RouterLink}
-                      to={`/products/${randomProd.id}`}
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      sx={{
-                        color: RED_PRIMARY,
-                        borderColor: RED_PRIMARY,
-                        '&:hover': {
-                          backgroundColor: RED_PRIMARY,
-                          color: WHITE,
-                          borderColor: RED_PRIMARY
-                        }
-                      }}
-                    >
-                      View Details
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+                  <ProductCard product={mapped} onViewDetails={(p) => window.location.href = `/products/${p.id}`} />
+                </Grid>
+              );
+            })}
           </Grid>
         </Box>
       )}

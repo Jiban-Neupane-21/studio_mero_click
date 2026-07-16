@@ -58,6 +58,17 @@ export default function AdminVideos() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-detect category from link type
+  useEffect(() => {
+    if (formData.youtube_id) {
+      setFormData(prev => ({ ...prev, category: 'YouTube' }));
+    } else if (formData.facebook_link) {
+      setFormData(prev => ({ ...prev, category: 'Facebook' }));
+    } else if (formData.tiktok_link) {
+      setFormData(prev => ({ ...prev, category: 'TikTok' }));
+    }
+  }, [formData.youtube_id, formData.facebook_link, formData.tiktok_link]);
+
   // Fetch data
   const fetchItems = async () => {
     try {
@@ -296,10 +307,9 @@ export default function AdminVideos() {
                         label="Category"
                         name="category"
                         value={formData.category}
-                        onChange={handleChange}
-                        required
                         color="error"
-                        placeholder="e.g. Wedding, Event"
+                        placeholder="Auto-detected from link"
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                   </Grid>

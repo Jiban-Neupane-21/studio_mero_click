@@ -256,14 +256,26 @@ const ServiceDetails: React.FC = () => {
               </Typography>
 
               {/* Detailed Long Description */}
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                component="p"
-                sx={{ lineHeight: 1.7, mb: 3 }}
-              >
-                {service.description}
-              </Typography>
+              <Box
+                sx={{
+                  color: "text.secondary",
+                  lineHeight: 1.7,
+                  mb: 3,
+                  "& p": { margin: 0, mb: 1 },
+                  "& h1, & h2, & h3, & h4": {
+                    color: "text.primary",
+                    mt: 2,
+                    mb: 1,
+                    fontFamily: "'Fraunces', serif",
+                  },
+                  "& ul, & ol": { pl: 2.5 },
+                  "& li": { mb: 0.5 },
+                  "& a": { color: "#D32F2F" },
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: service.description || "",
+                }}
+              />
 
               {/* Pricing Blocks */}
               <Box
@@ -286,30 +298,25 @@ const ServiceDetails: React.FC = () => {
                   {formatPrice(service.newPrice)}
                 </Typography>
 
-                {service.oldPrice > service.newPrice && (
-                  <>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: "text.disabled",
-                        textDecoration: "line-through",
-                      }}
-                    >
-                      {formatPrice(service.oldPrice)}
-                    </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "text.disabled",
+                    textDecoration: "line-through",
+                  }}
+                >
+                  {formatPrice(service.oldPrice)}
+                </Typography>
 
-                    {/* Discount rate badge */}
-                    <Chip
-                      label={`${service.discountRate}% OFF`}
-                      sx={{
-                        backgroundColor: RED_LIGHT,
-                        color: RED_PRIMARY,
-                        fontWeight: "bold",
-                      }}
-                      size="small"
-                    />
-                  </>
-                )}
+                <Chip
+                  label={`${service.discountRate}% OFF`}
+                  sx={{
+                    backgroundColor: RED_LIGHT,
+                    color: RED_PRIMARY,
+                    fontWeight: "bold",
+                  }}
+                  size="small"
+                />
               </Box>
 
               {/* Action Buttons */}

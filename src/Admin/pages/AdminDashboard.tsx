@@ -7,6 +7,7 @@ import {
   Paper,
   Button,
   Grid,
+  TextField,
   IconButton,
   Divider,
   Dialog,
@@ -29,6 +30,7 @@ import { uploadImage } from '../../utils/uploadImage';
 export default function AdminDashboard() {
   const [formData, setFormData] = useState<Partial<Home>>({
     imageUrl: '',
+    description: '',
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -69,7 +71,7 @@ export default function AdminDashboard() {
 
   const handleEdit = (item: Home) => {
     setEditingId(item.id);
-    setFormData({ imageUrl: item.imageUrl });
+    setFormData({ imageUrl: item.imageUrl, description: item.description || '' });
     setImagePreview(item.imageUrl);
     setIsDialogOpen(true);
   };
@@ -101,10 +103,10 @@ export default function AdminDashboard() {
       }
 
       if (editingId) {
-        await homeItemsApi.updateHomeItem(editingId, { image_url: url || '' });
+        await homeItemsApi.updateHomeItem(editingId, { image_url: url || '', description: formData.description || null });
         alert('Successfully updated home banner!');
       } else {
-        await homeItemsApi.createHomeItem({ image_url: url || '' });
+        await homeItemsApi.createHomeItem({ image_url: url || '', description: formData.description || null });
         alert('Successfully saved home banner!');
       }
 
@@ -147,6 +149,7 @@ export default function AdminDashboard() {
             <TableHead sx={{ bgcolor: 'grey.50' }}>
               <TableRow>
                 <TableCell>Image</TableCell>
+                <TableCell>Description</TableCell>
                 <TableCell>Created At</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -154,13 +157,13 @@ export default function AdminDashboard() {
             <TableBody>
               {loadingItems ? (
                 <TableRow>
-                  <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                     <CircularProgress color="error" />
                   </TableCell>
                 </TableRow>
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                     No home banner images found. Click "Create New" to add one.
                   </TableCell>
                 </TableRow>
@@ -179,6 +182,9 @@ export default function AdminDashboard() {
                       )}
                     </TableCell>
                     <TableCell component="th" scope="row">
+                      <Typography variant="body2" sx={{ maxWidth: 250 }} noWrap>{item.description || '-'}</Typography>
+                    </TableCell>
+                    <TableCell>
                       <Typography variant="body2">{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '-'}</Typography>
                     </TableCell>
                     <TableCell align="right">
@@ -268,6 +274,21 @@ export default function AdminDashboard() {
                     )}
                   </Box>
                 </Box>
+              </Grid>
+
+              {/* Description */}
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Short Description (optional)"
+                  name="description"
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  color="error"
+                  multiline
+                  rows={2}
+                  placeholder="Brief text overlay displayed on the hero image"
+                />
               </Grid>
 
               {/* Submit Button */}
