@@ -1,18 +1,21 @@
 import { useState, useContext } from "react";
-import { motion } from "motion/react";
 import {
   AppBar,
   Box,
   Button,
+  Collapse,
   Container,
   Drawer,
   IconButton,
+  Divider,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Toolbar,
   Typography,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 
 import { FaPhone } from "react-icons/fa";
@@ -24,21 +27,42 @@ import CloseIcon from "@mui/icons-material/Close";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import LockIcon from "@mui/icons-material/Lock";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { navItems } from "../../data/navitem";
 import { socialMediaData } from "../../data/socialmedia";
 import { ColorModeContext } from "../../App";
+import { services } from "../../data/service.data";
 
 const drawerWidth = 280;
 
 const Navbar = () => {
   const { mode, toggleMode } = useContext(ColorModeContext);
   const [open, setOpen] = useState(false);
+  const [servicesMenuAnchorEl, setServicesMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const navigate = useNavigate();
 
   const toggleDrawer = (value: boolean) => () => {
     setOpen(value);
+  };
+
+  const handleServicesMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setServicesMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleServicesMenuClose = () => {
+    setServicesMenuAnchorEl(null);
+  };
+
+  const handleMobileServicesClick = () => {
+    setMobileServicesOpen(!mobileServicesOpen);
   };
 
   const getSocialTitle = (name: string) => {
@@ -49,6 +73,29 @@ const Navbar = () => {
         return `Chat on ${name}`;
       default:
         return `Follow on ${name}`;
+    }
+  };
+  const getBrandColor = (name: string) => {
+    switch (name.toLowerCase()) {
+      case "facebook":
+        return "#1877F2";
+      case "instagram":
+        return "#E4405F";
+      case "twitter":
+      case "x":
+        return "#000000";
+      case "youtube":
+        return "#FF0000";
+      case "linkedin":
+        return "#0A66C2";
+      case "tiktok":
+        return "#000000";
+      case "pinterest":
+        return "#E60023";
+      case "whatsapp":
+        return "#25D366";
+      default:
+        return "#E50914"; // fallback to brand red
     }
   };
 
@@ -69,19 +116,20 @@ const Navbar = () => {
           sx={{
             position: "sticky",
             top: 0,
-            // backgroundColor: mode === "dark" ? "#000000" : "#111111",
             color: "text.secondary",
             py: 1.25,
             width: "100%",
             zIndex: 1100,
-            borderBottom: `1px solid ${mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)"}`,
+            borderBottom: 1,
+            borderColor: "divider",
             fontSize: "0.75rem",
             fontFamily: '"Space Grotesk", sans-serif',
             "@keyframes slideDownBar": {
               "0%": { opacity: 0, transform: "translateY(-100%)" },
               "100%": { opacity: 1, transform: "translateY(0)" },
             },
-            animation: "slideDownBar 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            animation:
+              "slideDownBar 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
           }}
           id="navbar-top-utility-bar"
         >
@@ -90,7 +138,7 @@ const Navbar = () => {
               sx={{
                 width: "100%",
                 display: "flex",
-                justifyContent: { xs: "center", md: "center" },
+                justifyContent: "space-between",
                 alignItems: "center",
                 flexWrap: "wrap",
                 gap: { xs: 1, sm: 2 },
@@ -144,64 +192,30 @@ const Navbar = () => {
                 </Box>
               </Box>
 
-              {/* Right: Social Media */}
+              {/* Right: Social Media — 35mm filmstrip treatment */}
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
                   position: "relative",
-                  overflow: "hidden",
-                  borderRadius: 1,
-                  p: 0.5,
-                  px: 1.5,
-                  background: mode === 'dark' ? "#1E1E1E" : "#FFFFFF",
-                  border: mode === 'dark' ? "1px solid #444" : "1px solid #000000",
-                  "@keyframes shimmer": {
-                    "0%": { transform: "translateX(-100%)" },
-                    "100%": { transform: "translateX(100%)" },
-                  },
-                  "@keyframes pulseGlow": {
-                    "0%, 100%": { boxShadow: "3px 3px 0px #E50914" },
-                    "50%": { boxShadow: "5px 5px 0px #000000" },
-                  },
-                  "@keyframes iconBounce": {
-                    "0%": { transform: "translateY(0) scale(1)" },
-                    "50%": { transform: "translateY(-5px) scale(1.15)" },
-                    "100%": { transform: "translateY(0) scale(1)" },
-                  },
-                  animation: "pulseGlow 3s ease-in-out 1",
-                  "&::after": {
+                  display: "flex",
+                  gap: 2,
+                  alignItems: "center",
+
+                  "&::before, &::after": {
                     content: '""',
                     position: "absolute",
-                    top: 0,
                     left: 0,
                     width: "100%",
-                    height: "100%",
-                    background:
-                      "linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.1), transparent)",
-                    animation: "shimmer 2s linear 1",
+                    height: "3px",
                   },
+                  "&::before": { top: 0 },
+                  "&::after": { bottom: 0 },
                 }}
               >
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: "text.primary",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.14em",
-                    fontSize: "0.65rem",
-                    mr: 1,
-                    display: { xs: "none", sm: "block" },
-                  }}
-                >
-                  FOLLOW US:
-                </Typography>
-
                 {socialMediaData.map((item, i) => {
                   const Icon = item.icon;
                   const title = getSocialTitle(item.name);
+                  const brandColor = getBrandColor(item.name);
+                  const isLast = i === socialMediaData.length - 1;
 
                   return (
                     <Button
@@ -212,23 +226,21 @@ const Navbar = () => {
                       rel="noopener noreferrer"
                       title={title}
                       sx={{
-                        minWidth: "26px",
-                        width: "26px",
-                        height: "26px",
-                        borderRadius: "4px",
+                        minWidth: "36px",
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: 0,
+                        borderRight: isLast ? "none" : `1px solid`,
+                        borderColor: "divider",
                         p: 0,
-                        backgroundColor: mode === 'dark' ? "#333" : "#000000",
-                        border: "1px solid #E50914",
-                        color: "#FFFFFF",
+                        backgroundColor: "transparent",
+                        color: brandColor,
+                        opacity: 0.85,
                         transition:
-                          "all 0.25s ease",
-                        animation: `iconBounce 1s ease-in-out ${i * 0.15}s 1`,
-                        "&:hover": {
-                          color: "#E50914",
-                          backgroundColor: "#FFFFFF",
-                          borderColor: "#000000",
-                          boxShadow: "2px 2px 0px #E50914",
-                          transform: "translateY(-3px) scale(1.15)",
+                          "opacity 0.2s ease, background-color 0.2s ease",
+                        "&:hover, &:focus-visible": {
+                          opacity: 1,
+                          backgroundColor: "action.hover",
                         },
                       }}
                     >
@@ -236,38 +248,49 @@ const Navbar = () => {
                     </Button>
                   );
                 })}
-              </Box>
 
-              {/* Utility Icons (Theme Toggle & Login) */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: { xs: 0, sm: 2 } }}>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    fontWeight: 600, 
-                    textTransform: 'capitalize',
-                    color: 'text.primary',
-                    display: { xs: 'none', sm: 'block' }
+                {/* Utility Icons (Theme Toggle & Login) */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    ml: { xs: 0, sm: 2 },
                   }}
                 >
-                  {mode} Mode
-                </Typography>
-                <IconButton
-                  onClick={toggleMode}
-                  size="small"
-                  sx={{ color: mode === 'dark' ? '#fff' : '#000' }}
-                  title="Toggle Theme"
-                >
-                  {mode === 'dark' ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
-                </IconButton>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 600,
+                      textTransform: "capitalize",
+                      color: "text.primary",
+                      display: { xs: "none", sm: "block" },
+                    }}
+                  >
+                    {mode} Mode
+                  </Typography>
+                  <IconButton
+                    onClick={toggleMode}
+                    size="small"
+                    sx={{ color: "text.primary" }}
+                    title="Toggle Theme"
+                  >
+                    {mode === "dark" ? (
+                      <Brightness7Icon fontSize="small" />
+                    ) : (
+                      <Brightness4Icon fontSize="small" />
+                    )}
+                  </IconButton>
 
-                <IconButton
-                  onClick={() => navigate('/login')}
-                  size="small"
-                  sx={{ color: mode === 'dark' ? '#fff' : '#000' }}
-                  title="Admin Login"
-                >
-                  <LockIcon fontSize="small" />
-                </IconButton>
+                  <IconButton
+                    onClick={() => navigate("/login")}
+                    size="small"
+                    sx={{ color: "text.primary" }}
+                    title="Admin Login"
+                  >
+                    <LockIcon fontSize="small" />
+                  </IconButton>
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -350,44 +373,245 @@ const Navbar = () => {
                 gap: 1,
               }}
             >
-              {navItems.map((item, index) => (
-                <Box key={item.id}>
-                  <Button
-                    component={NavLink}
-                    to={item.path}
-                    color="inherit"
-                    sx={{
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2,
-                      fontWeight: 600,
-                      textTransform: "none",
-                      display: "flex",
-                      "&.active": {
-                        color: "inherit",
-                        textDecoration: "underline",
-                        textDecorationColor: "#E50914",
-                        textUnderlineOffset: "5px",
-                        textDecorationThickness: "2px",
-                      },
-                    }}
-                  >
-                    {item.title.split('').map((char, charIndex) => (
-                      <motion.span
-                        key={charIndex}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ 
-                          duration: 0.01, 
-                          delay: (index * 0.15) + (charIndex * 0.04) 
-                        }}
-                      >
-                        {char === ' ' ? '\u00A0' : char}
-                      </motion.span>
-                    ))}
-                  </Button>
-                </Box>
-              ))}
+              {navItems.map((item) =>
+                item.id === "services" ? (
+                  <Box key={item.id} onMouseLeave={handleServicesMenuClose}>
+                    <Typography
+                      component={item.path ? NavLink : "div"}
+                      to={item.path || undefined}
+                      aria-controls="services-menu"
+                      aria-haspopup="true"
+                      onMouseEnter={handleServicesMenuOpen}
+                      color="inherit"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        px: 2,
+                        py: 1,
+                        fontWeight: 600,
+                        textTransform: "none",
+                        textDecoration: "none",
+                        color: "text.primary",
+                        "&.active": {
+                          textDecoration: "underline",
+                          textDecorationColor: "#E50914",
+                          textUnderlineOffset: "5px",
+                          textDecorationThickness: "2px",
+                        },
+                        "&:hover": {
+                          color: "#E50914",
+                        },
+                      }}
+                    >
+                      {item.title}
+                      <ArrowDropDownIcon />
+                    </Typography>
+                    <Menu
+                      id="services-menu"
+                      anchorEl={servicesMenuAnchorEl}
+                      keepMounted
+                      open={Boolean(servicesMenuAnchorEl)}
+                      onClose={handleServicesMenuClose}
+                      slotProps={{
+                        list: {
+                          onMouseLeave: handleServicesMenuClose,
+                          sx: { p: 0 },
+                        },
+                        paper: {
+                          elevation: 0,
+                          sx: {
+                            mt: 1.5,
+                            width: 640,
+                            maxWidth: "calc(100vw - 32px)",
+                            borderRadius: "16px",
+                            overflow: "hidden",
+                            bgcolor: "background.paper",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            boxShadow: "0 24px 60px rgba(0,0,0,0.45)",
+                            "@keyframes dropdownFadeIn": {
+                              "0%": {
+                                opacity: 0,
+                                transform: "translateY(-8px)",
+                              },
+                              "100%": {
+                                opacity: 1,
+                                transform: "translateY(0)",
+                              },
+                            },
+                            animation: "dropdownFadeIn 0.25s ease-out forwards",
+                          },
+                        },
+                      }}
+                      transformOrigin={{ horizontal: "left", vertical: "top" }}
+                      anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+                    >
+                      <Box sx={{ p: 3 }}>
+                        {/* Header */}
+                        <Typography
+                          sx={{
+                            fontSize: "0.68rem",
+                            fontWeight: 800,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.18em",
+                            color: "#E50914",
+                            mb: 0.5,
+                          }}
+                        >
+                          Studio Specialties
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "0.85rem",
+                            color: "text.secondary",
+                          }}
+                        >
+                          Choose an option to see details, pricing, and book
+                          online.
+                        </Typography>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        {/* Two-column list */}
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                            columnGap: 4,
+                            rowGap: 1,
+                          }}
+                        >
+                          {services.map((service) => {
+                            const Icon = service.icon;
+                            return (
+                              <Box
+                                key={service.id}
+                                component={Link}
+                                to={service.path}
+                                onClick={handleServicesMenuClose}
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                  gap: 1.5,
+                                  p: 1,
+                                  borderRadius: "10px",
+                                  textDecoration: "none",
+                                  color: "text.primary",
+                                  transition: "background-color 0.2s ease",
+                                  "&:hover": {
+                                    bgcolor: "action.hover",
+                                    "& .service-title": { color: "#E50914" },
+                                    "& .service-icon": { color: "#E50914" },
+                                  },
+                                }}
+                              >
+                                <Box
+                                  className="service-icon"
+                                  sx={{
+                                    flexShrink: 0,
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: "10px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    bgcolor: "action.selected",
+                                    color: "text.secondary",
+                                    transition: "color 0.2s ease",
+                                  }}
+                                >
+                                  {Icon && <Icon fontSize="small" />}
+                                </Box>
+                                <Box>
+                                  <Typography
+                                    className="service-title"
+                                    sx={{
+                                      fontWeight: 700,
+                                      fontSize: "0.88rem",
+                                      color: "text.primary",
+                                      lineHeight: 1.3,
+                                      transition: "color 0.2s ease",
+                                    }}
+                                  >
+                                    {service.title}
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.76rem",
+                                      color: "text.secondary",
+                                      lineHeight: 1.35,
+                                    }}
+                                  >
+                                    {service.description}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            );
+                          })}
+                        </Box>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        <MenuItem
+                          component={Link}
+                          to="/services"
+                          onClick={handleServicesMenuClose}
+                          sx={{
+                            p: 1.5,
+                            borderRadius: "10px",
+                            transition: "all 0.2s ease",
+                            "&:hover": {
+                              bgcolor: "action.hover",
+                              "& .view-all-text": {
+                                color: "#E50914",
+                              },
+                            },
+                          }}
+                        >
+                          <ListItemText
+                            primary="View All Services"
+                            className="view-all-text"
+                            sx={{
+                              "& .MuiListItemText-primary": {
+                                fontWeight: 700,
+                                fontSize: "0.88rem",
+                              },
+                            }}
+                          />
+                          <ArrowForwardIcon fontSize="small" />
+                        </MenuItem>
+                      </Box>
+                    </Menu>
+                  </Box>
+                ) : (
+                  <Box key={item.id}>
+                    <Typography
+                      component={NavLink}
+                      to={item.path}
+                      sx={{
+                        px: 2,
+                        py: 1,
+                        fontWeight: 600,
+                        textTransform: "none",
+                        textDecoration: "none",
+                        color: "text.primary",
+                        "&.active": {
+                          textDecoration: "underline",
+                          textDecorationColor: "#E50914",
+                          textUnderlineOffset: "5px",
+                          textDecorationThickness: "2px",
+                        },
+                        "&:hover": {
+                          color: "#E50914",
+                        },
+                      }}
+                    >
+                      {item.title}
+                    </Typography>
+                  </Box>
+                ),
+              )}
               <Button
                 component={Link}
                 to="/book"
@@ -503,29 +727,75 @@ const Navbar = () => {
           {navItems.map((item) => {
             const Icon = item.icon;
 
-            return (
-              <ListItemButton
-                key={item.id}
-                component={NavLink}
-                to={item.path}
-                onClick={toggleDrawer(false)}
-                sx={{
-                  color: "text.primary",
-                  "&.active": {
-                    bgcolor: "action.selected",
-                    color: "#E50914",
-                  },
-                }}
-              >
-                {Icon && (
-                  <ListItemIcon>
-                    <Icon />
-                  </ListItemIcon>
-                )}
-
-                <ListItemText primary={item.title} />
-              </ListItemButton>
-            );
+            if (item.id === "services") {
+              return (
+                <div key={item.id}>
+                  <ListItemButton onClick={handleMobileServicesClick}>
+                    {Icon && (
+                      <ListItemIcon>
+                        <Icon />
+                      </ListItemIcon>
+                    )}
+                    <ListItemText primary={item.title} />
+                    {mobileServicesOpen ? <ExpandLess /> : <ExpandMore />}
+                  </ListItemButton>
+                  <Collapse
+                    in={mobileServicesOpen}
+                    timeout="auto"
+                    unmountOnExit
+                  >
+                    <List component="div" disablePadding>
+                      {services.map((service) => {
+                        const Icon = service.icon;
+                        return (
+                          <ListItemButton
+                            key={service.id}
+                            component={NavLink}
+                            to={service.path} // Use NavLink for active styles
+                            onClick={toggleDrawer(false)}
+                            sx={{
+                              pl: 4,
+                              "&.active": {
+                                color: "#E50914",
+                              },
+                            }}
+                          >
+                            {Icon && (
+                              <ListItemIcon sx={{ minWidth: "40px" }}>
+                                <Icon fontSize="small" />
+                              </ListItemIcon>
+                            )}
+                            <ListItemText primary={service.title} />
+                          </ListItemButton>
+                        );
+                      })}
+                    </List>
+                  </Collapse>
+                </div>
+              );
+            } else {
+              return (
+                <ListItemButton
+                  key={item.id}
+                  component={NavLink}
+                  to={item.path}
+                  onClick={toggleDrawer(false)}
+                  sx={{
+                    "&.active": {
+                      bgcolor: "action.selected",
+                      color: "#E50914",
+                    },
+                  }}
+                >
+                  {Icon && (
+                    <ListItemIcon>
+                      <Icon /> {/* Icon color will inherit from parent */}
+                    </ListItemIcon>
+                  )}
+                  <ListItemText primary={item.title} />
+                </ListItemButton>
+              );
+            }
           })}
         </List>
       </Drawer>
@@ -534,7 +804,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-
-
