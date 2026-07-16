@@ -19,7 +19,10 @@ export default function AdminRestoration() {
     title: '',
     description: '',
     before_image_url: '',
-    after_image_url: ''
+    after_image_url: '',
+    old_price: 0,
+    new_price: 0,
+    discount_rate: 0
   });
 
   const [beforePreview, setBeforePreview] = useState<string | null>(null);
@@ -89,7 +92,10 @@ export default function AdminRestoration() {
       title: item.title,
       description: item.description,
       before_image_url: item.before_image_url,
-      after_image_url: item.after_image_url
+      after_image_url: item.after_image_url,
+      old_price: item.old_price ?? 0,
+      new_price: item.new_price ?? 0,
+      discount_rate: item.discount_rate ?? 0
     });
     setBeforePreview(item.before_image_url);
     setAfterPreview(item.after_image_url);
@@ -120,7 +126,10 @@ export default function AdminRestoration() {
         title: formData.title,
         description: formData.description,
         before_image_url: finalBeforeUrl,
-        after_image_url: finalAfterUrl
+        after_image_url: finalAfterUrl,
+        old_price: Number(formData.old_price) || 0,
+        new_price: Number(formData.new_price) || 0,
+        discount_rate: Number(formData.discount_rate) || 0
       };
 
       if (editingId) {
@@ -141,7 +150,7 @@ export default function AdminRestoration() {
   };
 
   const openCreateDialog = () => {
-    setFormData({ title: '', description: '', before_image_url: '', after_image_url: '' });
+    setFormData({ title: '', description: '', before_image_url: '', after_image_url: '', old_price: 0, new_price: 0, discount_rate: 0 });
     setBeforePreview(null);
     setAfterPreview(null);
     setBeforeFile(null);
@@ -175,19 +184,22 @@ export default function AdminRestoration() {
                 <TableCell>Before</TableCell>
                 <TableCell>After</TableCell>
                 <TableCell>Title</TableCell>
+                <TableCell align="right">Old Price</TableCell>
+                <TableCell align="right">New Price</TableCell>
+                <TableCell align="right">Discount</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loadingItems ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
                     <CircularProgress color="error" />
                   </TableCell>
                 </TableRow>
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
                     No items found. Click "Add Restoration" to create one.
                   </TableCell>
                 </TableRow>
@@ -202,6 +214,17 @@ export default function AdminRestoration() {
                     </TableCell>
                     <TableCell component="th" scope="row">
                       <Typography variant="body2" fontWeight="600">{item.title}</Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="body2">Rs.{Number(item.old_price || 0).toLocaleString("en-IN")}</Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="body2" color="error.main" fontWeight="600">Rs.{Number(item.new_price || 0).toLocaleString("en-IN")}</Typography>
+                    </TableCell>
+                    <TableCell align="right">
+                      {Number(item.discount_rate) > 0 && (
+                        <Typography variant="body2" color="error.main" fontWeight="700">{item.discount_rate}%</Typography>
+                      )}
                     </TableCell>
                     <TableCell align="right">
                       <IconButton color="primary" onClick={() => handleEdit(item)} sx={{ mr: 1 }}>
@@ -234,6 +257,17 @@ export default function AdminRestoration() {
               </Grid>
               <Grid item xs={12}>
                 <TextField fullWidth label="Description" name="description" value={formData.description} onChange={handleChange} color="error" multiline rows={3} />
+              </Grid>
+
+              {/* Pricing */}
+              <Grid item xs={12} sm={4}>
+                <TextField fullWidth label="Old Price (Rs.)" name="old_price" type="number" value={formData.old_price ?? ''} onChange={handleChange} color="error" />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField fullWidth label="New Price (Rs.)" name="new_price" type="number" value={formData.new_price ?? ''} onChange={handleChange} color="error" />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField fullWidth label="Discount (%)" name="discount_rate" type="number" value={formData.discount_rate ?? ''} onChange={handleChange} color="error" />
               </Grid>
 
               {/* Before Image */}

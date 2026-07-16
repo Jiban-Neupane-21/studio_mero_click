@@ -46,11 +46,11 @@ export default function AdminOfferAds() {
     discount: '',
     description: '',
     terms: '',
-    target_category: '',
+    targetCategory: '',
     image: '',
-    accent_color: '#d32f2f', // Default to theme red
+    accentColor: '#d32f2f',
     badge: '',
-    valid_until: '',
+    validUntil: '',
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -79,7 +79,7 @@ export default function AdminOfferAds() {
     setCurrentId(null);
     setFormData({
       title: '', discount: '', description: '', terms: '',
-      target_category: '', image: '', accent_color: '#d32f2f', badge: '', valid_until: ''
+      targetCategory: '', image: '', accentColor: '#d32f2f', badge: '', validUntil: ''
     });
     setImagePreview(null);
     setImageFile(null);
@@ -94,11 +94,11 @@ export default function AdminOfferAds() {
       discount: item.discount || '',
       description: item.description || '',
       terms: item.terms || '',
-      target_category: item.target_category || (item as any).targetCategory || '',
+      targetCategory: item.targetCategory || '',
       image: item.image || '',
-      accent_color: item.accent_color || (item as any).accentColor || '#d32f2f',
+      accentColor: item.accentColor || '#d32f2f',
       badge: item.badge || '',
-      valid_until: item.valid_until || (item as any).validUntil || '',
+      validUntil: item.validUntil || '',
     });
     setImagePreview(item.image || null);
     setImageFile(null);
@@ -159,11 +159,11 @@ export default function AdminOfferAds() {
         discount: formData.discount,
         description: formData.description,
         terms: formData.terms,
-        target_category: formData.target_category,
+        targetCategory: formData.targetCategory,
         image: imageUrl || '',
         badge: formData.badge,
-        valid_until: formData.valid_until,
-        accent_color: formData.accent_color || '#d32f2f',
+        validUntil: formData.validUntil,
+        accentColor: formData.accentColor || '#d32f2f',
       };
 
       if (editMode && currentId) {
@@ -244,14 +244,14 @@ export default function AdminOfferAds() {
                   <TableCell sx={{ fontWeight: 'bold' }}>
                     {item.title}
                     {item.badge && (
-                      <Box component="span" sx={{ ml: 1, px: 1, py: 0.25, bgcolor: item.accent_color || '#d32f2f', color: 'white', borderRadius: 1, fontSize: '0.7rem' }}>
+                      <Box component="span" sx={{ ml: 1, px: 1, py: 0.25, bgcolor: item.accentColor || '#d32f2f', color: 'white', borderRadius: 1, fontSize: '0.7rem' }}>
                         {item.badge}
                       </Box>
                     )}
                   </TableCell>
                   <TableCell>{item.discount}</TableCell>
-                  <TableCell>{item.target_category || (item as any).targetCategory}</TableCell>
-                  <TableCell>{item.valid_until || (item as any).validUntil || '-'}</TableCell>
+                  <TableCell>{item.targetCategory}</TableCell>
+                  <TableCell>{item.validUntil || '-'}</TableCell>
                   <TableCell align="right">
                     <IconButton color="primary" onClick={() => handleOpenEdit(item)}>
                       <Edit size={18} />
@@ -323,8 +323,8 @@ export default function AdminOfferAds() {
                       <TextField
                         fullWidth
                         label="Target Category"
-                        name="target_category"
-                        value={formData.target_category}
+                        name="targetCategory"
+                        value={formData.targetCategory}
                         onChange={handleChange}
                         required
                         color="error"
@@ -382,9 +382,9 @@ export default function AdminOfferAds() {
                     <TextField
                       fullWidth
                       label="Accent Color"
-                      name="accent_color"
+                      name="accentColor"
                       type="color"
-                      value={formData.accent_color}
+                      value={formData.accentColor}
                       onChange={handleChange}
                       color="error"
                       sx={{
@@ -393,7 +393,7 @@ export default function AdminOfferAds() {
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
-                            <Palette size={20} color={formData.accent_color || '#000'} />
+                            <Palette size={20} color={formData.accentColor || '#000'} />
                           </InputAdornment>
                         ),
                       }}
@@ -402,10 +402,10 @@ export default function AdminOfferAds() {
                     <TextField
                       fullWidth
                       label="Valid Until (Expiry Date)"
-                      name="valid_until"
+                      name="validUntil"
                       type="date"
                       InputLabelProps={{ shrink: true }}
-                      value={formData.valid_until}
+                      value={formData.validUntil}
                       onChange={handleChange}
                       color="error"
                       helperText="Leave blank if the offer never expires"

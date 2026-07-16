@@ -23,10 +23,14 @@ export interface VideoItem {
   title: string;
   category: string;
   description: string;
+  youtube_id?: string;
   youtubeId?: string;
+  facebook_link?: string;
   facebookLink?: string;
+  tiktok_link?: string;
   tiktokLink?: string;
   duration?: string;
+  upload_date?: string;
   uploadDate?: string;
   views?: string;
   thumbnail?: string;
@@ -37,11 +41,16 @@ export interface TutorialVideo {
   title: string;
   category: string;
   description: string;
+  youtube_id?: string;
   youtubeId?: string;
+  facebook_link?: string;
   facebookLink?: string;
+  tiktok_link?: string;
   tiktokLink?: string;
   duration?: string;
+  upload_date?: string;
   uploadDate?: string;
+  published_at?: string;
   publishedAt?: string;
 }
 

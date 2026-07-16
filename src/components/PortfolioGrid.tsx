@@ -238,7 +238,6 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
                   overflow: "hidden",
                   display: "flex",
                   flexDirection: "column",
-                  height: "100%",
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   "&:hover": {
                     transform: "translateY(-6px)",
@@ -258,8 +257,8 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
                   sx={{
                     position: "relative",
                     overflow: "hidden",
-                    aspectRatio: "4/5",
                     backgroundColor: "background.default",
+                    lineHeight: 0,
                   }}
                 >
                   <CardMedia
@@ -269,8 +268,8 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
                     className="hover-zoom-img"
                     sx={{
                       width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
+                      height: "auto",
+                      display: "block",
                       transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
                     }}
                     referrerPolicy="no-referrer"
