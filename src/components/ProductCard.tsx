@@ -4,6 +4,7 @@ import type { Product } from "../types/featureProduct.type";
 interface ProductCardProps {
   product: Product;
   onViewDetails?: (product: Product) => void;
+  hidePrice?: boolean;
 }
 
 const formatPrice = (value: number) => `Rs.${value.toLocaleString("en-IN")}`;
@@ -11,6 +12,7 @@ const formatPrice = (value: number) => `Rs.${value.toLocaleString("en-IN")}`;
 export default function ProductCard({
   product,
   onViewDetails,
+  hidePrice = false,
 }: ProductCardProps) {
   const { title, thumbnail, oldPrice, newPrice, discountRate } = product;
 
@@ -19,7 +21,7 @@ export default function ProductCard({
       sx={{
         position: "relative",
         width: "100%",
-        maxWidth: { xs: 325, sm: 280 },
+        maxWidth: { xs: 350, sm: 320 },
         flexShrink: 0,
         borderRadius: "12px",
         overflow: "hidden",
@@ -67,7 +69,7 @@ export default function ProductCard({
         alt={title}
         sx={{
           width: "100%",
-          height: 220,
+          aspectRatio: "4/5",
           objectFit: "cover",
           display: "block",
           bgcolor: "#111",
@@ -90,18 +92,18 @@ export default function ProductCard({
           {title}
         </Typography>
 
-        <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 1.5 }}>
-          <Typography
-            sx={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontWeight: 700,
-              fontSize: 18,
-              color: "#E50914",
-            }}
-          >
+        {!hidePrice && (
+          <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 1.5 }}>
+            <Typography
+              sx={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontWeight: 700,
+                fontSize: 18,
+                color: "#E50914",
+              }}
+            >
             {formatPrice(newPrice)}
-          </Typography>
-          {oldPrice > newPrice && (
+            </Typography>
             <Typography
               sx={{
                 fontFamily: "'IBM Plex Mono', monospace",
@@ -112,8 +114,8 @@ export default function ProductCard({
             >
               {formatPrice(oldPrice)}
             </Typography>
-          )}
-        </Box>
+          </Box>
+        )}
 
         <Button
           fullWidth

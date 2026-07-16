@@ -7,6 +7,7 @@ import PageNotFound from "../components/common/PageNotFound";
 import HomePage from "../pages/HomePage";
 import ContactPage from "../pages/ContactPage";
 import ServicePage from "../pages/ServicePage";
+import CategoryPage from "../pages/CategoryPage";
 import AboutPage from "../pages/AboutPage";
 import ServiceDetails from "../components/ServiceDetails";
 import ProductDetails from "../components/ProductDetails";
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
           {
             path: "services/",
             element: <ServicePage />,
+          },
+          {
+            path: "services/category/:slug",
+            element: <CategoryPage />,
           },
           {
             path: "services/:id",
