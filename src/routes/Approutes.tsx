@@ -9,6 +9,8 @@ import ContactPage from "../pages/ContactPage";
 import ServicePage from "../pages/ServicePage";
 import CategoryPage from "../pages/CategoryPage";
 import AboutPage from "../pages/AboutPage";
+import BookingPage from "../pages/BookingPage";
+import ProductBookingPage from "../pages/ProductBookingPage";
 import ServiceDetails from "../components/ServiceDetails";
 import ProductDetails from "../components/ProductDetails";
 import PortfolioPage from "../pages/PortfolioPage";
@@ -17,8 +19,7 @@ import RestorationDetails from "../components/RestorationDetails";
 import VideoSection from "../pages/VideoPage";
 import LearnFromUs from "../pages/LearnPage";
 import ReadArticlePage from "../pages/ReadArticlePage";
-import ClaimOffer from "../components/ClaimOffer";
-import OfferDetailsPage from "../pages/OfferDetailsPage";
+
 
 import AdminLayout from "../Admin/AdminLayout";
 import AdminDashboard from "../Admin/pages/AdminDashboard";
@@ -85,14 +86,7 @@ const router = createBrowserRouter([
             path: "learn/:id",
             element: <ReadArticlePage />,
           },
-          {
-            path: "claim-offer",
-            element: <ClaimOffer />,
-          },
-          {
-            path: "offers/:id",
-            element: <OfferDetailsPage />,
-          },
+         
           {
             path: "book",
             element: <ContactPage />,
@@ -100,6 +94,14 @@ const router = createBrowserRouter([
           {
             path: "about",
             element: <AboutPage />,
+          },
+          {
+            path: "booking/:serviceId",
+            element: <BookingPage />,
+          },
+          {
+            path: "product-booking/:productId",
+            element: <ProductBookingPage />,
           },
           {
             path: "contact",

@@ -1,12 +1,12 @@
 /* eslint-disable */
 // @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  TextField, 
-  Button, 
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Button,
   Grid,
   IconButton,
   Divider,
@@ -23,7 +23,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress
+  CircularProgress,
+  MenuItem
 } from '@mui/material';
 import { Save, UploadCloud, X, Plus, Trash2, Image as ImageIcon, Edit } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
@@ -31,10 +32,12 @@ import 'react-quill-new/dist/quill.snow.css';
 import { Product, ProductImage, ProductSpecification, ProductFeature, ProductFAQ } from '../../types/featureProduct.type';
 import { productsApi } from '../../api/products';
 import { uploadImage } from '../../utils/uploadImage';
+import { services } from '../../data/product.data';
 
 export default function AdminProducts() {
   const [formData, setFormData] = useState<Partial<Product>>({
     title: '',
+    category: '',
     about: '',
     description: '',
     oldPrice: 0,
@@ -91,6 +94,7 @@ export default function AdminProducts() {
     
     setFormData({
       title: item.title,
+      category: item.category || '',
       about: item.about,
       description: item.description,
       oldPrice: item.old_price,
@@ -245,6 +249,7 @@ export default function AdminProducts() {
 
       const productPayload = {
         title: formData.title,
+        category: formData.category,
         about: formData.about,
         description: formData.description,
         old_price: formData.oldPrice,
@@ -269,7 +274,7 @@ export default function AdminProducts() {
       
       // Reset form
       setFormData({
-        title: '', about: '', description: '', oldPrice: 0, newPrice: 0,
+        title: '', category: '', about: '', description: '', oldPrice: 0, newPrice: 0,
         discountRate: 0, thumbnail: '', images: [], additionalInfo: [],
         features: [], faq: [], isFeatured: false, isAvailable: true
       });
@@ -313,7 +318,7 @@ export default function AdminProducts() {
           startIcon={<Plus />} 
           onClick={() => {
             setFormData({
-              title: '', about: '', description: '', oldPrice: 0, newPrice: 0,
+              title: '', category: '', about: '', description: '', oldPrice: 0, newPrice: 0,
               discountRate: 0, thumbnail: '', images: [], additionalInfo: [],
               features: [], faq: [], isFeatured: true, isAvailable: true
             });
@@ -333,10 +338,11 @@ export default function AdminProducts() {
       <Paper sx={{ width: '100%', mb: 4, borderRadius: 3, overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
         <TableContainer>
           <Table sx={{ minWidth: 650 }} aria-label="products table">
-            <TableHead sx={{ bgcolor: 'grey.50' }}>
+            <TableHead sx={{ bgcolor: 'action.hover' }}>
               <TableRow>
                 <TableCell>Thumbnail</TableCell>
                 <TableCell>Title</TableCell>
+                <TableCell>Category</TableCell>
                 <TableCell>Price</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -344,13 +350,13 @@ export default function AdminProducts() {
             <TableBody>
               {loadingItems ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                     <CircularProgress color="error" />
                   </TableCell>
                 </TableRow>
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                     No products found. Click "Create New Product" to add one.
                   </TableCell>
                 </TableRow>
@@ -365,11 +371,14 @@ export default function AdminProducts() {
                           sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }}
                         />
                       ) : (
-                        <Box sx={{ width: 60, height: 60, bgcolor: 'grey.200', borderRadius: 1 }} />
+                        <Box sx={{ width: 60, height: 60, bgcolor: 'action.hover', borderRadius: 1 }} />
                       )}
                     </TableCell>
                     <TableCell component="th" scope="row">
                       <Typography variant="body2" fontWeight="600">{item.title}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" color="text.secondary">{item.category || '-'}</Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" color="error.main" fontWeight="bold">Rs. {item.new_price}</Typography>
@@ -421,6 +430,22 @@ export default function AdminProducts() {
                   required
                   color="error"
                 />
+
+                <TextField
+                  select
+                  fullWidth
+                  label="Category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                  color="error"
+                >
+                  <MenuItem value="">Select a category</MenuItem>
+                  {services.map((s) => (
+                    <MenuItem key={s.id} value={s.title}>{s.title}</MenuItem>
+                  ))}
+                </TextField>
 
                 <TextField
                   fullWidth

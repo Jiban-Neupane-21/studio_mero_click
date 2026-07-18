@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -25,6 +25,7 @@ import {
   TableRow,
   CircularProgress,
   Autocomplete,
+  Chip,
 } from "@mui/material";
 import {
   Save,
@@ -44,9 +45,11 @@ import {
   ServiceFeature,
   ServiceFAQ,
   ServiceCategory,
+  ServiceSubCategory,
 } from "../../types/service.type";
 import { servicesApi } from "../../api/services";
 import { serviceCategoriesApi } from "../../api/serviceCategories";
+import { serviceSubCategoriesApi } from "../../api/serviceSubCategories";
 import { uploadImage } from "../../utils/uploadImage";
 
 export default function AdminServices() {
@@ -82,9 +85,18 @@ export default function AdminServices() {
 
   const [items, setItems] = useState<any[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const [subCategories, setSubCategories] = useState<ServiceSubCategory[]>([]);
+  const [subCategoriesMap, setSubCategoriesMap] = useState<Record<string, ServiceSubCategory[]>>({});
   const [loadingItems, setLoadingItems] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [newSubCategoryName, setNewSubCategoryName] = useState("");
+
+  const subCategoriesById = useMemo(() => {
+    const map: Record<string, ServiceSubCategory> = {};
+    Object.values(subCategoriesMap).forEach(arr => arr.forEach(sc => { map[sc.id] = sc; }));
+    return map;
+  }, [subCategoriesMap]);
 
   const fetchItems = async () => {
     try {
@@ -104,6 +116,17 @@ export default function AdminServices() {
       .getCategories()
       .then((data) => setCategories(data))
       .catch((err) => console.error("Failed to fetch categories:", err));
+    serviceSubCategoriesApi
+      .getSubCategories()
+      .then((data) => {
+        const map: Record<string, ServiceSubCategory[]> = {};
+        data.forEach((sc: ServiceSubCategory) => {
+          if (!map[sc.category_id]) map[sc.category_id] = [];
+          map[sc.category_id].push(sc);
+        });
+        setSubCategoriesMap(map);
+      })
+      .catch((err) => console.error("Failed to fetch sub-categories:", err));
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -120,9 +143,17 @@ export default function AdminServices() {
   const handleEdit = (item: any) => {
     setEditingId(item.id);
 
+    const matchedCategory = categories.find((c) => c.name === item.category);
+    if (matchedCategory && subCategoriesMap[matchedCategory.id]) {
+      setSubCategories(subCategoriesMap[matchedCategory.id]);
+    } else {
+      setSubCategories([]);
+    }
+
     setFormData({
       title: item.title,
       category: item.category,
+      subCategoryId: item.sub_category_id || undefined,
       about: item.about,
       description: item.description,
       oldPrice: item.old_price,
@@ -175,6 +206,15 @@ export default function AdminServices() {
 
     setIsDialogOpen(true);
   };
+
+  useEffect(() => {
+    const matchedCategory = categories.find((c) => c.name === formData.category);
+    if (matchedCategory && subCategoriesMap[matchedCategory.id]) {
+      setSubCategories(subCategoriesMap[matchedCategory.id]);
+    } else {
+      setSubCategories([]);
+    }
+  }, [formData.category, categories, subCategoriesMap]);
 
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const mainImageInputRef = useRef<HTMLInputElement>(null);
@@ -305,6 +345,9 @@ export default function AdminServices() {
     });
   };
 
+  const isUUID = (val: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -333,9 +376,35 @@ export default function AdminServices() {
         );
       }
 
+      let resolvedSubCategoryId = formData.subCategoryId;
+      if (resolvedSubCategoryId && !isUUID(resolvedSubCategoryId)) {
+        const category = categories.find((c) => c.name === formData.category);
+        if (category) {
+          const baseSlug = resolvedSubCategoryId
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "");
+          const slug = `${baseSlug}-${Date.now()}`;
+          const newSubCat = await serviceSubCategoriesApi.createSubCategory({
+            category_id: category.id,
+            name: resolvedSubCategoryId,
+            slug,
+          });
+          resolvedSubCategoryId = newSubCat.id;
+          setSubCategories((prev) => [...prev, newSubCat]);
+          setSubCategoriesMap((prev) => {
+            const updated = { ...prev };
+            if (!updated[category.id]) updated[category.id] = [];
+            updated[category.id] = [...updated[category.id], newSubCat];
+            return updated;
+          });
+        }
+      }
+
       const servicePayload = {
         title: formData.title,
         category: formData.category,
+        sub_category_id: resolvedSubCategoryId || null,
         about: formData.about,
         description: formData.description,
         old_price: formData.oldPrice,
@@ -363,6 +432,7 @@ export default function AdminServices() {
       setFormData({
         title: "",
         category: "",
+        subCategoryId: undefined,
         about: "",
         description: "",
         oldPrice: 0,
@@ -428,6 +498,7 @@ export default function AdminServices() {
             setFormData({
               title: "",
               category: "",
+              subCategoryId: undefined,
               about: "",
               description: "",
               oldPrice: 0,
@@ -442,6 +513,7 @@ export default function AdminServices() {
               isFeatured: false,
               isAvailable: true,
             });
+            setSubCategories([]);
             setThumbnailPreview(null);
             setThumbnailFile(null);
             setMainImagePreview(null);
@@ -473,6 +545,7 @@ export default function AdminServices() {
                 <TableCell>Thumbnail</TableCell>
                 <TableCell>Title</TableCell>
                 <TableCell>Category</TableCell>
+                <TableCell>Sub-Category</TableCell>
                 <TableCell>Price</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -480,13 +553,13 @@ export default function AdminServices() {
             <TableBody>
               {loadingItems ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                     <CircularProgress color="error" />
                   </TableCell>
                 </TableRow>
               ) : items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                  <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
                     No services found. Click "Create New Service" to add one.
                   </TableCell>
                 </TableRow>
@@ -526,6 +599,11 @@ export default function AdminServices() {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">{item.category}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {subCategoriesById[item.sub_category_id]?.name || "-"}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography
@@ -604,12 +682,14 @@ export default function AdminServices() {
                           setFormData((prev) => ({
                             ...prev,
                             category: newValue || "",
+                            subCategoryId: undefined,
                           }));
                         }}
                         onInputChange={(_e, newValue) => {
                           setFormData((prev) => ({
                             ...prev,
                             category: newValue || "",
+                            subCategoryId: undefined,
                           }));
                         }}
                         sx={{ minWidth: 200 }}
@@ -625,7 +705,139 @@ export default function AdminServices() {
                         )}
                       />
                     </Grid>
+                    <Grid item xs={12} sm="auto">
+                      <Autocomplete
+                        freeSolo
+                        options={subCategories.map((sc) => sc.name)}
+                        value={subCategories.find((sc) => sc.id === formData.subCategoryId)?.name || ''}
+                        onChange={(_e, newValue) => {
+                          const matched = subCategories.find((sc) => sc.name === newValue);
+                          setFormData((prev) => ({
+                            ...prev,
+                            subCategoryId: matched?.id || (newValue ? newValue : undefined),
+                          }));
+                        }}
+                        onInputChange={(_e, newValue) => {
+                          const matched = subCategories.find((sc) => sc.name === newValue);
+                          setFormData((prev) => ({
+                            ...prev,
+                            subCategoryId: matched?.id || (newValue ? newValue : undefined),
+                          }));
+                        }}
+                        sx={{ minWidth: 200 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Sub-Category"
+                            name="subCategoryId"
+                            color="error"
+                            placeholder={subCategories.length === 0 ? "Select a category first" : "Select or type sub-category"}
+                          />
+                        )}
+                      />
+                    </Grid>
                   </Grid>
+
+                  {formData.category && categories.find((c) => c.name === formData.category) && (
+                    <Box
+                      sx={{
+                        p: 2,
+                        bgcolor: "grey.50",
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "grey.200",
+                      }}
+                    >
+                      <Typography variant="subtitle2" fontWeight="600" mb={1.5} color="text.primary">
+                        Manage Sub-Categories
+                      </Typography>
+                      <Box sx={{ display: "flex", gap: 1, mb: 1.5 }}>
+                        <TextField
+                          size="small"
+                          fullWidth
+                          placeholder="New sub-category name"
+                          value={newSubCategoryName}
+                          onChange={(e) => setNewSubCategoryName(e.target.value)}
+                          color="error"
+                        />
+                        <Button
+                          variant="contained"
+                          color="error"
+                          size="small"
+                          disabled={!newSubCategoryName.trim()}
+                          onClick={async () => {
+                            const category = categories.find((c) => c.name === formData.category);
+                            if (!category) return;
+                            try {
+                              const slug = newSubCategoryName
+                                .trim()
+                                .toLowerCase()
+                                .replace(/[^a-z0-9]+/g, "-")
+                                .replace(/^-|-$/g, "");
+                              const newSubCat = await serviceSubCategoriesApi.createSubCategory({
+                                category_id: category.id,
+                                name: newSubCategoryName.trim(),
+                                slug: `${slug}-${Date.now()}`,
+                              });
+                              setSubCategories((prev) => [...prev, newSubCat]);
+                              setSubCategoriesMap((prev) => {
+                                const updated = { ...prev };
+                                if (!updated[category.id]) updated[category.id] = [];
+                                updated[category.id] = [...updated[category.id], newSubCat];
+                                return updated;
+                              });
+                              setNewSubCategoryName("");
+                            } catch (err: any) {
+                              alert("Failed to create sub-category: " + err.message);
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
+                      </Box>
+                      {subCategories.length === 0 ? (
+                        <Typography variant="caption" color="text.secondary">
+                          No sub-categories yet. Add one above.
+                        </Typography>
+                      ) : (
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                          {subCategories.map((sc) => (
+                            <Chip
+                              key={sc.id}
+                              label={sc.name}
+                              onDelete={async () => {
+                                if (!window.confirm(`Delete "${sc.name}"?`)) return;
+                                try {
+                                  await serviceSubCategoriesApi.deleteSubCategory(sc.id);
+                                  setSubCategories((prev) => prev.filter((s) => s.id !== sc.id));
+                                  setSubCategoriesMap((prev) => {
+                                    const updated = { ...prev };
+                                    const categoryId = sc.category_id;
+                                    if (updated[categoryId]) {
+                                      updated[categoryId] = updated[categoryId].filter(
+                                        (s) => s.id !== sc.id,
+                                      );
+                                    }
+                                    return updated;
+                                  });
+                                  if (formData.subCategoryId === sc.id) {
+                                    setFormData((prev) => ({ ...prev, subCategoryId: undefined }));
+                                  }
+                                } catch (err: any) {
+                                  alert("Failed to delete sub-category: " + err.message);
+                                }
+                              }}
+                              size="small"
+                              sx={{
+                                bgcolor: "white",
+                                "& .MuiChip-deleteIcon": { color: "#E50914" },
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      )}
+                    </Box>
+                  )}
 
                   <TextField
                     fullWidth

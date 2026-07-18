@@ -9,8 +9,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. ENUMS
 -- ==========================================
 CREATE TYPE public.portfolio_category AS ENUM (
-  'Wedding', 'Maternity', 'Cake Smash', 'Fashion', 'Portrait', 
-  'Commercial'
+  'Portraits', 'Fashion', 'Events', 'Maternity', 'Wedding', 'Cakesmash', 'Graduation', 'Product', 'Newborn'
 );
 
 
@@ -171,6 +170,7 @@ CREATE TABLE public.products (
     new_price NUMERIC NOT NULL,
     discount_rate NUMERIC NOT NULL,
     thumbnail TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT '',
     is_featured BOOLEAN DEFAULT false,
     is_available BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

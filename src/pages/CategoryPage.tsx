@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, Skeleton } from "@mui/material";
+import { Box, Typography, Grid, Button, Skeleton } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 
 import { useData } from "../context/DataContext";
@@ -114,7 +114,7 @@ const CategoryPage = () => {
         <StaggerContainer staggerDelay={0.08}>
           <Grid container spacing={4}>
             {services.map((service: any) => (
-              <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4 }}>
                 <StaggerItem style={{ height: "100%" }}>
                   <Box
                     component={Link}
@@ -128,8 +128,6 @@ const CategoryPage = () => {
                       bgcolor: "background.paper",
                       boxShadow: 2,
                       transition: ".3s",
-                      height: { xs: "auto", sm: "calc((100vh - 280px) / 2)" },
-                      minHeight: { sm: 250 },
                       "&:hover": {
                         transform: "translateY(-8px)",
                         boxShadow: 8,
@@ -137,13 +135,13 @@ const CategoryPage = () => {
                     }}
                   >
                     <Box
+                      component="img"
+                      src={service.thumbnail}
+                      alt={service.title}
                       sx={{
                         width: "100%",
-                        flexGrow: 1,
-                        minHeight: { xs: 250, sm: 0 },
-                        backgroundImage: `url(${service.thumbnail})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
+                        display: "block",
+                        bgcolor: "grey.100",
                       }}
                     />
                     <Box
@@ -152,7 +150,6 @@ const CategoryPage = () => {
                         px: 2,
                         borderTop: "1px solid",
                         borderColor: "divider",
-                        flexShrink: 0,
                       }}
                     >
                       <Typography
@@ -166,6 +163,21 @@ const CategoryPage = () => {
                       >
                         {service.title}
                       </Typography>
+                      <Button
+                        component={Link}
+                        to={`/booking/${service.id}`}
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                          mt: 1.5,
+                          bgcolor: "#D32F2F",
+                          "&:hover": { bgcolor: "#B71C1C" },
+                          textTransform: "none",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Book Now
+                      </Button>
                     </Box>
                   </Box>
                 </StaggerItem>

@@ -55,11 +55,15 @@ export default function PortfolioDetail() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [galleryImage, setGalleryImage] = useState<string | null>(null);
+  const [randomPortfolio, setRandomPortfolio] = useState<PortfolioItem[]>([]);
 
   useEffect(() => {
     if (!contextLoading && id) {
       const matched = portfolioItems.find((item) => item.id === id) ?? null;
       setSelectedItem(matched);
+      const others = portfolioItems.filter((item) => item.id !== id);
+      const shuffled = [...others].sort(() => 0.5 - Math.random());
+      setRandomPortfolio(shuffled.slice(0, 4));
       setLoading(false);
     }
   }, [id, portfolioItems, contextLoading]);
@@ -215,12 +219,9 @@ export default function PortfolioDetail() {
               sx={{
                 position: "relative",
                 borderRadius: "12px",
-                overflow: "hidden",
                 backgroundColor: "background.paper",
                 border: "1px solid",
                 borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
-                display: "flex",
-                justifyContent: "center",
                 boxShadow: "0 10px 40px rgba(0,0,0,0.03)",
               }}
             >
@@ -231,8 +232,6 @@ export default function PortfolioDetail() {
                   display: "block",
                   width: "100%",
                   height: "auto",
-                  maxHeight: "75vh",
-                  objectFit: "cover",
                 }}
                 referrerPolicy="no-referrer"
                 onError={(e) => {
@@ -428,13 +427,7 @@ export default function PortfolioDetail() {
                         },
                       }}
                     >
-                      <Box
-                        sx={{
-                          position: "relative",
-                          overflow: "hidden",
-                          aspectRatio: "4/5",
-                        }}
-                      >
+                      <Box sx={{ position: "relative", overflow: "hidden" }}>
                         <CardMedia
                           component="img"
                           image={imageUrl}
@@ -442,8 +435,7 @@ export default function PortfolioDetail() {
                           className="hover-zoom-img"
                           sx={{
                             width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
+                            display: "block",
                             transition: "transform 0.5s ease",
                           }}
                           referrerPolicy="no-referrer"
@@ -570,6 +562,63 @@ export default function PortfolioDetail() {
           </DialogContent>
         </Box>
       </Dialog>
+
+      {/* Explore More Section */}
+      {randomPortfolio.length > 0 && (
+        <Box sx={{ mt: 10 }}>
+          <Typography
+            variant="h4"
+            sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, mb: 4, color: "text.primary" }}
+          >
+            Explore More Gallery
+          </Typography>
+          <Grid container spacing={2.5}>
+            {randomPortfolio.map((item) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.id}>
+                <Card
+                  onClick={() => navigate(`/portfolio/${item.id}`)}
+                  sx={{
+                    cursor: "pointer",
+                    backgroundColor: "background.paper",
+                    border: "1px solid",
+                    borderColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+                    boxShadow: "none",
+                    borderRadius: "6px",
+                    overflow: "hidden",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                    },
+                  }}
+                >
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    style={{ width: "100%", display: "block" }}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src =
+                        "https://images.unsplash.com/photo-1622344028682-1bc6ba6b7f36?q=80&w=400&auto=format&fit=crop";
+                    }}
+                  />
+                  <Box sx={{ p: 2 }}>
+                    <Typography
+                      sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600, fontSize: 14, color: "text.primary" }}
+                    >
+                      {item.title}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {item.category}
+                    </Typography>
+                  </Box>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
 
       {/* Snackbar notification */}
       <Snackbar

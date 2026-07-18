@@ -24,7 +24,7 @@ import {
   CardActions,
   CircularProgress
 } from "@mui/material";
-import { ArrowLeft, ChevronDown, Tag, CheckCircle, Calendar } from "lucide-react";
+import { ArrowLeft, ChevronDown, Mail, CheckCircle, Calendar } from "lucide-react";
 import { useData } from "../context/DataContext";
 import ProductCard from "./ProductCard";
 
@@ -84,10 +84,8 @@ const ProductDetails: React.FC = () => {
 
   const formatPrice = (value: number) => `Rs. ${Number(value).toLocaleString("en-IN")}`;
 
-  // Dedicated Theme Constants for the Red & White Palette
-  const RED_PRIMARY = "#D32F2F"; // Rich Red
-  const RED_LIGHT = "#FFEBEE"; // Soft Red background accent
-  const WHITE = "#FFFFFF";
+  const RED_PRIMARY = "#D32F2F";
+  const RED_LIGHT = "#FFEBEE";
 
   return (
     <Container id="product-details-container" maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
@@ -103,7 +101,7 @@ const ProductDetails: React.FC = () => {
           "&:hover": { backgroundColor: RED_LIGHT },
         }}
       >
-        Back to Home
+        Back to Products
       </Button>
 
       {/* Main Hero Card */}
@@ -113,10 +111,10 @@ const ProductDetails: React.FC = () => {
         sx={{
           overflow: "hidden",
           mb: 4,
-          backgroundColor: WHITE,
+          backgroundColor: "background.paper",
           borderRadius: 2,
           border: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
         }}
       >
         <Grid container>
@@ -129,7 +127,7 @@ const ProductDetails: React.FC = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
-                backgroundColor: WHITE,
+                backgroundColor: "background.paper",
               }}
             >
               {/* Main Image Display */}
@@ -143,9 +141,9 @@ const ProductDetails: React.FC = () => {
                   height: "auto",
                   display: "block",
                   borderRadius: 1.5,
-                  backgroundColor: "grey.50",
+                  backgroundColor: "action.hover",
                   border: "1px solid",
-                  borderColor: "grey.100",
+                  borderColor: "divider",
                 }}
               />
 
@@ -201,7 +199,7 @@ const ProductDetails: React.FC = () => {
                 flexGrow: 1,
                 display: "flex",
                 flexDirection: "column",
-                backgroundColor: WHITE,
+                backgroundColor: "background.paper",
               }}
             >
               {/* Availability & Featured Tags */}
@@ -218,7 +216,7 @@ const ProductDetails: React.FC = () => {
                     label="Available"
                     sx={{
                       backgroundColor: RED_PRIMARY,
-                      color: WHITE,
+                      color: "#fff",
                       fontWeight: "bold",
                     }}
                     size="small"
@@ -246,7 +244,7 @@ const ProductDetails: React.FC = () => {
                   fontFamily: "'Fraunces', serif",
                   fontWeight: 700,
                   fontSize: { xs: "2rem", md: "2.5rem" },
-                  color: "grey.900",
+                  color: "text.primary",
                 }}
               >
                 {product.title}
@@ -328,50 +326,49 @@ const ProductDetails: React.FC = () => {
 
               {/* Action Buttons */}
               <Box sx={{ mt: "auto", display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
-                <Button
-                  id="product-book-session-btn"
-                  component={RouterLink}
-                  to={`/book?service=${encodeURIComponent(product.title)}`}
-                  variant="contained"
-                  size="large"
-                  startIcon={<Calendar size={18} />}
-                  disabled={product.isAvailable === false}
-                  fullWidth
-                  sx={{
-                    py: 1.5,
-                    backgroundColor: RED_PRIMARY,
-                    color: WHITE,
-                    fontWeight: "bold",
-                    "&:hover": {
-                      backgroundColor: "#B71C1C", // Darker Red for hover state
-                    },
-                  }}
-                >
-                  Book Package Now
-                </Button>
+                  <Button
+                    id="product-book-session-btn"
+                    component={RouterLink}
+                    to={`/product-booking/${product.id}`}
+                    variant="contained"
+                    size="large"
+                    startIcon={<Calendar size={18} />}
+                    disabled={product.isAvailable === false}
+                    fullWidth
+                    sx={{
+                      py: 1.5,
+                      backgroundColor: RED_PRIMARY,
+                      color: "#fff",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#B71C1C",
+                      },
+                    }}
+                  >
+                    Book Package Now
+                  </Button>
 
-                <Button
-                  id="product-claim-offer-btn"
-                  component={RouterLink}
-                  to={`/claim-offer?offerId=${product.id}`}
-                  variant="outlined"
-                  size="large"
-                  startIcon={<Tag size={18} />}
-                  disabled={product.isAvailable === false}
-                  fullWidth
-                  sx={{
-                    py: 1.5,
-                    color: RED_PRIMARY,
-                    borderColor: RED_PRIMARY,
-                    fontWeight: "bold",
-                    "&:hover": {
-                      borderColor: "#B71C1C",
-                      backgroundColor: RED_LIGHT,
-                    },
-                  }}
-                >
-                  Claim Offer
-                </Button>
+                  <Button
+                    id="product-contact-btn"
+                    component={RouterLink}
+                    to="/contact"
+                    variant="outlined"
+                    size="large"
+                    startIcon={<Mail size={18} />}
+                    fullWidth
+                    sx={{
+                      py: 1.5,
+                      color: RED_PRIMARY,
+                      borderColor: RED_PRIMARY,
+                      fontWeight: "bold",
+                      "&:hover": {
+                        borderColor: "#B71C1C",
+                        backgroundColor: RED_LIGHT,
+                      },
+                    }}
+                  >
+                    Contact for Inquiry
+                  </Button>
               </Box>
             </Box>
           </Grid>
@@ -429,7 +426,7 @@ const ProductDetails: React.FC = () => {
             <TableContainer
               component={Paper}
               variant="outlined"
-              sx={{ backgroundColor: WHITE }}
+              sx={{ backgroundColor: "background.paper" }}
             >
               <Table size="small">
                 <TableBody>
@@ -438,7 +435,7 @@ const ProductDetails: React.FC = () => {
                       key={index}
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
-                        backgroundColor: index % 2 === 0 ? "grey.50" : WHITE,
+                        backgroundColor: index % 2 === 0 ? "action.hover" : "background.paper",
                       }}
                     >
                       <TableCell
@@ -479,7 +476,7 @@ const ProductDetails: React.FC = () => {
                   sx={{
                     mb: 1,
                     border: "1px solid",
-                    borderColor: "grey.200",
+                    borderColor: "divider",
                     "&:before": { display: "none" }, // Hides standard Accordion divider lines
                   }}
                 >
@@ -491,7 +488,7 @@ const ProductDetails: React.FC = () => {
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails
-                    sx={{ borderTop: "1px solid", borderColor: "grey.100" }}
+                    sx={{ borderTop: "1px solid", borderColor: "divider" }}
                   >
                     <Typography color="text.secondary" sx={{ lineHeight: 1.6 }}>
                       {faqItem.answer}
@@ -510,7 +507,7 @@ const ProductDetails: React.FC = () => {
           <Typography
             variant="h4"
             gutterBottom
-            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "grey.900" }}
+            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "text.primary" }}
           >
             Explore More Products
           </Typography>
