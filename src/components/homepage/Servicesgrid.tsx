@@ -239,6 +239,21 @@ const ServiceGrid = () => {
                     borderColor: "divider",
                   }}
                 >
+                  {service.service_sub_categories?.name && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#E50914",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        display: "block",
+                        mb: 0.5,
+                      }}
+                    >
+                      {service.service_sub_categories.name}
+                    </Typography>
+                  )}
                   <Typography
                     sx={{
                       fontFamily: "'Fraunces', serif",

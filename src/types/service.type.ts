@@ -9,6 +9,18 @@ export interface ServiceCategory {
   created_at?: string;
 }
 
+export interface ServiceSubCategory {
+  id: string;
+  category_id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at?: string;
+}
+
 export interface ServiceImage {
   id: string;
   url: string;
@@ -37,6 +49,7 @@ export interface Service {
 
   // Category
   category: string;
+  subCategoryId?: string;
 
   // Basic Information
   title: string;
