@@ -37,6 +37,9 @@ export interface Product {
   thumbnail: string;
   images: ProductImage[];
 
+  // Category
+  category?: string;
+
   // Details
   description: string;
   additionalInfo: ProductSpecification[];

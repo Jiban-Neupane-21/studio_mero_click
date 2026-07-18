@@ -35,7 +35,13 @@ import {
 import { PortfolioItem } from "../types";
 import { useNavigate } from "react-router-dom";
 
-export default function PortfolioGrid({ items, loading }: { items: PortfolioItem[], loading?: boolean }) {
+export default function PortfolioGrid({
+  items,
+  loading,
+}: {
+  items: PortfolioItem[];
+  loading?: boolean;
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get("category");
   const navigate = useNavigate();
@@ -76,14 +82,15 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
 
   const categories = [
     { id: "all", label: "All Projects" },
+    { id: "Portraits", label: "Portraits" },
     { id: "Wedding", label: "Wedding" },
     { id: "Maternity", label: "Maternity" },
-    { id: "Cake Smash", label: "Cake Smash" },
     { id: "Fashion", label: "Fashion" },
-    { id: "Portrait", label: "Portrait" },
-    { id: "Identity Photo", label: "Identity Photo" },
-    { id: "Commercial", label: "Commercial" },
-    { id: "Customize Gifts", label: "Customize Gifts" },
+    { id: "Graduation", label: "Graduation" },
+    { id: "Cakesmash", label: "Cake Smash" },
+    { id: "Events", label: "Events" },
+    { id: "Newborn", label: "New Born" },
+    { id: "Product", label: "Product" },
   ];
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -156,7 +163,9 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
             justifyContent: "center",
             mb: 6,
             borderBottom: "1.5px solid",
-            borderColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)",
+            borderColor: isDark
+              ? "rgba(255, 255, 255, 0.08)"
+              : "rgba(0, 0, 0, 0.08)",
           }}
           id="portfolio-filters"
         >
@@ -182,14 +191,14 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
                 px: { xs: 2.5, md: 4 },
                 py: 2,
                 transition: "opacity 0.2s ease, color 0.2s ease",
-                "&.Mui-selected": { 
+                "&.Mui-selected": {
                   color: "text.primary",
-                  opacity: 1, 
+                  opacity: 1,
                 },
                 "&:hover": {
                   opacity: 1,
                   color: "text.primary",
-                }
+                },
               },
             }}
           >
@@ -206,183 +215,207 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
 
         {/* Portfolio Grid Layout */}
         <Grid container spacing={3} id="portfolio-grid-items">
-          {loading ? (
-            [1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
-                <Skeleton
-                  variant="rounded"
-                  width="100%"
-                  sx={{ aspectRatio: "4/5" }}
-                />
-                <Skeleton
-                  variant="text"
-                  width="70%"
-                  height={24}
-                  sx={{ mt: 2 }}
-                />
-                <Skeleton variant="text" width="40%" height={20} />
-              </Grid>
-            ))
-          ) : (
-            filteredItems.map((item) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.id}>
-              <Card
-                onClick={() => navigate(`/portfolio/${item.id}`)}
-                sx={{
-                  cursor: "pointer",
-                  backgroundColor: "background.paper",
-                  border: "1px solid",
-                  borderColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)",
-                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.03)",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                  display: "flex",
-                  flexDirection: "column",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  "&:hover": {
-                    transform: "translateY(-6px)",
-                    boxShadow: "0 12px 30px rgba(229, 9, 20, 0.08)",
-                    borderColor: "rgba(229, 9, 20, 0.25)",
-                    "& .hover-zoom-img": {
-                      transform: "scale(1.05)",
-                    },
-                    "& .hover-overlay": {
-                      opacity: 1,
-                    },
-                  },
-                }}
-                id={`portfolio-item-${item.id}`}
-              >
+          {loading
+            ? [1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i}>
+                  <Skeleton
+                    variant="rounded"
+                    width="100%"
+                    sx={{ aspectRatio: "4/5" }}
+                  />
+                  <Skeleton
+                    variant="text"
+                    width="70%"
+                    height={24}
+                    sx={{ mt: 2 }}
+                  />
+                  <Skeleton variant="text" width="40%" height={20} />
+                </Grid>
+              ))
+            : filteredItems.length === 0 ? (
+              <Grid size={12}>
                 <Box
                   sx={{
-                    position: "relative",
-                    overflow: "hidden",
-                    backgroundColor: "background.default",
-                    lineHeight: 0,
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    image={item.imageUrl}
-                    alt={item.title}
-                    className="hover-zoom-img"
-                    sx={{
-                      width: "100%",
-                      height: "auto",
-                      display: "block",
-                      transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-                    }}
-                    referrerPolicy="no-referrer"
-                    onError={(e: any) => {
-                      e.target.onerror = null;
-                      e.target.src =
-                        "https://images.unsplash.com/photo-1622344028682-1bc6ba6b7f36?q=80&w=400&auto=format&fit=crop";
-                    }}
-                  />
-                  
-                  {/* Subtle hover icon zoom overlay */}
-                  <Box
-                    className="hover-overlay"
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: "rgba(0, 0, 0, 0.45)",
-                      opacity: 0,
-                      transition: "opacity 0.3s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      zIndex: 3,
-                    }}
-                  >
-                    <Box
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedItem(item);
-                      }}
-                      sx={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "50%",
-                        backgroundColor: "#ffffff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#000000",
-                        boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
-                        transition: "all 0.2s ease-in-out",
-                        "&:hover": {
-                          transform: "scale(1.1)",
-                          backgroundColor: "#D32F2F",
-                          color: "#ffffff",
-                        },
-                      }}
-                      title="Quick Lightbox Preview"
-                    >
-                      <ZoomIn size={18} />
-                    </Box>
-                  </Box>
-                </Box>
-                <CardContent 
-                  sx={{ 
-                    p: 2.5, 
-                    backgroundColor: "background.paper",
-                    display: "flex", 
+                    display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 1.5,
-                    "&:last-child": { pb: 2.5 } 
+                    justifyContent: "center",
+                    py: 10,
+                    color: "text.secondary",
+                    opacity: 0.6,
                   }}
                 >
+                  <Camera size={48} />
                   <Typography
-                    variant="body1"
-                    sx={{
-                      fontWeight: 700,
-                      fontFamily: '"Space Grotesk", sans-serif',
-                      fontSize: "0.95rem",
-                      color: "text.primary",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
+                    variant="h6"
+                    sx={{ mt: 2, fontFamily: '"Space Grotesk", sans-serif' }}
                   >
-                    {item.title}
+                    No images available
                   </Typography>
-
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/portfolio/${item.id}`);
-                    }}
+                </Box>
+              </Grid>
+            ) : (
+              filteredItems.map((item) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.id}>
+                  <Card
+                    onClick={() => navigate(`/portfolio/${item.id}`)}
                     sx={{
-                      color: "#E50914",
-                      fontWeight: 700,
-                      textTransform: "none",
-                      fontFamily: '"Space Grotesk", sans-serif',
-                      fontSize: "0.85rem",
-                      padding: 0,
-                      minWidth: "auto",
-                      flexShrink: 0,
+                      cursor: "pointer",
+                      backgroundColor: "background.paper",
+                      border: "1px solid",
+                      borderColor: isDark
+                        ? "rgba(255, 255, 255, 0.08)"
+                        : "rgba(0, 0, 0, 0.08)",
+                      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.03)",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                       "&:hover": {
-                        backgroundColor: "transparent",
-                        color: "#ff4d4d",
-                        textDecoration: "underline",
+                        transform: "translateY(-6px)",
+                        boxShadow: "0 12px 30px rgba(229, 9, 20, 0.08)",
+                        borderColor: "rgba(229, 9, 20, 0.25)",
+                        "& .hover-zoom-img": {
+                          transform: "scale(1.05)",
+                        },
+                        "& .hover-overlay": {
+                          opacity: 1,
+                        },
                       },
                     }}
+                    id={`portfolio-item-${item.id}`}
                   >
-                    View More Details
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))
-        )}
-        </Grid>
+                    <Box
+                      sx={{
+                        position: "relative",
+                        overflow: "hidden",
+                        backgroundColor: "background.default",
+                        lineHeight: 0,
+                      }}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={item.imageUrl}
+                        alt={item.title}
+                        className="hover-zoom-img"
+                        sx={{
+                          width: "100%",
+                          height: "auto",
+                          display: "block",
+                          transition:
+                            "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+                        }}
+                        referrerPolicy="no-referrer"
+                        onError={(e: any) => {
+                          e.target.onerror = null;
+                          e.target.src =
+                            "https://images.unsplash.com/photo-1622344028682-1bc6ba6b7f36?q=80&w=400&auto=format&fit=crop";
+                        }}
+                      />
+
+                      {/* Subtle hover icon zoom overlay */}
+                      <Box
+                        className="hover-overlay"
+                        sx={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          backgroundColor: "rgba(0, 0, 0, 0.45)",
+                          opacity: 0,
+                          transition: "opacity 0.3s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 3,
+                        }}
+                      >
+                        <Box
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItem(item);
+                          }}
+                          sx={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: "50%",
+                            backgroundColor: "#ffffff",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#000000",
+                            boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
+                            transition: "all 0.2s ease-in-out",
+                            "&:hover": {
+                              transform: "scale(1.1)",
+                              backgroundColor: "#D32F2F",
+                              color: "#ffffff",
+                            },
+                          }}
+                          title="Quick Lightbox Preview"
+                        >
+                          <ZoomIn size={18} />
+                        </Box>
+                      </Box>
+                    </Box>
+                    <CardContent
+                      sx={{
+                        p: 2.5,
+                        backgroundColor: "background.paper",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 1.5,
+                        "&:last-child": { pb: 2.5 },
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: 700,
+                          fontFamily: '"Space Grotesk", sans-serif',
+                          fontSize: "0.95rem",
+                          color: "text.primary",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/portfolio/${item.id}`);
+                        }}
+                        sx={{
+                          color: "#E50914",
+                          fontWeight: 700,
+                          textTransform: "none",
+                          fontFamily: '"Space Grotesk", sans-serif',
+                          fontSize: "0.85rem",
+                          padding: 0,
+                          minWidth: "auto",
+                          flexShrink: 0,
+                          "&:hover": {
+                            backgroundColor: "transparent",
+                            color: "#ff4d4d",
+                            textDecoration: "underline",
+                          },
+                        }}
+                      >
+                        View More Details
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )))}
+         </Grid>
       </Container>
 
       {/* Lightbox Modal Dialog */}
@@ -502,7 +535,15 @@ export default function PortfolioGrid({ items, loading }: { items: PortfolioItem
               </IconButton>
             </Box>
 
-             <DialogContent sx={{ p: 0, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <DialogContent
+              sx={{
+                p: 0,
+                overflow: "hidden",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <Box
                 sx={{
                   width: "100%",

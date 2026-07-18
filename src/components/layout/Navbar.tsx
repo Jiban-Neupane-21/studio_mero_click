@@ -155,6 +155,7 @@ const Navbar = () => {
                 }}
               >
                 <Box
+                  onClick={() => (window.location.href = "tel:+9779823367428")}
                   sx={{
                     display: "flex",
                     alignItems: "center",
@@ -173,6 +174,9 @@ const Navbar = () => {
                   </Typography>
                 </Box>
                 <Box
+                  onClick={() =>
+                    (window.location.href = "mailto:studiomeroclick@gmail.com")
+                  }
                   sx={{
                     display: "flex",
                     alignItems: "center",

@@ -1,12 +1,13 @@
 export const PORTFOLIO_CATEGORIES = [
-  "Wedding",
-  "Maternity",
-  "Cake Smash",
+  "Portraits",
   "Fashion",
-  "Portrait",
-  "Identity Photo",
-  "Commercial",
-  "Customize Gifts",
+  "Events",
+  "Maternity",
+  "Wedding",
+  "Cakesmash",
+  "Graduation",
+  "Product",
+  "Newborn",
 ] as const;
 
 export type PortfolioCategory =
