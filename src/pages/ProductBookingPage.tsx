@@ -19,23 +19,14 @@ const EMAILJS_SERVICE_ID = "service_wt15ou7";
 const EMAILJS_TEMPLATE_ID = "template_sfe4x7z";
 const EMAILJS_PUBLIC_KEY = "cDNJDxxr2a8Yz4PF8";
 
-interface ServiceItem {
-  id: string;
-  title: string;
-  category?: string;
-  sub_category_id?: string;
-  new_price?: number | string;
-  thumbnail?: string;
-}
-
-const BookingPage = () => {
-  const { serviceId } = useParams<{ serviceId: string }>();
+const ProductBookingPage = () => {
+  const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
-  const { services, subCategoriesById } = useData();
+  const { products } = useData();
 
-  const service = useMemo(
-    () => services.find((s: ServiceItem) => s.id === serviceId),
-    [services, serviceId],
+  const product = useMemo(
+    () => products.find((p: any) => p.id === productId),
+    [products, productId],
   );
 
   const [name, setName] = useState("");
@@ -49,25 +40,16 @@ const BookingPage = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  if (!service) {
+  if (!product) {
     return (
       <Container maxWidth="md" sx={{ py: 8, textAlign: "center" }}>
-        <Typography variant="h5" color="text.secondary">
-          Service not found.
-        </Typography>
-        <Button
-          startIcon={<ArrowLeft />}
-          onClick={() => navigate("/services")}
-          sx={{ mt: 2 }}
-        >
-          Back to Services
+        <Typography variant="h5" color="text.secondary">Product not found.</Typography>
+        <Button startIcon={<ArrowLeft />} onClick={() => navigate(-1)} sx={{ mt: 2 }}>
+          Back
         </Button>
       </Container>
     );
   }
-
-  const subCategoryName =
-    subCategoriesById[service.sub_category_id]?.name || "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,16 +68,14 @@ const BookingPage = () => {
           client_name: name,
           client_email: email,
           client_phone: phone,
-          service_title: service.title,
-          service_category: service.category || "",
-          service_subcategory: subCategoryName,
-          service_price: service.new_price ? `Rs. ${service.new_price}` : "",
+          product_title: product.title,
+          product_price: product.new_price ? `Rs. ${product.new_price}` : "",
           booking_date: new Date(preferredDate).toLocaleDateString("en-US", {
             month: "long",
             day: "numeric",
             year: "numeric",
           }),
-          notes: notes || "No special requests.",
+          notes: `[Product Booking] ${notes || "No special requests."}`,
           to_email: "neupanejiban73@gmail.com",
           reply_to: email,
         },
@@ -113,22 +93,15 @@ const BookingPage = () => {
     return (
       <Container maxWidth="sm" sx={{ py: 8, textAlign: "center" }}>
         <CheckCircle size={64} color="#2e7d32" />
-        <Typography
-          variant="h4"
-          sx={{ mt: 3, fontWeight: 700, fontFamily: "'Fraunces', serif" }}
-        >
+        <Typography variant="h4" sx={{ mt: 3, fontWeight: 700, fontFamily: "'Fraunces', serif" }}>
           Booking Sent!
         </Typography>
         <Typography color="text.secondary" sx={{ mt: 1 }}>
-          We'll get back to you shortly to confirm your appointment for{" "}
-          <strong>{service.title}</strong>.
+          We'll get back to you shortly to confirm your order for{" "}
+          <strong>{product.title}</strong>.
         </Typography>
-        <Button
-          variant="contained"
-          onClick={() => navigate("/services")}
-          sx={{ mt: 4 }}
-        >
-          Back to Services
+        <Button variant="contained" onClick={() => navigate(-1)} sx={{ mt: 4 }}>
+          Back
         </Button>
       </Container>
     );
@@ -148,14 +121,13 @@ const BookingPage = () => {
         variant="h3"
         sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 1 }}
       >
-        Book a Service
+        Book a Product
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 4 }}>
-        Fill in your details and we'll confirm your appointment.
+        Fill in your details and we'll confirm your order.
       </Typography>
 
       <Paper elevation={2} sx={{ p: { xs: 3, md: 4 }, borderRadius: 3 }}>
-        {/* Service Summary */}
         <Box
           sx={{
             display: "flex",
@@ -167,11 +139,11 @@ const BookingPage = () => {
             flexWrap: "wrap",
           }}
         >
-          {service.thumbnail && (
+          {product.thumbnail && (
             <Box
               component="img"
-              src={service.thumbnail}
-              alt={service.title}
+              src={product.thumbnail}
+              alt={product.title}
               sx={{
                 width: 100,
                 height: 70,
@@ -181,82 +153,35 @@ const BookingPage = () => {
             />
           )}
           <Box sx={{ flex: 1, minWidth: 200 }}>
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: 600, fontFamily: "'Fraunces', serif" }}
-            >
-              {service.title}
+            <Typography variant="h5" sx={{ fontWeight: 600, fontFamily: "'Fraunces', serif" }}>
+              {product.title}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {service.category}
-              {subCategoryName ? ` / ${subCategoryName}` : ""}
-            </Typography>
-            {service.new_price && (
-              <Typography
-                variant="h6"
-                sx={{ color: "#D32F2F", fontWeight: 700, mt: 0.5 }}
-              >
-                Rs. {service.new_price}
+            {product.new_price && (
+              <Typography variant="h6" sx={{ color: "#D32F2F", fontWeight: 700, mt: 0.5 }}>
+                Rs. {product.new_price}
               </Typography>
             )}
           </Box>
         </Box>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={2.5}>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Full Name"
-                required
-                fullWidth
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <TextField label="Full Name" required fullWidth value={name} onChange={(e) => setName(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Email"
-                type="email"
-                required
-                fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <TextField label="Email" type="email" required fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Phone"
-                required
-                fullWidth
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
+              <TextField label="Phone" required fullWidth value={phone} onChange={(e) => setPhone(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                label="Preferred Date"
-                type="date"
-                fullWidth
-                value={preferredDate}
-                onChange={(e) => setPreferredDate(e.target.value)}
-                slotProps={{ inputLabel: { shrink: true } }}
-              />
+              <TextField label="Preferred Date" type="date" fullWidth value={preferredDate} onChange={(e) => setPreferredDate(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
             </Grid>
             <Grid size={12}>
-              <TextField
-                label="Message / Special Requests"
-                multiline
-                rows={3}
-                fullWidth
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
+              <TextField label="Message / Special Requests" multiline rows={3} fullWidth value={notes} onChange={(e) => setNotes(e.target.value)} />
             </Grid>
           </Grid>
 
@@ -274,11 +199,7 @@ const BookingPage = () => {
               fontWeight: 600,
             }}
           >
-            {submitting ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              "Send Booking Request"
-            )}
+            {submitting ? <CircularProgress size={24} color="inherit" /> : "Send Booking Request"}
           </Button>
         </Box>
       </Paper>
@@ -286,4 +207,4 @@ const BookingPage = () => {
   );
 };
 
-export default BookingPage;
+export default ProductBookingPage;

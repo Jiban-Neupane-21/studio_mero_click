@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, Skeleton } from "@mui/material";
+import { Box, Typography, Grid, Button, Skeleton } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 
 import { useData } from "../context/DataContext";
 import { serviceCategoriesApi } from "../api/serviceCategories";
-import { serviceSubCategoriesApi } from "../api/serviceSubCategories";
 import { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 
 const CategoryPage = () => {
@@ -14,7 +13,6 @@ const CategoryPage = () => {
   const [category, setCategory] = useState<any>(null);
   const [categoryLoading, setCategoryLoading] = useState(true);
   const [categoryError, setCategoryError] = useState(false);
-  const [subCategories, setSubCategories] = useState<any[]>([]);
 
   useEffect(() => {
     if (!slug) return;
@@ -32,29 +30,9 @@ const CategoryPage = () => {
       });
   }, [slug]);
 
-  useEffect(() => {
-    if (!category?.id) return;
-    serviceSubCategoriesApi
-      .getSubCategoriesByCategoryId(category.id)
-      .then((data) => setSubCategories(data))
-      .catch(() => {});
-  }, [category?.id]);
-
   const services = rawServices.filter(
     (s: any) => s.is_available !== false && s.category === category?.name
   );
-
-  const groupedBySubCategory = subCategories.reduce<Record<string, any[]>>((acc, sc) => {
-    const filtered = services.filter((s: any) => s.sub_category_id === sc.id);
-    if (filtered.length > 0) acc[sc.name] = filtered;
-    return acc;
-  }, {});
-
-  const hasSubCategoryGroups = Object.keys(groupedBySubCategory).length > 0;
-  const ungroupedServices = services.filter((s: any) => {
-    if (subCategories.length === 0) return true;
-    return !subCategories.find((sc) => sc.id === s.sub_category_id);
-  });
 
   if (categoryLoading) {
     return (
@@ -134,211 +112,78 @@ const CategoryPage = () => {
         </Typography>
       ) : (
         <StaggerContainer staggerDelay={0.08}>
-          {hasSubCategoryGroups ? (
-            Object.entries(groupedBySubCategory).map(([subCatName, subCatServices]) => (
-              <Box key={subCatName} sx={{ mb: 6 }}>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontFamily: "'Fraunces', serif",
-                    fontWeight: 700,
-                    mb: 3,
-                    color: "text.primary",
-                    borderLeft: "4px solid",
-                    borderColor: "#E50914",
-                    pl: 2,
-                  }}
-                >
-                  {subCatName}
-                </Typography>
-                <Grid container spacing={4}>
-                  {subCatServices.map((service: any) => (
-                    <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-                      <StaggerItem style={{ height: "100%" }}>
-                        <Box
-                          component={Link}
-                          to={`/services/${service.id}`}
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            textDecoration: "none",
-                            borderRadius: 3,
-                            overflow: "hidden",
-                            bgcolor: "background.paper",
-                            boxShadow: 2,
-                            transition: ".3s",
-                            height: { xs: "auto", sm: "calc((100vh - 280px) / 2)" },
-                            minHeight: { sm: 250 },
-                            "&:hover": {
-                              transform: "translateY(-8px)",
-                              boxShadow: 8,
-                            },
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: "100%",
-                              flexGrow: 1,
-                              minHeight: { xs: 250, sm: 0 },
-                              backgroundImage: `url(${service.thumbnail})`,
-                              backgroundSize: "cover",
-                              backgroundPosition: "center",
-                            }}
-                          />
-                          <Box
-                            sx={{
-                              py: 2,
-                              px: 2,
-                              borderTop: "1px solid",
-                              borderColor: "divider",
-                              flexShrink: 0,
-                            }}
-                          >
-                            <Typography
-                              align="center"
-                              sx={{
-                                fontFamily: "'Fraunces', serif",
-                                fontWeight: 600,
-                                fontSize: "1.25rem",
-                                color: "text.primary",
-                              }}
-                            >
-                              {service.title}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </StaggerItem>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-            ))
-          ) : (
-            <Grid container spacing={4}>
-              {services.map((service: any) => (
-                <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-                  <StaggerItem style={{ height: "100%" }}>
+          <Grid container spacing={4}>
+            {services.map((service: any) => (
+              <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                <StaggerItem style={{ height: "100%" }}>
+                  <Box
+                    component={Link}
+                    to={`/services/${service.id}`}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      textDecoration: "none",
+                      borderRadius: 3,
+                      overflow: "hidden",
+                      bgcolor: "background.paper",
+                      boxShadow: 2,
+                      transition: ".3s",
+                      "&:hover": {
+                        transform: "translateY(-8px)",
+                        boxShadow: 8,
+                      },
+                    }}
+                  >
                     <Box
-                      component={Link}
-                      to={`/services/${service.id}`}
+                      component="img"
+                      src={service.thumbnail}
+                      alt={service.title}
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        textDecoration: "none",
-                        borderRadius: 3,
-                        overflow: "hidden",
-                        bgcolor: "background.paper",
-                        boxShadow: 2,
-                        transition: ".3s",
-                        height: { xs: "auto", sm: "calc((100vh - 280px) / 2)" },
-                        minHeight: { sm: 250 },
-                        "&:hover": {
-                          transform: "translateY(-8px)",
-                          boxShadow: 8,
-                        },
+                        width: "100%",
+                        display: "block",
+                        bgcolor: "grey.100",
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        py: 2,
+                        px: 2,
+                        borderTop: "1px solid",
+                        borderColor: "divider",
                       }}
                     >
-                      <Box
+                      <Typography
+                        align="center"
                         sx={{
-                          width: "100%",
-                          flexGrow: 1,
-                          minHeight: { xs: 250, sm: 0 },
-                          backgroundImage: `url(${service.thumbnail})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          py: 2,
-                          px: 2,
-                          borderTop: "1px solid",
-                          borderColor: "divider",
-                          flexShrink: 0,
+                          fontFamily: "'Fraunces', serif",
+                          fontWeight: 600,
+                          fontSize: "1.25rem",
+                          color: "text.primary",
                         }}
                       >
-                        <Typography
-                          align="center"
-                          sx={{
-                            fontFamily: "'Fraunces', serif",
-                            fontWeight: 600,
-                            fontSize: "1.25rem",
-                            color: "text.primary",
-                          }}
-                        >
-                          {service.title}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </StaggerItem>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-          {ungroupedServices.length > 0 && hasSubCategoryGroups && (
-            <Box sx={{ mt: 2 }}>
-              <Grid container spacing={4}>
-                {ungroupedServices.map((service: any) => (
-                  <Grid key={service.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-                    <StaggerItem style={{ height: "100%" }}>
-                      <Box
+                        {service.title}
+                      </Typography>
+                      <Button
                         component={Link}
-                        to={`/services/${service.id}`}
+                        to={`/booking/${service.id}`}
+                        variant="contained"
+                        fullWidth
                         sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          textDecoration: "none",
-                          borderRadius: 3,
-                          overflow: "hidden",
-                          bgcolor: "background.paper",
-                          boxShadow: 2,
-                          transition: ".3s",
-                          height: { xs: "auto", sm: "calc((100vh - 280px) / 2)" },
-                          minHeight: { sm: 250 },
-                          "&:hover": {
-                            transform: "translateY(-8px)",
-                            boxShadow: 8,
-                          },
+                          mt: 1.5,
+                          bgcolor: "#D32F2F",
+                          "&:hover": { bgcolor: "#B71C1C" },
+                          textTransform: "none",
+                          fontWeight: 600,
                         }}
                       >
-                        <Box
-                          sx={{
-                            width: "100%",
-                            flexGrow: 1,
-                            minHeight: { xs: 250, sm: 0 },
-                            backgroundImage: `url(${service.thumbnail})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }}
-                        />
-                        <Box
-                          sx={{
-                            py: 2,
-                            px: 2,
-                            borderTop: "1px solid",
-                            borderColor: "divider",
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Typography
-                            align="center"
-                            sx={{
-                              fontFamily: "'Fraunces', serif",
-                              fontWeight: 600,
-                              fontSize: "1.25rem",
-                              color: "text.primary",
-                            }}
-                          >
-                            {service.title}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </StaggerItem>
-                  </Grid>
-                ))}
+                        Book Now
+                      </Button>
+                    </Box>
+                  </Box>
+                </StaggerItem>
               </Grid>
-            </Box>
-          )}
+            ))}
+          </Grid>
         </StaggerContainer>
       )}
     </Box>
