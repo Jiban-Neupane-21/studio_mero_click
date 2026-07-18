@@ -12,8 +12,7 @@ export const servicesApi = {
         service_images (*),
         service_specifications (*),
         service_features (*),
-        service_faqs (*),
-        service_sub_categories (*)
+        service_faqs (*)
       `)
       .order('created_at', { ascending: false });
 
@@ -32,8 +31,7 @@ export const servicesApi = {
         service_images (*),
         service_specifications (*),
         service_features (*),
-        service_faqs (*),
-        service_sub_categories (*)
+        service_faqs (*)
       `)
       .eq('id', id)
       .single();

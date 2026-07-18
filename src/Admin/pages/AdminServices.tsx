@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -91,6 +91,12 @@ export default function AdminServices() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newSubCategoryName, setNewSubCategoryName] = useState("");
+
+  const subCategoriesById = useMemo(() => {
+    const map: Record<string, ServiceSubCategory> = {};
+    Object.values(subCategoriesMap).forEach(arr => arr.forEach(sc => { map[sc.id] = sc; }));
+    return map;
+  }, [subCategoriesMap]);
 
   const fetchItems = async () => {
     try {
@@ -596,7 +602,7 @@ export default function AdminServices() {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">
-                        {item.service_sub_categories?.name || "-"}
+                        {subCategoriesById[item.sub_category_id]?.name || "-"}
                       </Typography>
                     </TableCell>
                     <TableCell>
