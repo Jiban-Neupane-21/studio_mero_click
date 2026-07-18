@@ -137,8 +137,8 @@ const ServiceDetails: React.FC = () => {
                 alt={service.title}
                 sx={{
                   width: "100%",
-                  height: { xs: 300, sm: 400, md: 450 },
-                  objectFit: "cover",
+                  height: "auto",
+                  display: "block",
                   borderRadius: 1.5,
                   backgroundColor: "grey.50",
                   border: "1px solid",
@@ -522,10 +522,9 @@ const ServiceDetails: React.FC = () => {
                 >
                   <CardMedia
                     component="img"
-                    height="200"
                     image={related.thumbnail || related.image}
                     alt={related.title}
-                    sx={{ objectFit: 'cover' }}
+                    sx={{ display: 'block' }}
                   />
                   <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <Typography gutterBottom variant="h6" component="div" sx={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}>
@@ -594,10 +593,9 @@ const ServiceDetails: React.FC = () => {
                 >
                   <CardMedia
                     component="img"
-                    height="200"
                     image={randomSvc.thumbnail || randomSvc.image}
                     alt={randomSvc.title}
-                    sx={{ objectFit: 'cover' }}
+                    sx={{ display: 'block' }}
                   />
                   <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                     <Chip

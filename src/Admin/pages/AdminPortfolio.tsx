@@ -52,9 +52,8 @@ export default function AdminPortfolio() {
   });
 
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
-  const [secondaryImagePreviews, setSecondaryImagePreviews] = useState<string[]>([]);
   const [mainImageFile, setMainImageFile] = useState<File | null>(null);
-  const [secondaryFiles, setSecondaryFiles] = useState<File[]>([]);
+  const [secondaryImages, setSecondaryImages] = useState<{ id: string; url: string; isExisting: boolean; file?: File }[]>([]);
 
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const secondaryImageInputRef = useRef<HTMLInputElement>(null);
@@ -85,8 +84,7 @@ export default function AdminPortfolio() {
     });
     setMainImagePreview(null);
     setMainImageFile(null);
-    setSecondaryImagePreviews([]);
-    setSecondaryFiles([]);
+    setSecondaryImages([]);
     setIsDialogOpen(true);
   };
 
@@ -103,9 +101,13 @@ export default function AdminPortfolio() {
       secondaryImages: item.secondary_images || item.secondaryImages || []
     });
     setMainImagePreview(item.image_url || item.imageUrl || null);
-    setSecondaryImagePreviews(item.secondary_images || item.secondaryImages || []);
+    const existingSec = (item.secondary_images || item.secondaryImages || []).map((url: string) => ({
+      id: `existing_${Date.now()}_${Math.random()}`,
+      url,
+      isExisting: true,
+    }));
+    setSecondaryImages(existingSec);
     setMainImageFile(null);
-    setSecondaryFiles([]);
     setIsDialogOpen(true);
   };
 
@@ -150,34 +152,18 @@ export default function AdminPortfolio() {
   const handleSecondaryImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      const newPreviews = files.map(file => URL.createObjectURL(file));
-      const newNames = files.map(file => file.name);
-      
-      setSecondaryFiles(prev => [...prev, ...files]);
-      setSecondaryImagePreviews(prev => [...prev, ...newPreviews]);
-      setFormData(prev => ({
-        ...prev,
-        secondaryImages: [...(prev.secondaryImages || []), ...newNames]
+      const newItems = files.map(file => ({
+        id: `new_${Date.now()}_${Math.random()}`,
+        url: URL.createObjectURL(file),
+        isExisting: false,
+        file,
       }));
+      setSecondaryImages(prev => [...prev, ...newItems]);
     }
   };
 
-  const handleRemoveSecondaryImage = (index: number) => {
-    setSecondaryFiles(prev => {
-      const newFiles = [...prev];
-      newFiles.splice(index, 1);
-      return newFiles;
-    });
-    setSecondaryImagePreviews(prev => {
-      const newPreviews = [...prev];
-      newPreviews.splice(index, 1);
-      return newPreviews;
-    });
-    setFormData(prev => {
-      const newImages = [...(prev.secondaryImages || [])];
-      newImages.splice(index, 1);
-      return { ...prev, secondaryImages: newImages };
-    });
+  const handleRemoveSecondaryImage = (id: string) => {
+    setSecondaryImages(prev => prev.filter(item => item.id !== id));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -189,13 +175,14 @@ export default function AdminPortfolio() {
         mainUrl = await uploadImage(mainImageFile);
       }
 
-      let finalSecondaryImages = formData.secondaryImages || [];
-      if (secondaryFiles.length > 0) {
-        const newUrls = await Promise.all(secondaryFiles.map(file => uploadImage(file)));
-        finalSecondaryImages = [
-          ...finalSecondaryImages.filter(url => url.startsWith('http')), // Keep old uploaded ones
-          ...newUrls
-        ];
+      const finalSecondaryImages: string[] = [];
+      for (const item of secondaryImages) {
+        if (item.isExisting) {
+          finalSecondaryImages.push(item.url);
+        } else if (item.file) {
+          const url = await uploadImage(item.file);
+          finalSecondaryImages.push(url);
+        }
       }
 
       const payload = {
@@ -509,7 +496,7 @@ export default function AdminPortfolio() {
                       </Button>
                     </Box>
 
-                    {secondaryImagePreviews.length === 0 ? (
+                    {secondaryImages.length === 0 ? (
                       <Box sx={{ p: 3, textAlign: 'center', bgcolor: 'white', borderRadius: 2, border: '1px dashed', borderColor: 'grey.300' }}>
                         <ImageIcon size={24} color="#9e9e9e" style={{ margin: '0 auto', marginBottom: 8 }} />
                         <Typography variant="body2" color="text.secondary">
@@ -518,16 +505,16 @@ export default function AdminPortfolio() {
                       </Box>
                     ) : (
                       <Grid container spacing={2}>
-                        {secondaryImagePreviews.map((preview, index) => (
-                          <Grid item xs={6} sm={4} key={index}>
-                            <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', boxShadow: 1, paddingTop: '100%', border: '1px solid', borderColor: 'grey.200' }}>
+                        {secondaryImages.map((item) => (
+                          <Grid item xs={6} sm={4} key={item.id}>
+                            <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', boxShadow: 1, border: '1px solid', borderColor: 'grey.200' }}>
                               <img 
-                                src={preview} 
-                                alt={`Secondary ${index}`} 
-                                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+                                src={item.url} 
+                                alt="Secondary" 
+                                style={{ width: '100%', display: 'block' }} 
                               />
                               <IconButton
-                                onClick={() => handleRemoveSecondaryImage(index)}
+                                onClick={() => handleRemoveSecondaryImage(item.id)}
                                 sx={{
                                   position: 'absolute',
                                   top: 4,
