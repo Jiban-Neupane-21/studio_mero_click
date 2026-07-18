@@ -336,26 +336,26 @@ const ServiceDetails: React.FC = () => {
 
               {/* Action Buttons */}
               <Box sx={{ mt: "auto", display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
-                <Button
-                  component={RouterLink}
-                  to={`/book?service=${encodeURIComponent(service.title)}`}
-                  variant="contained"
-                  size="large"
-                  startIcon={<Calendar size={18} />}
-                  disabled={service.isAvailable === false}
-                  fullWidth
-                  sx={{
-                    py: 1.5,
-                    backgroundColor: RED_PRIMARY,
-                    color: "#fff",
-                    fontWeight: "bold",
-                    "&:hover": {
-                      backgroundColor: "#B71C1C", // Darker Red for hover state
-                    },
-                  }}
-                >
-                  Book Session Now
-                </Button>
+                  <Button
+                    component={RouterLink}
+                    to={`/booking/${service.id}`}
+                    variant="contained"
+                    size="large"
+                    startIcon={<Calendar size={18} />}
+                    disabled={service.isAvailable === false}
+                    fullWidth
+                    sx={{
+                      py: 1.5,
+                      backgroundColor: RED_PRIMARY,
+                      color: "#fff",
+                      fontWeight: "bold",
+                      "&:hover": {
+                        backgroundColor: "#B71C1C",
+                      },
+                    }}
+                  >
+                    Book Session Now
+                  </Button>
 
                 <Button
                   component={RouterLink}

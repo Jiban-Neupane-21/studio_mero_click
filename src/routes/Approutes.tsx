@@ -9,6 +9,7 @@ import ContactPage from "../pages/ContactPage";
 import ServicePage from "../pages/ServicePage";
 import CategoryPage from "../pages/CategoryPage";
 import AboutPage from "../pages/AboutPage";
+import BookingPage from "../pages/BookingPage";
 import ServiceDetails from "../components/ServiceDetails";
 import ProductDetails from "../components/ProductDetails";
 import PortfolioPage from "../pages/PortfolioPage";
@@ -100,6 +101,10 @@ const router = createBrowserRouter([
           {
             path: "about",
             element: <AboutPage />,
+          },
+          {
+            path: "booking/:serviceId",
+            element: <BookingPage />,
           },
           {
             path: "contact",
