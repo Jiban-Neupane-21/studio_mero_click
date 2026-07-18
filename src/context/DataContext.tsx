@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { homeItemsApi } from "../api/homeItems";
 import { servicesApi } from "../api/services";
+import { serviceSubCategoriesApi } from "../api/serviceSubCategories";
 import { productsApi } from "../api/products";
 import { portfolioApi } from "../api/portfolio";
 import { restorationApi } from "../api/restoration";
@@ -19,6 +20,8 @@ interface DataContextType {
   videoItems: any[];
   tutorialVideos: any[];
   learningArticles: any[];
+  subCategories: any[];
+  subCategoriesById: Record<string, any>;
   loading: boolean;
   error: string | null;
 }
@@ -33,6 +36,8 @@ const DataContext = createContext<DataContextType>({
   videoItems: [],
   tutorialVideos: [],
   learningArticles: [],
+  subCategories: [],
+  subCategoriesById: {},
   loading: true,
   error: null,
 });
@@ -49,6 +54,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [videoItems, setVideoItems] = useState<any[]>([]);
   const [tutorialVideos, setTutorialVideos] = useState<any[]>([]);
   const [learningArticles, setLearningArticles] = useState<any[]>([]);
+  const [subCategories, setSubCategories] = useState<any[]>([]);
+  const [subCategoriesById, setSubCategoriesById] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +75,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           videoItemsData,
           tutorialVideosData,
           learningArticlesData,
+          subCategoriesData,
         ] = await Promise.all([
           homeItemsApi.getHomeItems().catch(() => []),
           servicesApi.getServices().catch(() => []),
@@ -78,6 +86,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           videoItemsApi.getVideoItems().catch(() => []),
           tutorialVideosApi.getTutorialVideos().catch(() => []),
           learningArticlesApi.getLearningArticles().catch(() => []),
+          serviceSubCategoriesApi.getSubCategories().catch(() => []),
         ]);
 
         setHomeItems(homeItemsData);
@@ -89,6 +98,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setVideoItems(videoItemsData);
         setTutorialVideos(tutorialVideosData);
         setLearningArticles(learningArticlesData);
+
+        const byId: Record<string, any> = {};
+        (subCategoriesData as any[]).forEach((sc) => { byId[sc.id] = sc; });
+        setSubCategories(subCategoriesData);
+        setSubCategoriesById(byId);
       } catch (err: any) {
         console.error("Failed to preload data:", err);
         setError(err.message || "Failed to load data");
@@ -112,6 +126,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         videoItems,
         tutorialVideos,
         learningArticles,
+        subCategories,
+        subCategoriesById,
         loading,
         error,
       }}

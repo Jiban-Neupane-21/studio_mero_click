@@ -29,7 +29,7 @@ import { useData } from "../context/DataContext";
 
 const ServiceDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { services: allServices, loading: contextLoading } = useData();
+  const { services: allServices, loading: contextLoading, subCategoriesById } = useData();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -212,9 +212,9 @@ const ServiceDetails: React.FC = () => {
                   }}
                   size="small"
                 />
-                {service.service_sub_categories?.name && (
+                {subCategoriesById[service.sub_category_id]?.name && (
                   <Chip
-                    label={service.service_sub_categories.name}
+                    label={subCategoriesById[service.sub_category_id].name}
                     variant="outlined"
                     size="small"
                     sx={{

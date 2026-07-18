@@ -12,7 +12,7 @@ const GAP = 24;
 const ServiceGrid = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const { services, loading } = useData();
+  const { services, loading, subCategoriesById } = useData();
 
   const scrollByCard = (direction: "left" | "right") => {
     const container = scrollRef.current;
@@ -31,7 +31,6 @@ const ServiceGrid = () => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-      
       }}
     >
       {/* Header */}
@@ -72,9 +71,11 @@ const ServiceGrid = () => {
           <IconButton
             onClick={() => scrollByCard("left")}
             sx={{
-              bgcolor: "grey.100",
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "divider",
               "&:hover": {
-                bgcolor: "grey.200",
+                bgcolor: "action.hover",
               },
               width: 46,
               height: 46,
@@ -86,9 +87,11 @@ const ServiceGrid = () => {
           <IconButton
             onClick={() => scrollByCard("right")}
             sx={{
-              bgcolor: "grey.100",
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "divider",
               "&:hover": {
-                bgcolor: "grey.200",
+                bgcolor: "action.hover",
               },
               width: 46,
               height: 46,
@@ -108,7 +111,7 @@ const ServiceGrid = () => {
           gap: `${GAP}px`,
           overflowX: "auto",
           scrollSnapType: "x mandatory",
-
+          alignItems: "flex-start",
           px: {
             xs: 2,
             md: 4,
@@ -239,7 +242,7 @@ const ServiceGrid = () => {
                     borderColor: "divider",
                   }}
                 >
-                  {service.service_sub_categories?.name && (
+                  {subCategoriesById[service.sub_category_id]?.name && (
                     <Typography
                       variant="caption"
                       sx={{
@@ -251,7 +254,7 @@ const ServiceGrid = () => {
                         mb: 0.5,
                       }}
                     >
-                      {service.service_sub_categories.name}
+                      {subCategoriesById[service.sub_category_id].name}
                     </Typography>
                   )}
                   <Typography
