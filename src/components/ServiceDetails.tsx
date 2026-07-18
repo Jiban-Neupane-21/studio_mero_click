@@ -36,6 +36,7 @@ const ServiceDetails: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string>("");
   const [randomServices, setRandomServices] = useState<any[]>([]);
   const [relatedServices, setRelatedServices] = useState<any[]>([]);
+  const [sameSubCategoryServices, setSameSubCategoryServices] = useState<any[]>([]);
 
   const service = useMemo(() => {
     if (!id || allServices.length === 0) return null;
@@ -65,6 +66,10 @@ const ServiceDetails: React.FC = () => {
         setRandomServices(shuffled.slice(0, 3));
         const related = otherServices.filter((s: any) => s.category === service.category);
         setRelatedServices(related);
+        const sameSubCat = service.sub_category_id
+          ? otherServices.filter((s: any) => s.sub_category_id === service.sub_category_id)
+          : [];
+        setSameSubCategoryServices(sameSubCat);
       } else if (allServices.length > 0) {
         setError(true);
       }
@@ -85,10 +90,8 @@ const ServiceDetails: React.FC = () => {
 
   const formatPrice = (value: number) => `Rs. ${Number(value).toLocaleString("en-IN")}`;
 
-  // Dedicated Theme Constants for the Red & White Palette
-  const RED_PRIMARY = "#D32F2F"; // Rich Red
-  const RED_LIGHT = "#FFEBEE"; // Soft Red background accent
-  const WHITE = "#FFFFFF";
+  const RED_PRIMARY = "#D32F2F";
+  const RED_LIGHT = "#FFEBEE";
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
@@ -112,10 +115,10 @@ const ServiceDetails: React.FC = () => {
         sx={{
           overflow: "hidden",
           mb: 4,
-          backgroundColor: WHITE,
+          bgcolor: "background.paper",
           borderRadius: 2,
           border: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
         }}
       >
         <Grid container>
@@ -127,7 +130,7 @@ const ServiceDetails: React.FC = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
-                backgroundColor: WHITE,
+                bgcolor: "background.paper",
               }}
             >
               {/* Main Image Display */}
@@ -140,9 +143,9 @@ const ServiceDetails: React.FC = () => {
                   height: "auto",
                   display: "block",
                   borderRadius: 1.5,
-                  backgroundColor: "grey.50",
+                  bgcolor: "action.hover",
                   border: "1px solid",
-                  borderColor: "grey.100",
+                  borderColor: "divider",
                 }}
               />
 
@@ -195,7 +198,7 @@ const ServiceDetails: React.FC = () => {
                 flexGrow: 1,
                 display: "flex",
                 flexDirection: "column",
-                backgroundColor: WHITE,
+                bgcolor: "background.paper",
               }}
             >
               {/* Category & Availability Tags */}
@@ -204,11 +207,23 @@ const ServiceDetails: React.FC = () => {
                   label={service.category}
                   sx={{
                     backgroundColor: RED_PRIMARY,
-                    color: WHITE,
+                    color: "#fff",
                     fontWeight: "bold",
                   }}
                   size="small"
                 />
+                {service.service_sub_categories?.name && (
+                  <Chip
+                    label={service.service_sub_categories.name}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      color: RED_PRIMARY,
+                      borderColor: RED_PRIMARY,
+                      fontWeight: "600",
+                    }}
+                  />
+                )}
                 {service.isAvailable === false && (
                   <Chip
                     label="Unavailable"
@@ -239,7 +254,7 @@ const ServiceDetails: React.FC = () => {
                   fontFamily: "'Fraunces', serif",
                   fontWeight: 700,
                   fontSize: { xs: "2rem", md: "2.5rem" },
-                  color: "grey.900",
+                  color: "text.primary",
                 }}
               >
                 {service.title}
@@ -332,7 +347,7 @@ const ServiceDetails: React.FC = () => {
                   sx={{
                     py: 1.5,
                     backgroundColor: RED_PRIMARY,
-                    color: WHITE,
+                    color: "#fff",
                     fontWeight: "bold",
                     "&:hover": {
                       backgroundColor: "#B71C1C", // Darker Red for hover state
@@ -420,7 +435,7 @@ const ServiceDetails: React.FC = () => {
             <TableContainer
               component={Paper}
               variant="outlined"
-              sx={{ backgroundColor: WHITE }}
+              sx={{ bgcolor: "background.paper" }}
             >
               <Table size="small">
                 <TableBody>
@@ -429,7 +444,7 @@ const ServiceDetails: React.FC = () => {
                       key={index}
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
-                        backgroundColor: index % 2 === 0 ? "grey.50" : WHITE,
+                        bgcolor: index % 2 === 0 ? "action.hover" : "background.paper",
                       }}
                     >
                       <TableCell
@@ -470,8 +485,8 @@ const ServiceDetails: React.FC = () => {
                   sx={{
                     mb: 1,
                     border: "1px solid",
-                    borderColor: "grey.200",
-                    "&:before": { display: "none" }, // Hides standard Accordion divider lines
+                    borderColor: "divider",
+                    "&:before": { display: "none" },
                   }}
                 >
                   <AccordionSummary
@@ -482,7 +497,7 @@ const ServiceDetails: React.FC = () => {
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails
-                    sx={{ borderTop: "1px solid", borderColor: "grey.100" }}
+                    sx={{                     borderTop: "1px solid", borderColor: "divider" }}
                   >
                     <Typography color="text.secondary" sx={{ lineHeight: 1.6 }}>
                       {faqItem.answer}
@@ -501,7 +516,7 @@ const ServiceDetails: React.FC = () => {
           <Typography
             variant="h4"
             gutterBottom
-            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "grey.900" }}
+            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "text.primary" }}
           >
             More in {service.category}
           </Typography>
@@ -536,7 +551,7 @@ const ServiceDetails: React.FC = () => {
                     <Typography variant="subtitle1" sx={{ color: RED_PRIMARY, fontWeight: 'bold' }}>
                       {formatPrice(related.newPrice)}
                     </Typography>
-                    <Typography variant="subtitle1" sx={{ color: "grey.500", textDecoration: 'line-through' }}>
+                    <Typography variant="subtitle1" sx={{ color: "text.disabled", textDecoration: 'line-through' }}>
                       {formatPrice(related.oldPrice)}
                     </Typography>
                   </CardContent>
@@ -552,7 +567,7 @@ const ServiceDetails: React.FC = () => {
                         borderColor: RED_PRIMARY,
                         '&:hover': {
                           backgroundColor: RED_PRIMARY,
-                          color: WHITE,
+                          color: "#fff",
                           borderColor: RED_PRIMARY
                         }
                       }}
@@ -573,7 +588,7 @@ const ServiceDetails: React.FC = () => {
           <Typography
             variant="h4"
             gutterBottom
-            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "grey.900" }}
+            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "text.primary" }}
           >
             Explore More Services
           </Typography>
@@ -619,7 +634,7 @@ const ServiceDetails: React.FC = () => {
                       {formatPrice(randomSvc.newPrice)}
                     </Typography>
                     {randomSvc.oldPrice > randomSvc.newPrice && (
-                      <Typography variant="subtitle1" sx={{ color: "grey.500", textDecoration: 'line-through' }}>
+                      <Typography variant="subtitle1" sx={{ color: "text.disabled", textDecoration: 'line-through' }}>
                         {formatPrice(randomSvc.oldPrice)}
                       </Typography>
                     )}
@@ -636,7 +651,7 @@ const ServiceDetails: React.FC = () => {
                         borderColor: RED_PRIMARY,
                         '&:hover': {
                           backgroundColor: RED_PRIMARY,
-                          color: WHITE,
+                          color: "#fff",
                           borderColor: RED_PRIMARY
                         }
                       }}
