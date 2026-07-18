@@ -1,4 +1,5 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, useMemo } from "react";
+import type { ElementType } from "react";
 import {
   AppBar,
   Box,
@@ -31,13 +32,23 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import PrintIcon from "@mui/icons-material/Print";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import PaletteIcon from "@mui/icons-material/Palette";
+import PregnantWomanIcon from "@mui/icons-material/PregnantWoman";
+import SchoolIcon from "@mui/icons-material/School";
+import PhotoAlbumIcon from "@mui/icons-material/PhotoAlbum";
+import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
+import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { navItems } from "../../data/navitem";
 import { socialMediaData } from "../../data/socialmedia";
 import { ColorModeContext } from "../../App";
-import { services } from "../../data/service.data";
+import { serviceCategoriesApi } from "../../api/serviceCategories";
 
 const drawerWidth = 280;
 
@@ -48,6 +59,38 @@ const Navbar = () => {
     useState<null | HTMLElement>(null);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const navigate = useNavigate();
+
+  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
+
+  useEffect(() => {
+    serviceCategoriesApi.getCategories()
+      .then((data) => setCategories(data.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }))))
+      .catch(() => {});
+  }, []);
+
+  const categoryIconMap: Record<string, ElementType> = useMemo(() => ({
+    "Studio Photography": PhotoCameraIcon,
+    "Wedding Photography": FavoriteIcon,
+    "Wedding": FavoriteIcon,
+    "Printing": PrintIcon,
+    "Photo Frame": AutoStoriesIcon,
+    "Canvas Prints": PaletteIcon,
+    "Maternity Photography": PregnantWomanIcon,
+    "Graduation Photography": SchoolIcon,
+    "Photo Album": PhotoAlbumIcon,
+    "Studio Backdrop": TheaterComedyIcon,
+  }), []);
+
+  const menuItems = useMemo(() =>
+    categories.map((cat) => ({
+      id: cat.id,
+      title: cat.name,
+      path: `/services/category/${cat.slug}`,
+      icon: categoryIconMap[cat.name] || PhotoLibraryIcon,
+      description: `Explore our ${cat.name.toLowerCase()} services.`,
+    })),
+    [categories, categoryIconMap],
+  );
 
   const toggleDrawer = (value: boolean) => () => {
     setOpen(value);
@@ -155,6 +198,7 @@ const Navbar = () => {
                 }}
               >
                 <Box
+                  onClick={() => (window.location.href = "tel:+9779823367428")}
                   sx={{
                     display: "flex",
                     alignItems: "center",
@@ -173,6 +217,9 @@ const Navbar = () => {
                   </Typography>
                 </Box>
                 <Box
+                  onClick={() =>
+                    (window.location.href = "mailto:studiomeroclick@gmail.com")
+                  }
                   sx={{
                     display: "flex",
                     alignItems: "center",
@@ -482,13 +529,13 @@ const Navbar = () => {
                             rowGap: 1,
                           }}
                         >
-                          {services.map((service) => {
-                            const Icon = service.icon;
+                          {menuItems.map((item) => {
+                            const Icon = item.icon;
                             return (
                               <Box
-                                key={service.id}
+                                key={item.id}
                                 component={Link}
-                                to={service.path}
+                                to={item.path}
                                 onClick={handleServicesMenuClose}
                                 sx={{
                                   display: "flex",
@@ -534,7 +581,7 @@ const Navbar = () => {
                                       transition: "color 0.2s ease",
                                     }}
                                   >
-                                    {service.title}
+                                    {item.title}
                                   </Typography>
                                   <Typography
                                     sx={{
@@ -543,7 +590,7 @@ const Navbar = () => {
                                       lineHeight: 1.35,
                                     }}
                                   >
-                                    {service.description}
+                                    {item.description}
                                   </Typography>
                                 </Box>
                               </Box>
@@ -745,13 +792,13 @@ const Navbar = () => {
                     unmountOnExit
                   >
                     <List component="div" disablePadding>
-                      {services.map((service) => {
-                        const Icon = service.icon;
+                      {menuItems.map((item) => {
+                        const Icon = item.icon;
                         return (
                           <ListItemButton
-                            key={service.id}
+                            key={item.id}
                             component={NavLink}
-                            to={service.path} // Use NavLink for active styles
+                            to={item.path}
                             onClick={toggleDrawer(false)}
                             sx={{
                               pl: 4,
@@ -765,7 +812,7 @@ const Navbar = () => {
                                 <Icon fontSize="small" />
                               </ListItemIcon>
                             )}
-                            <ListItemText primary={service.title} />
+                            <ListItemText primary={item.title} />
                           </ListItemButton>
                         );
                       })}

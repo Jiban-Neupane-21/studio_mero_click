@@ -43,7 +43,7 @@ export default function ProductCard({
         <Box
           sx={{
             position: "absolute",
-            top: 12,
+            top: 0,
             left: 0,
             bgcolor: "#E50914",
             color: "#fff",

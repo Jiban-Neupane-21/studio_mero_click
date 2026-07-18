@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Box, Grid, Typography, Chip, Skeleton } from "@mui/material";
 
 import { useData } from "../context/DataContext";
@@ -8,40 +8,54 @@ import { serviceCategoriesApi } from "../api/serviceCategories";
 import { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 import ScrollReveal from "../components/common/ScrollReveal";
 
+interface ServiceItem {
+  id: string;
+  title: string;
+  thumbnail: string;
+  is_available?: boolean;
+  category?: string;
+}
+
+interface ServiceCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 const ServicePage = () => {
-  const navigate = useNavigate();
-  const { services: rawServices, loading } = useData();
+  const { services: rawServices = [], loading } = useData() as { services: ServiceItem[]; loading: boolean };
   const loadingSkeleton = useMinDelay(loading);
-  const [services, setServices] = useState<any[]>([]);
-  const [categories, setCategories] = useState<{ name: string; slug: string }[]>([]);
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     serviceCategoriesApi.getCategories()
-      .then(data => setCategories(data.map((c: any) => ({ name: c.name, slug: c.slug }))))
+      .then((data: ServiceCategory[]) => setCategories(data.map((c: ServiceCategory) => ({ id: c.id, name: c.name, slug: c.slug }))))
       .catch(() => {});
   }, []);
 
   useEffect(() => {
     if (rawServices.length > 0) {
-      setServices(rawServices.filter((s: any) => s.is_available !== false));
+      setServices(rawServices.filter((s: ServiceItem) => s.is_available !== false));
     }
   }, [rawServices]);
 
   const filteredServices = useMemo(() => {
-    if (activeCategory === "All") return services;
-    return services.filter((s) => s.category === activeCategory);
+    let result = services;
+    if (activeCategory !== "All") {
+      result = result.filter((s) => s.category === activeCategory);
+    }
+    if (activeCategory === "All") {
+      const shuffled = [...result];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+    return result;
   }, [services, activeCategory]);
-
-  const groupedServices = useMemo(() => {
-    const groups: Record<string, any[]> = {};
-    filteredServices.forEach((s) => {
-      const cat = s.category || "Other";
-      if (!groups[cat]) groups[cat] = [];
-      groups[cat].push(s);
-    });
-    return groups;
-  }, [filteredServices]);
 
   return (
     <Box sx={{ px: 0, py: 0 }}>
@@ -81,13 +95,7 @@ const ServicePage = () => {
           <Chip
             key={cat.name}
             label={cat.name}
-            onClick={() => {
-              if (cat.slug) {
-                navigate(`/services/category/${cat.slug}`);
-              } else {
-                setActiveCategory("All");
-              }
-            }}
+            onClick={() => setActiveCategory(cat.name)}
             sx={{
               fontFamily: "'Fraunces', serif",
               fontWeight: activeCategory === cat.name ? 700 : 400,
@@ -111,10 +119,12 @@ const ServicePage = () => {
         ))}
       </Box>
 
+
+
       {loadingSkeleton ? (
         <Grid container spacing={4}>
           {[...Array(8)].map((_, index) => (
-            <Grid key={`skeleton-${index}`} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <Grid key={`skeleton-${index}`} size={{ xs: 12, sm: 6, md: 4 }}>
               <Box
                 sx={{
                   display: "flex",
@@ -123,14 +133,12 @@ const ServicePage = () => {
                   overflow: "hidden",
                   bgcolor: "background.paper",
                   boxShadow: 2,
-                  height: { xs: "auto", sm: "calc((100vh - 280px) / 2)" },
-                  minHeight: { sm: 250 },
                 }}
               >
                 <Skeleton
                   variant="rectangular"
                   width="100%"
-                  sx={{ flexGrow: 1, minHeight: { xs: 250, sm: 0 } }}
+                  height={280}
                   animation="wave"
                 />
                 <Box sx={{ py: 2, px: 2, borderTop: "1px solid", borderColor: "divider" }}>
@@ -146,88 +154,66 @@ const ServicePage = () => {
         </Box>
       ) : (
         <StaggerContainer staggerDelay={0.08}>
-          {Object.entries(groupedServices).map(([category, categoryServices]) => (
-            <Box key={category} sx={{ mb: 6 }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontFamily: "'Fraunces', serif",
-                  fontWeight: 700,
-                  mb: 3,
-                  px: { xs: 2, md: 0 },
-                  color: "text.primary",
-                  borderLeft: "4px solid",
-                  borderColor: "#E50914",
-                  pl: 2,
-                }}
+          <Grid container spacing={4}>
+            {filteredServices.map((service) => (
+              <Grid
+                key={service.id}
+                size={{ xs: 12, sm: 6, md: 4 }}
               >
-                {category}
-              </Typography>
-              <Grid container spacing={4}>
-                {categoryServices.map((service) => (
-                  <Grid
-                    key={service.id}
-                    size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                <StaggerItem style={{ height: '100%' }}>
+                  <Box
+                    component={Link}
+                    to={`/services/${service.id}`}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      textDecoration: "none",
+                      borderRadius: 3,
+                      overflow: "hidden",
+                      bgcolor: "background.paper",
+                      boxShadow: 2,
+                      transition: ".3s",
+                      "&:hover": {
+                        transform: "translateY(-8px)",
+                        boxShadow: 8,
+                      },
+                    }}
                   >
-                    <StaggerItem style={{ height: '100%' }}>
-                      <Box
-                        component={Link}
-                        to={`/services/${service.id}`}
+                    <Box
+                      component="img"
+                      src={service.thumbnail}
+                      alt={service.title}
+                      sx={{
+                        width: "100%",
+                        display: "block",
+                        bgcolor: "grey.100",
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        py: 2,
+                        px: 2,
+                        borderTop: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      <Typography
+                        align="center"
                         sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          textDecoration: "none",
-                          borderRadius: 3,
-                          overflow: "hidden",
-                          bgcolor: "background.paper",
-                          boxShadow: 2,
-                          transition: ".3s",
-                          height: { xs: "auto", sm: "calc((100vh - 280px) / 2)" },
-                          minHeight: { sm: 250 },
-                          "&:hover": {
-                            transform: "translateY(-8px)",
-                            boxShadow: 8,
-                          },
+                          fontFamily: "'Fraunces', serif",
+                          fontWeight: 600,
+                          fontSize: "1.25rem",
+                          color: "text.primary",
                         }}
                       >
-                        <Box
-                          sx={{
-                            width: "100%",
-                            flexGrow: 1,
-                            minHeight: { xs: 250, sm: 0 },
-                            backgroundImage: `url(${service.thumbnail})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }}
-                        />
-                        <Box
-                          sx={{
-                            py: 2,
-                            px: 2,
-                            borderTop: "1px solid",
-                            borderColor: "divider",
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Typography
-                            align="center"
-                            sx={{
-                              fontFamily: "'Fraunces', serif",
-                              fontWeight: 600,
-                              fontSize: "1.25rem",
-                              color: "text.primary",
-                            }}
-                          >
-                            {service.title}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </StaggerItem>
-                  </Grid>
-                ))}
+                        {service.title}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </StaggerItem>
               </Grid>
-            </Box>
-          ))}
+            ))}
+          </Grid>
         </StaggerContainer>
       )}
     </Box>
