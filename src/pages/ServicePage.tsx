@@ -8,22 +8,36 @@ import { serviceCategoriesApi } from "../api/serviceCategories";
 import { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
 import ScrollReveal from "../components/common/ScrollReveal";
 
+interface ServiceItem {
+  id: string;
+  title: string;
+  thumbnail: string;
+  is_available?: boolean;
+  category?: string;
+}
+
+interface ServiceCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 const ServicePage = () => {
-  const { services: rawServices, loading } = useData();
+  const { services: rawServices = [], loading } = useData() as { services: ServiceItem[]; loading: boolean };
   const loadingSkeleton = useMinDelay(loading);
-  const [services, setServices] = useState<any[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     serviceCategoriesApi.getCategories()
-      .then(data => setCategories(data.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }))))
+      .then((data: ServiceCategory[]) => setCategories(data.map((c: ServiceCategory) => ({ id: c.id, name: c.name, slug: c.slug }))))
       .catch(() => {});
   }, []);
 
   useEffect(() => {
     if (rawServices.length > 0) {
-      setServices(rawServices.filter((s: any) => s.is_available !== false));
+      setServices(rawServices.filter((s: ServiceItem) => s.is_available !== false));
     }
   }, [rawServices]);
 

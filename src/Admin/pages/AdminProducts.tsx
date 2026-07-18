@@ -338,7 +338,7 @@ export default function AdminProducts() {
       <Paper sx={{ width: '100%', mb: 4, borderRadius: 3, overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
         <TableContainer>
           <Table sx={{ minWidth: 650 }} aria-label="products table">
-            <TableHead sx={{ bgcolor: 'grey.50' }}>
+            <TableHead sx={{ bgcolor: 'action.hover' }}>
               <TableRow>
                 <TableCell>Thumbnail</TableCell>
                 <TableCell>Title</TableCell>
@@ -371,7 +371,7 @@ export default function AdminProducts() {
                           sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }}
                         />
                       ) : (
-                        <Box sx={{ width: 60, height: 60, bgcolor: 'grey.200', borderRadius: 1 }} />
+                        <Box sx={{ width: 60, height: 60, bgcolor: 'action.hover', borderRadius: 1 }} />
                       )}
                     </TableCell>
                     <TableCell component="th" scope="row">

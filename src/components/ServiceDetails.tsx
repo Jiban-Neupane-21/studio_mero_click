@@ -24,7 +24,7 @@ import {
   CardActions,
   CircularProgress
 } from "@mui/material";
-import { ArrowLeft, ChevronDown, Tag, CheckCircle, Calendar } from "lucide-react";
+import { ArrowLeft, ChevronDown, Mail, CheckCircle, Calendar } from "lucide-react";
 import { useData } from "../context/DataContext";
 
 const ServiceDetails: React.FC = () => {
@@ -358,26 +358,25 @@ const ServiceDetails: React.FC = () => {
                   </Button>
 
                 <Button
-                  component={RouterLink}
-                  to={`/claim-offer?offerId=${service.id}`}
-                  variant="outlined"
-                  size="large"
-                  startIcon={<Tag size={18} />}
-                  disabled={service.isAvailable === false}
-                  fullWidth
-                  sx={{
-                    py: 1.5,
-                    color: RED_PRIMARY,
-                    borderColor: RED_PRIMARY,
-                    fontWeight: "bold",
-                    "&:hover": {
-                      borderColor: "#B71C1C",
-                      backgroundColor: RED_LIGHT,
-                    },
-                  }}
-                >
-                  Claim Offer
-                </Button>
+                    component={RouterLink}
+                    to="/contact"
+                    variant="outlined"
+                    size="large"
+                    startIcon={<Mail size={18} />}
+                    fullWidth
+                    sx={{
+                      py: 1.5,
+                      color: RED_PRIMARY,
+                      borderColor: RED_PRIMARY,
+                      fontWeight: "bold",
+                      "&:hover": {
+                        borderColor: "#B71C1C",
+                        backgroundColor: RED_LIGHT,
+                      },
+                    }}
+                  >
+                    Contact Us for Inquiry
+                  </Button>
               </Box>
             </Box>
           </Grid>
