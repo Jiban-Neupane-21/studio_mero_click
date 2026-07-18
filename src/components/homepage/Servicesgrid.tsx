@@ -27,7 +27,7 @@ const ServiceGrid = () => {
   return (
     <Box
       sx={{
-        minHeight: "calc(100vh - 72px)",
+        minHeight: { xs: "auto", lg: "calc(100vh - 72px)" },
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",

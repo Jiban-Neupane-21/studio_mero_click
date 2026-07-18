@@ -12,7 +12,7 @@ const Hero = () => {
   return (
     <Box
       sx={{
-        height: "calc(100vh - 72px)",
+        height: { xs: "auto", lg: "calc(100vh - 72px)" },
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",

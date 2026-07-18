@@ -25,7 +25,7 @@ export default function PortraitsGrid() {
     };
 
     return (
-        <Container maxWidth="xl" sx={{ minHeight: "calc(100vh - 72px", display: "flex", flexDirection: "column", justifyContent: "center", pt: { xs: 2, md: 4 }, pb: 2 }}>
+        <Container maxWidth="xl" sx={{ minHeight: { xs: "auto", lg: "calc(100vh - 72px)" }, display: "flex", flexDirection: "column", justifyContent: "center", pt: { xs: 2, md: 4 }, pb: 2 }}>
 
             <Typography
                 variant="h4"
