@@ -347,6 +347,9 @@ export default function PortfolioDetail() {
                   fontWeight: 300,
                   mb: 4,
                   overflowWrap: "break-word",
+                  wordBreak: "break-word",
+                  maxHeight: { xs: "none", md: 350 },
+                  overflowY: "auto",
                   "& p": { margin: 0 },
                   "& h1, & h2": {
                     fontSize: { xs: "1.05rem", md: "1.1rem" },
