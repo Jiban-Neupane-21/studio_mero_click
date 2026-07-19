@@ -1,40 +1,47 @@
 import type { SpecialityItem } from "../types/speciality.type";
+import { Wand2, Camera, BookImage, ImagePlus, Zap, ScanFace, Lock } from "lucide-react";
 
 export const specialityData: SpecialityItem[] = [
   {
     id: 1,
-    iconUrl: "/assets/icons/printer.svg",
-    altText: "Printer icon representing photo prints quality",
-    title: "Professional photo prints quality with design and editing skills",
-    },
+    iconComponent: Wand2,
+    altText: "Wand icon representing photo editing and retouching services",
+    title: "Professional Photo Editing & Retouching",
+  },
   {
     id: 2,
-    iconUrl: "/assets/icons/delivery-truck.svg",
-    altText: "Delivery truck icon representing effective delivery",
-    title: "Quick and effective delivery",
-   },
+    iconComponent: Camera,
+    altText: "Camera icon representing studio photo shoots",
+    title: "High-Quality Studio Shoots",
+  },
   {
     id: 3,
-    iconUrl: "/assets/icons/dimensions.svg",
-    altText: "Image dimension icon representing sizes and materials",
-    title: "Choose from different sizes and materials",
-    },
+    iconComponent: BookImage,
+    altText: "Photo album icon representing custom album making",
+    title: "Custom Photo Albums & Layflat Books",
+  },
   {
     id: 4,
-    iconUrl: "/assets/icons/canvas.svg",
-    altText: "Canvas prints icon",
-    title: "Offers High-quality Canvas Prints",
+    iconComponent: ImagePlus,
+    altText: "Canvas print icon representing wall art",
+    title: "Canvas & Acrylic Prints",
   },
   {
     id: 5,
-    iconUrl: "/assets/icons/frame-ready.svg",
-    altText: "Hanger representation icon",
-    title: "Multiple Sizes Available, Ready to Hang Upon Delivery",
+    iconComponent: Zap,
+    altText: "Lightning bolt icon representing fast turnaround",
+    title: "Fast Turnaround — proofs in 48 hrs",
   },
   {
     id: 6,
-    iconUrl: "/assets/icons/home-decor.svg",
-    altText: "Home interior decoration icon",
-    title: "Perfect for Home Decor",
+    iconComponent: ScanFace,
+    altText: "Scan icon representing passport and ID photo services",
+    title: "Passport & ID Photo Services",
+  },
+  {
+    id: 7,
+    iconComponent: Lock,
+    altText: "Lock icon representing secure online gallery",
+    title: "Free Online Gallery — private & secure",
   },
 ];
