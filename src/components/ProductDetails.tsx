@@ -200,6 +200,7 @@ const ProductDetails: React.FC = () => {
                 display: "flex",
                 flexDirection: "column",
                 backgroundColor: "background.paper",
+                overflow: "hidden",
               }}
             >
               {/* Availability & Featured Tags */}
@@ -266,6 +267,9 @@ const ProductDetails: React.FC = () => {
                   color: "text.secondary",
                   lineHeight: 1.7,
                   mb: 3,
+                  overflowWrap: "break-word",
+                  maxHeight: { xs: "none", md: 350 },
+                  overflowY: "auto",
                   "& p": { margin: 0, mb: 1 },
                   "& h1, & h2, & h3, & h4": {
                     color: "text.primary",

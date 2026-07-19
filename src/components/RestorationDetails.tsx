@@ -138,7 +138,7 @@ export default function RestorationDetails() {
 
           {/* Right Column: Text Details */}
           <Grid size={{ xs: 12, lg: 4 }}>
-            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', pt: 2 }}>
+            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', pt: 2, overflow: 'hidden' }}>
               <Typography variant="h3" sx={{ fontWeight: 800, color: 'text.primary', fontSize: { xs: '2rem', md: '2.5rem' }, lineHeight: 1.2, mb: 2 }}>
                 {restoration.title}
               </Typography>
@@ -151,6 +151,9 @@ export default function RestorationDetails() {
                   fontSize: "1.1rem",
                   lineHeight: 1.7,
                   whiteSpace: "pre-line",
+                  wordBreak: "break-word",
+                  maxHeight: { xs: "none", md: 350 },
+                  overflowY: "auto",
                   "& p": { margin: 0, mb: 1 },
                   "& h1, & h2, & h3, & h4": {
                     color: "text.primary",
