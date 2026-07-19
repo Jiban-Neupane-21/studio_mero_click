@@ -193,7 +193,7 @@ function BeforeAfterSlider({
 export default function FeaturedProducts() {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
-  const [scrollIndex, setScrollIndex] = useState(0);
+  const [visibleIndex, setVisibleIndex] = useState(0);
   const trackRef = useRef(null);
   const itemRefs = useRef([]);
 
@@ -255,6 +255,7 @@ export default function FeaturedProducts() {
 
   const handleCategoryClick = useCallback((cat: string, index: number) => {
     setActiveCategory(cat);
+    setVisibleIndex(index);
     itemRefs.current[index]?.scrollIntoView({
       behavior: "smooth",
       inline: "center",
@@ -269,8 +270,6 @@ export default function FeaturedProducts() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        pt: { xs: 2, md: 4 },
-        pb: 2,
       }}
     >
       {/* Heading + Category Slider */}
@@ -308,13 +307,9 @@ export default function FeaturedProducts() {
           >
             <IconButton
               onClick={() => {
-                const next = Math.max(0, scrollIndex - 1);
-                setScrollIndex(next);
-                itemRefs.current[next]?.scrollIntoView({
-                  behavior: "smooth",
-                  inline: "center",
-                  block: "nearest",
-                });
+                const prev = Math.max(0, visibleIndex - 1);
+                setVisibleIndex(prev);
+                itemRefs.current[prev]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
               }}
               size="small"
               sx={{
@@ -336,7 +331,6 @@ export default function FeaturedProducts() {
                 scrollBehavior: "smooth",
                 WebkitOverflowScrolling: "touch",
                 "&::-webkit-scrollbar": { display: "none" },
-                scrollSnapType: "x proximity",
                 flex: 1,
                 px: { xs: 0.5, sm: 0 },
               }}
@@ -347,7 +341,6 @@ export default function FeaturedProducts() {
                   ref={(el) => (itemRefs.current[idx] = el)}
                   onClick={() => handleCategoryClick(cat, idx)}
                   sx={{
-                    scrollSnapAlign: "center",
                     flexShrink: 0,
                     position: "relative",
                     cursor: "pointer",
@@ -388,16 +381,9 @@ export default function FeaturedProducts() {
 
             <IconButton
               onClick={() => {
-                const next = Math.min(
-                  allCategories.length - 1,
-                  scrollIndex + 1,
-                );
-                setScrollIndex(next);
-                itemRefs.current[next]?.scrollIntoView({
-                  behavior: "smooth",
-                  inline: "center",
-                  block: "nearest",
-                });
+                const next = Math.min(allCategories.length - 1, visibleIndex + 1);
+                setVisibleIndex(next);
+                itemRefs.current[next]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
               }}
               size="small"
               sx={{

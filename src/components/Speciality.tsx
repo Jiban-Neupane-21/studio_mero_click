@@ -77,15 +77,23 @@ export const SpecialitySection: React.FC = () => {
                     justifyContent: "center",
                   }}
                 >
-                  <img
-                    src={item.iconUrl}
-                    alt={item.altText}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
+                  {(() => {
+                    const IconComp = item.iconComponent;
+                    if (IconComp) {
+                      return <IconComp size={48} color="#D32F2F" strokeWidth={1.5} />;
+                    }
+                    return item.iconUrl ? (
+                      <img
+                        src={item.iconUrl}
+                        alt={item.altText}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
+                    ) : null;
+                  })()}
                 </Box>
 
                 {/* Card Title */}
