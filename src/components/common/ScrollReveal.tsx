@@ -65,7 +65,7 @@ export default function ScrollReveal({
         ease: [0.16, 1, 0.3, 1],
       }}
       className={className}
-      style={style}
+      style={{ ...style, display: "block" }}
     >
       {children}
     </motion.div>

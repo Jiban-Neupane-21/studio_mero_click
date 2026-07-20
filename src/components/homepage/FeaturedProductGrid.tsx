@@ -266,10 +266,9 @@ export default function FeaturedProducts() {
     <Box
       component="section"
       sx={{
-        minHeight: { xs: "auto", lg: "calc(100vh - 72px)" },
+        height: { xs: "auto", lg: "calc(100vh - 72px)" },
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
       }}
     >
       {/* Heading + Category Slider */}
@@ -278,7 +277,6 @@ export default function FeaturedProducts() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          mb: 4,
           gap: 2,
           flexWrap: { xs: "wrap", sm: "nowrap" },
         }}
@@ -398,18 +396,19 @@ export default function FeaturedProducts() {
         )}
       </Box>
 
-      <Grid
-        container
-        spacing={2.5}
-        sx={{
-          justifyContent: {
-            xs: "center",
-            sm: "center",
-            md: "center",
-            lg: "flex-start",
-          },
-        }}
-      >
+      <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+        <Grid
+          container
+          spacing={2.5}
+          sx={{
+            justifyContent: {
+              xs: "center",
+              sm: "center",
+              md: "center",
+              lg: "flex-start",
+            },
+          }}
+        >
         {loading ? (
           [...Array(5)].map((_, index) => (
             <Grid
@@ -456,7 +455,7 @@ export default function FeaturedProducts() {
             </Typography>
           </Box>
         ) : combinedItems.length === 0 ? (
-          <Box sx={{ width: "100%", textAlign: "center", mt: 4 }}>
+          <Box sx={{ width: "100%", textAlign: "center" }}>
             <Typography variant="body1" color="text.secondary">
               {activeCategory === "All"
                 ? "No featured items available at the moment."
@@ -603,6 +602,7 @@ export default function FeaturedProducts() {
           ))
         )}
       </Grid>
+      </Box>
     </Box>
   );
 }

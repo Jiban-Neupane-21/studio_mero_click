@@ -346,11 +346,14 @@ export default function PortfolioDetail() {
                   lineHeight: { xs: 1.7, md: 1.6 },
                   fontWeight: 300,
                   mb: 4,
-                  overflowWrap: "break-word",
-                  wordBreak: "break-word",
+                  "&, & *": {
+                    wordBreak: "normal !important",
+                    overflowWrap: "break-word !important",
+                    whiteSpace: "pre-wrap !important",
+                  },
                   maxHeight: { xs: "none", md: 350 },
                   overflowY: "auto",
-                  "& p": { margin: 0 },
+                  "& p": { margin: 0, mb: 1 },
                   "& h1, & h2": {
                     fontSize: { xs: "1.05rem", md: "1.1rem" },
                     fontWeight: 600,
@@ -360,9 +363,7 @@ export default function PortfolioDetail() {
                   },
                 }}
                 dangerouslySetInnerHTML={{
-                  __html:
-                    selectedItem.description ||
-                    "<p>No detailed description available for this artwork.</p>",
+                  __html: (selectedItem.description || "<p>No detailed description available for this artwork.</p>").replace(/&nbsp;|\u00A0/g, ' '),
                 }}
               />
 
