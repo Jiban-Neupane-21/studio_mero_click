@@ -107,33 +107,6 @@ const Hero = () => {
               </motion.div>
             </AnimatePresence>
 
-            {current.description && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                  px: { xs: 3, md: 6 },
-                  py: { xs: 3, md: 5 },
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "#fff",
-                    fontSize: { xs: "1rem", md: "1.35rem" },
-                    fontWeight: 500,
-                    fontFamily: "'Fraunces', serif",
-                    maxWidth: 700,
-                    lineHeight: 1.5,
-                    textShadow: "0 2px 8px rgba(0,0,0,0.3)",
-                  }}
-                >
-                  {current.description}
-                </Typography>
-              </Box>
-            )}
 
             {showControls && (
               <>

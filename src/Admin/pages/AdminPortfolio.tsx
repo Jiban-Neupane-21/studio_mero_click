@@ -1,13 +1,13 @@
 /* eslint-disable */
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  TextField, 
-  Button, 
-  MenuItem, 
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
   Grid,
   IconButton,
   Divider,
@@ -200,7 +200,7 @@ export default function AdminPortfolio() {
       } else {
         await portfolioApi.createPortfolioItem(payload);
       }
-      
+
       setIsDialogOpen(false);
       fetchItems();
     } catch (error: any) {
@@ -216,7 +216,7 @@ export default function AdminPortfolio() {
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
       [{ 'align': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['blockquote'],
       ['link', 'image'],
       ['clean']
@@ -229,10 +229,10 @@ export default function AdminPortfolio() {
         <Typography variant="h4" fontWeight="bold" color="text.primary">
           Manage Portfolio
         </Typography>
-        <Button 
-          variant="contained" 
-          color="error" 
-          startIcon={<Plus />} 
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<Plus />}
           onClick={handleOpenNew}
           sx={{ borderRadius: 2, px: 3 }}
         >
@@ -310,7 +310,7 @@ export default function AdminPortfolio() {
                     variant="outlined"
                     color="error"
                   />
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -356,10 +356,10 @@ export default function AdminPortfolio() {
                     <Typography variant="subtitle2" fontWeight="600" mb={1} color="text.primary">
                       Description (Design your text here)
                     </Typography>
-                    <Box 
-                      sx={{ 
-                        '.quill': { 
-                          bgcolor: 'white', 
+                    <Box
+                      sx={{
+                        '.quill': {
+                          bgcolor: 'white',
                           borderRadius: 1,
                           overflow: 'hidden',
                           border: '1px solid',
@@ -381,12 +381,15 @@ export default function AdminPortfolio() {
                         },
                         '.ql-editor': {
                           minHeight: '250px',
+                          wordBreak: 'normal',
+                          overflowWrap: 'break-word',
+                          whiteSpace: 'pre-wrap'
                         }
                       }}
                     >
-                      <ReactQuill 
-                        theme="snow" 
-                        value={formData.description} 
+                      <ReactQuill
+                        theme="snow"
+                        value={formData.description}
                         onChange={handleDescriptionChange}
                         modules={modules}
                         placeholder="Write a compelling, beautiful description using the tools above..."
@@ -408,7 +411,7 @@ export default function AdminPortfolio() {
                     <Typography variant="body2" fontWeight="600" mb={1}>
                       Main Cover Image *
                     </Typography>
-                    
+
                     <input
                       type="file"
                       accept="image/*"
@@ -445,10 +448,10 @@ export default function AdminPortfolio() {
                       </Box>
                     ) : (
                       <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', boxShadow: 1, border: '1px solid', borderColor: 'grey.200' }}>
-                        <img 
-                          src={mainImagePreview} 
-                          alt="Preview" 
-                          style={{ width: '100%', height: '250px', objectFit: 'cover', display: 'block' }} 
+                        <img
+                          src={mainImagePreview}
+                          alt="Preview"
+                          style={{ width: '100%', height: '250px', objectFit: 'cover', display: 'block' }}
                         />
                         <IconButton
                           onClick={removeMainImage}
@@ -484,7 +487,7 @@ export default function AdminPortfolio() {
                         ref={secondaryImageInputRef}
                         onChange={handleSecondaryImageUpload}
                       />
-                      <Button 
+                      <Button
                         startIcon={<UploadCloud size={16} />}
                         onClick={() => secondaryImageInputRef.current?.click()}
                         variant="outlined"
@@ -508,10 +511,10 @@ export default function AdminPortfolio() {
                         {secondaryImages.map((item) => (
                           <Grid item xs={6} sm={4} key={item.id}>
                             <Box sx={{ position: 'relative', borderRadius: 2, overflow: 'hidden', boxShadow: 1, border: '1px solid', borderColor: 'grey.200' }}>
-                              <img 
-                                src={item.url} 
-                                alt="Secondary" 
-                                style={{ width: '100%', display: 'block' }} 
+                              <img
+                                src={item.url}
+                                alt="Secondary"
+                                style={{ width: '100%', display: 'block' }}
                               />
                               <IconButton
                                 onClick={() => handleRemoveSecondaryImage(item.id)}
@@ -537,14 +540,14 @@ export default function AdminPortfolio() {
               </Grid>
             </Grid>
           </DialogContent>
-          
+
           <DialogActions sx={{ p: 3, pt: 0 }}>
             <Button onClick={() => setIsDialogOpen(false)} color="inherit">
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              variant="contained" 
+            <Button
+              type="submit"
+              variant="contained"
               color="error"
               disabled={formLoading}
               startIcon={formLoading ? <CircularProgress size={20} color="inherit" /> : <Save size={20} />}

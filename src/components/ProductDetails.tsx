@@ -22,16 +22,22 @@ import {
   CardMedia,
   CardContent,
   CardActions,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
-import { ArrowLeft, ChevronDown, Mail, CheckCircle, Calendar } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  Mail,
+  CheckCircle,
+  Calendar,
+} from "lucide-react";
 import { useData } from "../context/DataContext";
 import ProductCard from "./ProductCard";
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { products: allProducts, loading: contextLoading } = useData();
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -49,8 +55,16 @@ const ProductDetails: React.FC = () => {
       discountRate: data.discount_rate,
       isFeatured: data.is_featured,
       isAvailable: data.is_available,
-      images: data.product_images?.map((img: any) => ({ url: img.image_url || img.url, alt: img.alt_text || img.alt })) || [],
-      additionalInfo: data.product_specifications?.map((s: any) => ({ key: s.spec_key || s.key_name, value: s.spec_value || s.value_text })) || [],
+      images:
+        data.product_images?.map((img: any) => ({
+          url: img.image_url || img.url,
+          alt: img.alt_text || img.alt,
+        })) || [],
+      additionalInfo:
+        data.product_specifications?.map((s: any) => ({
+          key: s.spec_key || s.key_name,
+          value: s.spec_value || s.value_text,
+        })) || [],
       features: data.product_features || [],
       faq: data.product_faqs || [],
     };
@@ -72,7 +86,10 @@ const ProductDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
+      <Container
+        maxWidth="lg"
+        sx={{ py: { xs: 4, md: 6 }, display: "flex", justifyContent: "center" }}
+      >
         <CircularProgress color="error" />
       </Container>
     );
@@ -82,13 +99,18 @@ const ProductDetails: React.FC = () => {
     return <Navigate to="/404" replace />;
   }
 
-  const formatPrice = (value: number) => `Rs. ${Number(value).toLocaleString("en-IN")}`;
+  const formatPrice = (value: number) =>
+    `Rs. ${Number(value).toLocaleString("en-IN")}`;
 
   const RED_PRIMARY = "#D32F2F";
   const RED_LIGHT = "#FFEBEE";
 
   return (
-    <Container id="product-details-container" maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
+    <Container
+      id="product-details-container"
+      maxWidth="lg"
+      sx={{ py: { xs: 4, md: 6 } }}
+    >
       {/* Back Navigation */}
       <Button
         id="product-back-btn"
@@ -190,8 +212,10 @@ const ProductDetails: React.FC = () => {
           </Grid>
 
           {/* Right Column: Key Details */}
-          <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex", flexDirection: "column" }}>
-
+          <Grid
+            size={{ xs: 12, md: 6 }}
+            sx={{ display: "flex", flexDirection: "column" }}
+          >
             <Box
               id="product-details-content-box"
               sx={{
@@ -261,28 +285,31 @@ const ProductDetails: React.FC = () => {
                 {product.about}
               </Typography>
 
-              {/* Detailed Long Description */}
               <Box
                 sx={{
                   color: "text.secondary",
-                  lineHeight: 1.7,
-                  mb: 3,
-                  overflowWrap: "break-word",
-                  maxHeight: { xs: "none", md: 350 },
-                  overflowY: "auto",
-                  "& p": { margin: 0, mb: 1 },
-                  "& h1, & h2, & h3, & h4": {
-                    color: "text.primary",
-                    mt: 2,
-                    mb: 1,
-                    fontFamily: "'Fraunces', serif",
+                  lineHeight: 1.8,
+
+                  "&, & *": {
+                    wordBreak: "normal !important",
+                    overflowWrap: "break-word !important",
+                    whiteSpace: "pre-wrap !important",
                   },
-                  "& ul, & ol": { pl: 2.5 },
-                  "& li": { mb: 0.5 },
-                  "& a": { color: "#D32F2F" },
+
+                  "& p": {
+                    mb: 2,
+                  },
+
+                  "& a": {
+                    color: "#D32F2F",
+                    textDecoration: "underline",
+                  },
                 }}
                 dangerouslySetInnerHTML={{
-                  __html: product.description || "",
+                  __html: (product.description ?? "").replace(
+                    /&nbsp;|\u00A0/g,
+                    " ",
+                  ),
                 }}
               />
 
@@ -329,50 +356,57 @@ const ProductDetails: React.FC = () => {
               </Box>
 
               {/* Action Buttons */}
-              <Box sx={{ mt: "auto", display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
-                  <Button
-                    id="product-book-session-btn"
-                    component={RouterLink}
-                    to={`/product-booking/${product.id}`}
-                    variant="contained"
-                    size="large"
-                    startIcon={<Calendar size={18} />}
-                    disabled={product.isAvailable === false}
-                    fullWidth
-                    sx={{
-                      py: 1.5,
-                      backgroundColor: RED_PRIMARY,
-                      color: "#fff",
-                      fontWeight: "bold",
-                      "&:hover": {
-                        backgroundColor: "#B71C1C",
-                      },
-                    }}
-                  >
-                    Book Package Now
-                  </Button>
+              <Box
+                sx={{
+                  mt: "auto",
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "row" },
+                  gap: 2,
+                }}
+              >
+                <Button
+                  id="product-book-session-btn"
+                  component={RouterLink}
+                  to={`/product-booking/${product.id}`}
+                  variant="contained"
+                  size="large"
+                  startIcon={<Calendar size={18} />}
+                  disabled={product.isAvailable === false}
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    backgroundColor: RED_PRIMARY,
+                    color: "#fff",
+                    fontWeight: "bold",
+                    "&:hover": {
+                      backgroundColor: "#B71C1C",
+                    },
+                  }}
+                >
+                  Book Package Now
+                </Button>
 
-                  <Button
-                    id="product-contact-btn"
-                    component={RouterLink}
-                    to="/contact"
-                    variant="outlined"
-                    size="large"
-                    startIcon={<Mail size={18} />}
-                    fullWidth
-                    sx={{
-                      py: 1.5,
-                      color: RED_PRIMARY,
-                      borderColor: RED_PRIMARY,
-                      fontWeight: "bold",
-                      "&:hover": {
-                        borderColor: "#B71C1C",
-                        backgroundColor: RED_LIGHT,
-                      },
-                    }}
-                  >
-                    Contact for Inquiry
-                  </Button>
+                <Button
+                  id="product-contact-btn"
+                  component={RouterLink}
+                  to="/contact"
+                  variant="outlined"
+                  size="large"
+                  startIcon={<Mail size={18} />}
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    color: RED_PRIMARY,
+                    borderColor: RED_PRIMARY,
+                    fontWeight: "bold",
+                    "&:hover": {
+                      borderColor: "#B71C1C",
+                      backgroundColor: RED_LIGHT,
+                    },
+                  }}
+                >
+                  Contact for Inquiry
+                </Button>
               </Box>
             </Box>
           </Grid>
@@ -439,7 +473,8 @@ const ProductDetails: React.FC = () => {
                       key={index}
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
-                        backgroundColor: index % 2 === 0 ? "action.hover" : "background.paper",
+                        backgroundColor:
+                          index % 2 === 0 ? "action.hover" : "background.paper",
                       }}
                     >
                       <TableCell
@@ -511,11 +546,27 @@ const ProductDetails: React.FC = () => {
           <Typography
             variant="h4"
             gutterBottom
-            sx={{ fontFamily: "'Fraunces', serif", fontWeight: 700, mb: 4, color: "text.primary" }}
+            sx={{
+              fontFamily: "'Fraunces', serif",
+              fontWeight: 700,
+              mb: 4,
+              color: "text.primary",
+            }}
           >
             Explore More Products
           </Typography>
-          <Grid container spacing={2.5} sx={{ justifyContent: { xs: "center", sm: "center", md: "center", lg: "flex-start" } }}>
+          <Grid
+            container
+            spacing={2.5}
+            sx={{
+              justifyContent: {
+                xs: "center",
+                sm: "center",
+                md: "center",
+                lg: "flex-start",
+              },
+            }}
+          >
             {randomProducts.map((randomProd) => {
               const mapped = {
                 ...randomProd,
@@ -529,7 +580,12 @@ const ProductDetails: React.FC = () => {
                   size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
                   sx={{ display: "flex", justifyContent: "center" }}
                 >
-                  <ProductCard product={mapped} onViewDetails={(p) => window.location.href = `/products/${p.id}`} />
+                  <ProductCard
+                    product={mapped}
+                    onViewDetails={(p) =>
+                      (window.location.href = `/products/${p.id}`)
+                    }
+                  />
                 </Grid>
               );
             })}
