@@ -26,7 +26,7 @@ const ServicePage = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [visibleIndex, setVisibleIndex] = useState(0);
   const [sliderPositions, setSliderPositions] = useState<{ [key: string]: number }>({});
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const handleCategoryClick = useCallback((cat: string, index: number) => {
     setActiveCategory(cat);
@@ -127,7 +127,7 @@ const ServicePage = () => {
           {["All", ...serviceItems.map((s) => s.title)].map((cat, idx) => (
             <Box
               key={cat}
-              ref={(el) => (itemRefs.current[idx] = el)}
+              ref={(el: HTMLDivElement | null) => { itemRefs.current[idx] = el; }}
             >
               <Chip
                 label={cat}
