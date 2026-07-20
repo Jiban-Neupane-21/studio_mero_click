@@ -11,10 +11,16 @@ import {
   StaggerItem,
 } from "../components/common/ScrollReveal";
 
+type Category = {
+  name: string;
+  description?: string;
+  [key: string]: unknown;
+};
+
 const CategoryPage = () => {
   const { slug } = useParams();
   const { services: rawServices } = useData();
-  const [category, setCategory] = useState<any>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [categoryLoading, setCategoryLoading] = useState(true);
   const [categoryError, setCategoryError] = useState(false);
 
