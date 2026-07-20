@@ -293,7 +293,7 @@ export default function FeaturedProducts() {
           Featured Products
         </Typography>
 
-        {!loading && featured.length > 0 && (
+        {!loading && (
           <Box
             sx={{
               display: "flex",
@@ -418,7 +418,7 @@ export default function FeaturedProducts() {
                 sm: 6,
                 md: 4,
                 lg: 3,
-                xl: 2.4,
+                xl: 2.5,
               }}
               sx={{
                 display: "flex",
@@ -471,7 +471,7 @@ export default function FeaturedProducts() {
                 sm: 6,
                 md: 4,
                 lg: 3,
-                xl: 2.4,
+                xl: 2.5,
               }}
               sx={{
                 display: "flex",
