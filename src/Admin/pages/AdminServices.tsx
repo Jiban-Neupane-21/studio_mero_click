@@ -923,28 +923,10 @@ export default function AdminServices() {
                     </Typography>
                     <Box
                       sx={{
-                        ".quill": {
-                          bgcolor: "white",
-                          borderRadius: 1,
-                          overflow: "hidden",
-                          border: "1px solid",
-                          borderColor: "grey.300",
-                        },
-                        ".ql-toolbar": {
-                          borderBottom: "1px solid",
-                          borderColor: "grey.300",
-                          bgcolor: "#fafafa",
-                          borderTop: "none",
-                          borderLeft: "none",
-                          borderRight: "none",
-                        },
-                        ".ql-container": {
-                          minHeight: "200px",
-                          fontSize: "1rem",
-                          fontFamily: "inherit",
-                          border: "none",
-                        },
-                        ".ql-editor": { minHeight: "200px" },
+                        '.quill': { bgcolor: 'white', borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'grey.300' },
+                        '.ql-toolbar': { borderBottom: '1px solid', borderColor: 'grey.300', bgcolor: '#fafafa', borderTop: 'none', borderLeft: 'none', borderRight: 'none' },
+                        '.ql-container': { minHeight: '200px', fontSize: '1rem', fontFamily: 'inherit', border: 'none' },
+                        '.ql-editor': { minHeight: '200px', wordBreak: 'normal', overflowWrap: 'break-word', whiteSpace: 'pre-wrap' }
                       }}
                     >
                       <ReactQuill

@@ -15,9 +15,9 @@ export default function HomePage() {
       <ScrollReveal animation="fadeUp" delay={0.1}>
         <ServiceGrid />
       </ScrollReveal>
-      <ScrollReveal animation="fadeUp" delay={0.1}>
+      {/* <ScrollReveal animation="fadeUp" delay={0.1}> */}
         <FeatureProduct />
-      </ScrollReveal>
+      {/* </ScrollReveal> */}
       <ScrollReveal animation="fadeUp" delay={0.1}>
         <PortraitsGrid />
       </ScrollReveal>
