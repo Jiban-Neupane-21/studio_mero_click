@@ -20,6 +20,8 @@ import VideoSection from "../pages/VideoPage";
 import LearnFromUs from "../pages/LearnPage";
 import ReadArticlePage from "../pages/ReadArticlePage";
 
+import RestorationShowcase from "../components/homepage/RestorationShowcase";
+
 
 import AdminLayout from "../Admin/AdminLayout";
 import AdminDashboard from "../Admin/pages/AdminDashboard";
@@ -70,9 +72,14 @@ const router = createBrowserRouter([
             path: "portfolio/:id",
             element: <PortfolioDetail />,
           },
+          
           {
             path: "restorations/:id",
             element: <RestorationDetails />,
+          },
+          {
+            path: "restorations",
+            element: <RestorationShowcase />,
           },
           {
             path: "videos",

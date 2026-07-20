@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Box, Typography, Grid, Button, Skeleton } from "@mui/material";
+import { Box, Typography, Grid, Button, Skeleton, Paper } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
+import { CameraOff } from "lucide-react";
 
 import { useData } from "../context/DataContext";
 import { serviceCategoriesApi } from "../api/serviceCategories";
-import { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
+import {
+  StaggerContainer,
+  StaggerItem,
+} from "../components/common/ScrollReveal";
 
 const CategoryPage = () => {
   const { slug } = useParams();
@@ -31,7 +35,7 @@ const CategoryPage = () => {
   }, [slug]);
 
   const services = rawServices.filter(
-    (s: any) => s.is_available !== false && s.category === category?.name
+    (s: any) => s.is_available !== false && s.category === category?.name,
   );
 
   if (categoryLoading) {
@@ -42,7 +46,11 @@ const CategoryPage = () => {
         <Grid container spacing={4}>
           {[...Array(4)].map((_, i) => (
             <Grid key={i} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              <Skeleton variant="rectangular" width="100%" sx={{ aspectRatio: "1/1", borderRadius: 3 }} />
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                sx={{ aspectRatio: "1/1", borderRadius: 3 }}
+              />
               <Skeleton variant="text" sx={{ mt: 2 }} />
             </Grid>
           ))}
@@ -57,7 +65,9 @@ const CategoryPage = () => {
         <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
           Category not found
         </Typography>
-        <Link to="/services" style={{ color: "#E50914" }}>Back to All Services</Link>
+        <Link to="/services" style={{ color: "#E50914" }}>
+          Back to All Services
+        </Link>
       </Box>
     );
   }
@@ -107,9 +117,33 @@ const CategoryPage = () => {
       )}
 
       {services.length === 0 ? (
-        <Typography color="text.secondary" sx={{ mt: 4 }}>
-          No services available in this category.
-        </Typography>
+        <Paper
+          variant="outlined"
+          sx={{
+            textAlign: "center",
+            py: { xs: 6, md: 10 },
+            mt: 4,
+            bgcolor: "action.hover",
+            borderRadius: 3,
+          }}
+        >
+          <CameraOff size={48} style={{ color: "#E50914", opacity: 0.8 }} />
+          <Typography
+            variant="h5"
+            sx={{
+              mt: 2,
+              mb: 1,
+              fontWeight: 700,
+              fontFamily: "'Fraunces', serif",
+            }}
+          >
+            No Services Found
+          </Typography>
+          <Typography color="text.secondary" sx={{ maxWidth: 400, mx: "auto" }}>
+            There are currently no services available in this category. Please
+            check back later or explore our other offerings.
+          </Typography>
+        </Paper>
       ) : (
         <StaggerContainer staggerDelay={0.08}>
           <Grid container spacing={4}>

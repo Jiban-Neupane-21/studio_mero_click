@@ -492,7 +492,11 @@ const Navbar = () => {
                               <Box
                                 key={item.id}
                                 component={Link}
-                                to={item.path}
+                                to={
+                                  item.id === "photo-restoration"
+                                    ? "/restorations"
+                                    : `/services/category/${item.id}`
+                                }
                                 onClick={handleServicesMenuClose}
                                 sx={{
                                   display: "flex",
@@ -755,7 +759,11 @@ const Navbar = () => {
                           <ListItemButton
                             key={item.id}
                             component={NavLink}
-                            to={item.path}
+                            to={
+                              item.id === "photo-restoration"
+                                ? "/services"
+                                : `/services/category/${item.id}`
+                            }
                             onClick={toggleDrawer(false)}
                             sx={{
                               pl: 4,
