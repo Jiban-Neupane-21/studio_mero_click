@@ -117,8 +117,6 @@ const ServiceGrid = () => {
             md: 4,
           },
 
-          pb: 2,
-
           justifyContent: {
             xs: "flex-start",
             sm: "flex-start",

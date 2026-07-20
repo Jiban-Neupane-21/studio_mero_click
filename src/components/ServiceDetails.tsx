@@ -275,24 +275,25 @@ const ServiceDetails: React.FC = () => {
               <Box
                 sx={{
                   color: "text.secondary",
-                  lineHeight: 1.7,
-                  mb: 3,
-                  wordBreak: "break-word",
-                  maxHeight: { xs: "none", md: 350 },
-                  overflowY: "auto",
-                  "& p": { margin: 0, mb: 1 },
-                  "& h1, & h2, & h3, & h4": {
-                    color: "text.primary",
-                    mt: 2,
-                    mb: 1,
-                    fontFamily: "'Fraunces', serif",
+                  lineHeight: 1.8,
+
+                  "&, & *": {
+                    wordBreak: "normal !important",
+                    overflowWrap: "break-word !important",
+                    whiteSpace: "pre-wrap !important",
                   },
-                  "& ul, & ol": { pl: 2.5 },
-                  "& li": { mb: 0.5 },
-                  "& a": { color: "#D32F2F" },
+
+                  "& p": {
+                    mb: 2,
+                  },
+
+                  "& a": {
+                    color: "#D32F2F",
+                    textDecoration: "underline",
+                  },
                 }}
                 dangerouslySetInnerHTML={{
-                  __html: service.description || "",
+                  __html: (service.description || "").replace(/&nbsp;|\u00A0/g, ' '),
                 }}
               />
 
@@ -340,47 +341,47 @@ const ServiceDetails: React.FC = () => {
 
               {/* Action Buttons */}
               <Box sx={{ mt: "auto", display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
-                  <Button
-                    component={RouterLink}
-                    to={`/booking/${service.id}`}
-                    variant="contained"
-                    size="large"
-                    startIcon={<Calendar size={18} />}
-                    disabled={service.isAvailable === false}
-                    fullWidth
-                    sx={{
-                      py: 1.5,
-                      backgroundColor: RED_PRIMARY,
-                      color: "#fff",
-                      fontWeight: "bold",
-                      "&:hover": {
-                        backgroundColor: "#B71C1C",
-                      },
-                    }}
-                  >
-                    Book Session Now
-                  </Button>
+                <Button
+                  component={RouterLink}
+                  to={`/booking/${service.id}`}
+                  variant="contained"
+                  size="large"
+                  startIcon={<Calendar size={18} />}
+                  disabled={service.isAvailable === false}
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    backgroundColor: RED_PRIMARY,
+                    color: "#fff",
+                    fontWeight: "bold",
+                    "&:hover": {
+                      backgroundColor: "#B71C1C",
+                    },
+                  }}
+                >
+                  Book Session Now
+                </Button>
 
                 <Button
-                    component={RouterLink}
-                    to="/contact"
-                    variant="outlined"
-                    size="large"
-                    startIcon={<Mail size={18} />}
-                    fullWidth
-                    sx={{
-                      py: 1.5,
-                      color: RED_PRIMARY,
-                      borderColor: RED_PRIMARY,
-                      fontWeight: "bold",
-                      "&:hover": {
-                        borderColor: "#B71C1C",
-                        backgroundColor: RED_LIGHT,
-                      },
-                    }}
-                  >
-                    Contact Us for Inquiry
-                  </Button>
+                  component={RouterLink}
+                  to="/contact"
+                  variant="outlined"
+                  size="large"
+                  startIcon={<Mail size={18} />}
+                  fullWidth
+                  sx={{
+                    py: 1.5,
+                    color: RED_PRIMARY,
+                    borderColor: RED_PRIMARY,
+                    fontWeight: "bold",
+                    "&:hover": {
+                      borderColor: "#B71C1C",
+                      backgroundColor: RED_LIGHT,
+                    },
+                  }}
+                >
+                  Contact Us for Inquiry
+                </Button>
               </Box>
             </Box>
           </Grid>
@@ -500,7 +501,7 @@ const ServiceDetails: React.FC = () => {
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails
-                    sx={{                     borderTop: "1px solid", borderColor: "divider" }}
+                    sx={{ borderTop: "1px solid", borderColor: "divider" }}
                   >
                     <Typography color="text.secondary" sx={{ lineHeight: 1.6 }}>
                       {faqItem.answer}
