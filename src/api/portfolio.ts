@@ -20,7 +20,7 @@ export const portfolioApi = {
     const { data, error } = await supabase
       .from('portfolio_items')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true });
 
     if (error) throw error;
     return (data || []).map(mapPortfolioItem);
@@ -78,6 +78,24 @@ export const portfolioApi = {
       .delete()
       .eq('id', id);
 
+    if (error) throw error;
+    return true;
+  },
+
+  /**
+   * Bulk update sort orders for drag-and-drop reordering
+   */
+  async reorderPortfolioItems(updates: { id: string; sort_order: number }[]) {
+    const results = await Promise.all(
+      updates.map(u =>
+        supabase
+          .from('portfolio_items')
+          .update({ sort_order: u.sort_order })
+          .eq('id', u.id)
+      )
+    );
+
+    const error = results.find(r => r.error)?.error;
     if (error) throw error;
     return true;
   }
