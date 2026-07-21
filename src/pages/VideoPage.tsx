@@ -451,16 +451,15 @@ export default function VideoSection() {
                           {spotlightVideo.title}
                         </Typography>
 
-                        <Typography
-                          variant="body2"
+                        <Box
                           sx={{
                             color: isDark ? "#cbd5e1" : "#475569",
                             lineHeight: 1.7,
                             fontWeight: 300,
+                            fontSize: "0.875rem",
                           }}
-                        >
-                          {spotlightVideo.description}
-                        </Typography>
+                          dangerouslySetInnerHTML={{ __html: spotlightVideo.description }}
+                        />
                       </CardContent>
                     </Card>
                   )}
@@ -820,8 +819,7 @@ export default function VideoSection() {
                           {video.title}
                         </Typography>
 
-                        <Typography
-                          variant="body2"
+                        <Box
                           sx={{
                             color: "text.secondary",
                             fontWeight: 300,
@@ -832,10 +830,10 @@ export default function VideoSection() {
                             WebkitBoxOrient: "vertical",
                             overflow: "hidden",
                             height: "4.5em",
+                            fontSize: "0.875rem",
                           }}
-                        >
-                          {video.description}
-                        </Typography>
+                          dangerouslySetInnerHTML={{ __html: video.description }}
+                        />
 
                         {/* Foot metadata buttons inside core card and action triggers */}
                         <Box
@@ -1109,17 +1107,15 @@ export default function VideoSection() {
                   >
                     {theaterVideo.title}
                   </Typography>
-                  <Typography
-                    variant="body2"
+                  <Box
                     sx={{
                       color: "#cbd5e1",
                       fontWeight: 300,
                       fontSize: "0.82rem",
                       lineHeight: 1.45,
                     }}
-                  >
-                    {theaterVideo.description}
-                  </Typography>
+                    dangerouslySetInnerHTML={{ __html: theaterVideo.description }}
+                  />
                 </Box>
               </Box>
             </motion.div>
