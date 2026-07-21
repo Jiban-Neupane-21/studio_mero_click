@@ -14,7 +14,7 @@ export const servicesApi = {
         service_features (*),
         service_faqs (*)
       `)
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true });
 
     if (error) throw error;
     return data;
@@ -145,6 +145,24 @@ export const servicesApi = {
       .delete()
       .eq('id', id);
 
+    if (error) throw error;
+    return true;
+  },
+
+  /**
+   * Bulk update sort orders for drag-and-drop reordering
+   */
+  async reorderServices(updates: { id: string; sort_order: number }[]) {
+    const results = await Promise.all(
+      updates.map(u =>
+        supabase
+          .from('services')
+          .update({ sort_order: u.sort_order })
+          .eq('id', u.id)
+      )
+    );
+
+    const error = results.find(r => r.error)?.error;
     if (error) throw error;
     return true;
   }
