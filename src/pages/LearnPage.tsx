@@ -510,8 +510,7 @@ export default function LearnFromUs() {
                                                         {video.title}
                                                     </Typography>
 
-                                                    <Typography
-                                                        variant="body2"
+                                                    <Box
                                                         sx={{
                                                             color: 'text.secondary',
                                                             fontWeight: 300,
@@ -523,9 +522,8 @@ export default function LearnFromUs() {
                                                             WebkitBoxOrient: 'vertical',
                                                             overflow: 'hidden'
                                                         }}
-                                                    >
-                                                        {video.description}
-                                                    </Typography>
+                                                        dangerouslySetInnerHTML={{ __html: video.description }}
+                                                    />
 
                                                     {/* Card Footer actions */}
                                                     <Box
@@ -863,9 +861,9 @@ export default function LearnFromUs() {
                                     <Typography variant="h6" sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 650, mb: 1, fontSize: '1.1rem' }}>
                                         {theaterVideo.title}
                                     </Typography>
-                                    <Typography variant="body2" sx={{ color: '#cbd5e1', fontWeight: 300, fontSize: '0.85rem', lineHeight: 1.55 }}>
-                                        {theaterVideo.description}
-                                    </Typography>
+                                    <Box sx={{ color: '#cbd5e1', fontWeight: 300, fontSize: '0.85rem', lineHeight: 1.55 }}
+                                        dangerouslySetInnerHTML={{ __html: theaterVideo.description }}
+                                    />
                                 </Box>
                             </Box>
                         </motion.div>
