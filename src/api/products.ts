@@ -14,7 +14,7 @@ export const productsApi = {
         product_features (*),
         product_faqs (*)
       `)
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true });
 
     if (error) throw error;
     return data;
@@ -145,6 +145,24 @@ export const productsApi = {
       .delete()
       .eq('id', id);
 
+    if (error) throw error;
+    return true;
+  },
+
+  /**
+   * Bulk update sort orders for drag-and-drop reordering
+   */
+  async reorderProducts(updates: { id: string; sort_order: number }[]) {
+    const results = await Promise.all(
+      updates.map(u =>
+        supabase
+          .from('products')
+          .update({ sort_order: u.sort_order })
+          .eq('id', u.id)
+      )
+    );
+
+    const error = results.find(r => r.error)?.error;
     if (error) throw error;
     return true;
   }
