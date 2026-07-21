@@ -78,6 +78,7 @@ export interface Service {
   // Optional
   isFeatured?: boolean;
   isAvailable?: boolean;
+  sortOrder?: number;
   createdAt?: string;
   updatedAt?: string;
 }
