@@ -124,6 +124,7 @@ CREATE TABLE public.services (
     image TEXT NOT NULL,
     is_featured BOOLEAN DEFAULT false,
     is_available BOOLEAN DEFAULT true,
+    sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -287,6 +288,21 @@ $$ language 'plpgsql';
 
 CREATE TRIGGER update_services_updated_at BEFORE UPDATE ON public.services FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+-- RPC function for bulk reordering services
+CREATE OR REPLACE FUNCTION reorder_services(p_updates JSONB)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.services AS s
+    SET sort_order = u.sort_order
+    FROM jsonb_to_recordset(p_updates) AS u(id UUID, sort_order INTEGER)
+    WHERE s.id = u.id;
+END;
+$$;
 
 -- Allow authenticated users to INSERT, UPDATE, and DELETE
 DO $$
