@@ -17,16 +17,35 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   CircularProgress,
   MenuItem
 } from '@mui/material';
-import { Save, UploadCloud, X, Plus, Trash2, Image as ImageIcon, Edit } from 'lucide-react';
+import {
+  Save,
+  UploadCloud,
+  X,
+  Plus,
+  Trash2,
+  Image as ImageIcon,
+  Edit,
+  GripVertical,
+} from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { Product, ProductImage, ProductSpecification, ProductFeature, ProductFAQ } from '../../types/featureProduct.type';
@@ -62,6 +81,41 @@ export default function AdminProducts() {
   const [loadingItems, setLoadingItems] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = items.findIndex((i) => i.id === active.id);
+    const newIndex = items.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = [...items];
+    const [moved] = reordered.splice(oldIndex, 1);
+    reordered.splice(newIndex, 0, moved);
+
+    const updates = reordered.map((item, idx) => ({
+      id: item.id,
+      sort_order: idx,
+    }));
+
+    setItems(reordered);
+    setReordering(true);
+    try {
+      await productsApi.reorderProducts(updates);
+    } catch (err: any) {
+      console.error("Reorder failed:", err);
+      fetchItems();
+    } finally {
+      setReordering(false);
+    }
+  };
 
   const fetchItems = async () => {
     try {
@@ -293,6 +347,59 @@ export default function AdminProducts() {
     }
   };
 
+  function SortableRow({ item, children, isDragging }: { item: any; children: React.ReactNode; isDragging?: boolean }) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging: isSortDragging,
+    } = useSortable({ id: item.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging || isSortDragging ? 0.4 : 1,
+      position: isSortDragging ? 'relative' as const : undefined,
+      zIndex: isSortDragging ? 999 : undefined,
+    };
+
+    return (
+      <Box
+        ref={setNodeRef}
+        style={style}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '40px 80px 1.5fr 1fr 1fr 120px',
+          alignItems: 'center',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          bgcolor: isSortDragging ? 'action.hover' : 'transparent',
+          '&:hover': { bgcolor: 'action.hover' },
+          '&:last-child': { borderBottom: 'none' },
+        }}
+      >
+        <Box
+          {...attributes}
+          {...listeners}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            cursor: 'grab',
+            color: 'text.secondary',
+            '&:hover': { color: 'error.main' },
+            touchAction: 'none',
+            py: 1,
+          }}
+        >
+          <GripVertical size={18} />
+        </Box>
+        {children}
+      </Box>
+    );
+  }
+
   const modules = {
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -336,67 +443,72 @@ export default function AdminProducts() {
 
       {/* Data Table */}
       <Paper sx={{ width: '100%', mb: 4, borderRadius: 3, overflow: 'hidden', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
-        <TableContainer>
-          <Table sx={{ minWidth: 650 }} aria-label="products table">
-            <TableHead sx={{ bgcolor: 'action.hover' }}>
-              <TableRow>
-                <TableCell>Thumbnail</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loadingItems ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
-                    <CircularProgress color="error" />
-                  </TableCell>
-                </TableRow>
-              ) : items.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
-                    No products found. Click "Create New Product" to add one.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                items.map((item) => (
-                  <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell>
-                      {item.thumbnail ? (
-                        <Box
-                          component="img"
-                          src={item.thumbnail}
-                          sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }}
-                        />
-                      ) : (
-                        <Box sx={{ width: 60, height: 60, bgcolor: 'action.hover', borderRadius: 1 }} />
-                      )}
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      <Typography variant="body2" fontWeight="600">{item.title}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" color="text.secondary">{item.category || '-'}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" color="error.main" fontWeight="bold">Rs. {item.new_price}</Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      <IconButton color="primary" onClick={() => handleEdit(item)} sx={{ mr: 1 }}>
-                        <Edit size={18} />
-                      </IconButton>
-                      <IconButton color="error" onClick={() => handleDelete(item.id)}>
-                        <Trash2 size={18} />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {/* Header Row */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: '40px 80px 1.5fr 1fr 1fr 120px',
+            alignItems: 'center',
+            bgcolor: 'grey.50',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Box sx={{ py: 1.5 }} />
+          <Box sx={{ py: 1.5, fontSize: '0.875rem', fontWeight: 600, color: 'text.secondary' }}>Thumbnail</Box>
+          <Box sx={{ py: 1.5, fontSize: '0.875rem', fontWeight: 600, color: 'text.secondary' }}>Title</Box>
+          <Box sx={{ py: 1.5, fontSize: '0.875rem', fontWeight: 600, color: 'text.secondary' }}>Category</Box>
+          <Box sx={{ py: 1.5, fontSize: '0.875rem', fontWeight: 600, color: 'text.secondary' }}>Price</Box>
+          <Box sx={{ py: 1.5, fontSize: '0.875rem', fontWeight: 600, color: 'text.secondary', textAlign: 'right' }}>Actions</Box>
+        </Box>
+
+        {/* Body */}
+        {loadingItems ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+            <CircularProgress color="error" />
+          </Box>
+        ) : items.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 3, color: 'text.secondary' }}>
+            No products found. Click "Create New Product" to add one.
+          </Box>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+              {items.map((item) => (
+                <SortableRow key={item.id} item={item}>
+                  <Box sx={{ px: 1, py: 1.5 }}>
+                    {item.thumbnail ? (
+                      <Box
+                        component="img"
+                        src={item.thumbnail}
+                        sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1, display: 'block' }}
+                      />
+                    ) : (
+                      <Box sx={{ width: 60, height: 60, bgcolor: 'grey.200', borderRadius: 1 }} />
+                    )}
+                  </Box>
+                  <Box sx={{ px: 1, py: 1.5 }}>
+                    <Typography variant="body2" fontWeight="600">{item.title}</Typography>
+                  </Box>
+                  <Box sx={{ px: 1, py: 1.5 }}>
+                    <Typography variant="body2" color="text.secondary">{item.category || '-'}</Typography>
+                  </Box>
+                  <Box sx={{ px: 1, py: 1.5 }}>
+                    <Typography variant="body2" color="error.main" fontWeight="bold">Rs. {item.new_price}</Typography>
+                  </Box>
+                  <Box sx={{ px: 1, py: 1.5, textAlign: 'right' }}>
+                    <IconButton color="primary" onClick={() => handleEdit(item)} sx={{ mr: 0.5 }}>
+                      <Edit size={18} />
+                    </IconButton>
+                    <IconButton color="error" onClick={() => handleDelete(item.id)}>
+                      <Trash2 size={18} />
+                    </IconButton>
+                  </Box>
+                </SortableRow>
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
       </Paper>
 
       <Dialog
