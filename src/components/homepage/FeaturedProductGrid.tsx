@@ -266,7 +266,7 @@ export default function FeaturedProducts() {
     <Box
       component="section"
       sx={{
-        height: { xs: "auto", lg: "calc(100vh - 72px)" },
+        height: { xs: "auto" },
         display: "flex",
         flexDirection: "column",
       }}
@@ -307,7 +307,11 @@ export default function FeaturedProducts() {
               onClick={() => {
                 const prev = Math.max(0, visibleIndex - 1);
                 setVisibleIndex(prev);
-                itemRefs.current[prev]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+                itemRefs.current[prev]?.scrollIntoView({
+                  behavior: "smooth",
+                  inline: "start",
+                  block: "nearest",
+                });
               }}
               size="small"
               sx={{
@@ -379,9 +383,16 @@ export default function FeaturedProducts() {
 
             <IconButton
               onClick={() => {
-                const next = Math.min(allCategories.length - 1, visibleIndex + 1);
+                const next = Math.min(
+                  allCategories.length - 1,
+                  visibleIndex + 1,
+                );
                 setVisibleIndex(next);
-                itemRefs.current[next]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+                itemRefs.current[next]?.scrollIntoView({
+                  behavior: "smooth",
+                  inline: "start",
+                  block: "nearest",
+                });
               }}
               size="small"
               sx={{
@@ -396,7 +407,7 @@ export default function FeaturedProducts() {
         )}
       </Box>
 
-      <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
+      <Box sx={{ flex: 1, minHeight: 0 }}>
         <Grid
           container
           spacing={2.5}
@@ -409,198 +420,200 @@ export default function FeaturedProducts() {
             },
           }}
         >
-        {loading ? (
-          [...Array(5)].map((_, index) => (
-            <Grid
-              key={`skeleton-${index}`}
-              size={{
-                xs: 12,
-                sm: 6,
-                md: 4,
-                lg: 3,
-              }}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <Box sx={{ width: "100%", maxWidth: { xs: 350, sm: 320 }, p: 1 }}>
-                <Skeleton
-                  variant="rectangular"
-                  width="100%"
-                  sx={{ aspectRatio: "4/5", borderRadius: 2 }}
-                  animation="wave"
-                />
-                <Skeleton
-                  variant="text"
-                  sx={{ mt: 2, fontSize: "1.25rem" }}
-                  animation="wave"
-                />
-                <Skeleton variant="text" width="60%" animation="wave" />
-                <Skeleton
-                  variant="rectangular"
-                  width="100%"
-                  height={42}
-                  sx={{ mt: 2, borderRadius: 1 }}
-                  animation="wave"
-                />
-              </Box>
-            </Grid>
-          ))
-        ) : error ? (
-          <Box sx={{ width: "100%", textAlign: "center", mt: 4 }}>
-            <Typography variant="body1" color="error">
-              Error loading featured products.
-            </Typography>
-          </Box>
-        ) : combinedItems.length === 0 ? (
-          <Box sx={{ width: "100%", textAlign: "center" }}>
-            <Typography variant="body1" color="text.secondary">
-              {activeCategory === "All"
-                ? "No featured items available at the moment."
-                : `No featured products in "${activeCategory}".`}
-            </Typography>
-          </Box>
-        ) : (
-          combinedItems.map((item) => (
-            <Grid
-              key={item.id}
-              size={{
-                xs: 12,
-                sm: 6,
-                md: 4,
-                lg: 3,
-                xl: 3,
-              }}
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              {item._restorationId ? (
+          {loading ? (
+            [...Array(5)].map((_, index) => (
+              <Grid
+                key={`skeleton-${index}`}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4,
+                  lg: 3,
+                }}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
                 <Box
-                  sx={{
-                    display: "block",
-                    textDecoration: "none",
-                    width: "100%",
-                    maxWidth: { xs: 350, sm: 320 },
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    bgcolor: "background.paper",
-                    border: "1px solid",
-                    borderColor: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? "rgba(255,255,255,0.12)"
-                        : "rgba(0,0,0,0.08)",
-                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 12px 24px rgba(0,0,0,0.12)",
-                    },
-                  }}
+                  sx={{ width: "100%", maxWidth: { xs: 350, sm: 320 }, p: 1 }}
                 >
-                  <Box sx={{ position: "relative" }}>
-                    {Number(item._restorationDiscountRate) > 0 && (
+                  <Skeleton
+                    variant="rectangular"
+                    width="100%"
+                    sx={{ aspectRatio: "4/5", borderRadius: 2 }}
+                    animation="wave"
+                  />
+                  <Skeleton
+                    variant="text"
+                    sx={{ mt: 2, fontSize: "1.25rem" }}
+                    animation="wave"
+                  />
+                  <Skeleton variant="text" width="60%" animation="wave" />
+                  <Skeleton
+                    variant="rectangular"
+                    width="100%"
+                    height={42}
+                    sx={{ mt: 2, borderRadius: 1 }}
+                    animation="wave"
+                  />
+                </Box>
+              </Grid>
+            ))
+          ) : error ? (
+            <Box sx={{ width: "100%", textAlign: "center", mt: 4 }}>
+              <Typography variant="body1" color="error">
+                Error loading featured products.
+              </Typography>
+            </Box>
+          ) : combinedItems.length === 0 ? (
+            <Box sx={{ width: "100%", textAlign: "center" }}>
+              <Typography variant="body1" color="text.secondary">
+                {activeCategory === "All"
+                  ? "No featured items available at the moment."
+                  : `No featured products in "${activeCategory}".`}
+              </Typography>
+            </Box>
+          ) : (
+            combinedItems.map((item) => (
+              <Grid
+                key={item.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4,
+                  lg: 3,
+                  xl: 3,
+                }}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                {item._restorationId ? (
+                  <Box
+                    sx={{
+                      display: "block",
+                      textDecoration: "none",
+                      width: "100%",
+                      maxWidth: { xs: 350, sm: 320 },
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      bgcolor: "background.paper",
+                      border: "1px solid",
+                      borderColor: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.12)"
+                          : "rgba(0,0,0,0.08)",
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                      "&:hover": {
+                        transform: "translateY(-4px)",
+                        boxShadow: "0 12px 24px rgba(0,0,0,0.12)",
+                      },
+                    }}
+                  >
+                    <Box sx={{ position: "relative" }}>
+                      {Number(item._restorationDiscountRate) > 0 && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            bgcolor: "#E50914",
+                            color: "#fff",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            letterSpacing: 0.5,
+                            px: 1.25,
+                            py: 0.5,
+                            borderTopRightRadius: 6,
+                            borderBottomRightRadius: 6,
+                            zIndex: 10,
+                          }}
+                        >
+                          {item._restorationDiscountRate}% OFF
+                        </Box>
+                      )}
+                      <BeforeAfterSlider
+                        before={item._raw.before_image_url}
+                        after={item._raw.after_image_url}
+                      />
+                    </Box>
+                    <Box sx={{ p: 2, textAlign: "center" }}>
+                      <Typography
+                        sx={{
+                          fontFamily: "'Fraunces', serif",
+                          fontWeight: 600,
+                          fontSize: 16,
+                          color: "text.primary",
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
                       <Box
                         sx={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
+                          display: "flex",
+                          alignItems: "baseline",
+                          justifyContent: "center",
+                          gap: 1,
+                          my: 1.5,
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontFamily: "'IBM Plex Mono', monospace",
+                            fontWeight: 700,
+                            fontSize: 18,
+                            color: "#E50914",
+                          }}
+                        >
+                          Rs.
+                          {Number(item._restorationNewPrice).toLocaleString(
+                            "en-IN",
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontFamily: "'IBM Plex Mono', monospace",
+                            fontSize: 13,
+                            color: "text.secondary",
+                            textDecoration: "line-through",
+                          }}
+                        >
+                          Rs.
+                          {Number(item._restorationOldPrice).toLocaleString(
+                            "en-IN",
+                          )}
+                        </Typography>
+                      </Box>
+                      <Button
+                        fullWidth
+                        onClick={() =>
+                          navigate(`/restorations/${item._restorationId}`)
+                        }
+                        sx={{
+                          mt: 1.5,
                           bgcolor: "#E50914",
                           color: "#fff",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          letterSpacing: 0.5,
-                          px: 1.25,
-                          py: 0.5,
-                          borderTopRightRadius: 6,
-                          borderBottomRightRadius: 6,
-                          zIndex: 10,
+                          textTransform: "none",
+                          fontWeight: 600,
+                          borderRadius: "8px",
+                          py: 1,
+                          "&:hover": { bgcolor: "#b8070f" },
                         }}
                       >
-                        {item._restorationDiscountRate}% OFF
-                      </Box>
-                    )}
-                    <BeforeAfterSlider
-                      before={item._raw.before_image_url}
-                      after={item._raw.after_image_url}
-                    />
-                  </Box>
-                  <Box sx={{ p: 2, textAlign: "center" }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "'Fraunces', serif",
-                        fontWeight: 600,
-                        fontSize: 16,
-                        color: "text.primary",
-                      }}
-                    >
-                      {item.title}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "baseline",
-                        justifyContent: "center",
-                        gap: 1,
-                        my: 1.5,
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontFamily: "'IBM Plex Mono', monospace",
-                          fontWeight: 700,
-                          fontSize: 18,
-                          color: "#E50914",
-                        }}
-                      >
-                        Rs.
-                        {Number(item._restorationNewPrice).toLocaleString(
-                          "en-IN",
-                        )}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          fontFamily: "'IBM Plex Mono', monospace",
-                          fontSize: 13,
-                          color: "text.secondary",
-                          textDecoration: "line-through",
-                        }}
-                      >
-                        Rs.
-                        {Number(item._restorationOldPrice).toLocaleString(
-                          "en-IN",
-                        )}
-                      </Typography>
+                        View More Details
+                      </Button>
                     </Box>
-                    <Button
-                      fullWidth
-                      onClick={() =>
-                        navigate(`/restorations/${item._restorationId}`)
-                      }
-                      sx={{
-                        mt: 1.5,
-                        bgcolor: "#E50914",
-                        color: "#fff",
-                        textTransform: "none",
-                        fontWeight: 600,
-                        borderRadius: "8px",
-                        py: 1,
-                        "&:hover": { bgcolor: "#b8070f" },
-                      }}
-                    >
-                      View More Details
-                    </Button>
                   </Box>
-                </Box>
-              ) : (
-                <ProductCard product={item} onViewDetails={handleCardClick} />
-              )}
-            </Grid>
-          ))
-        )}
-      </Grid>
+                ) : (
+                  <ProductCard product={item} onViewDetails={handleCardClick} />
+                )}
+              </Grid>
+            ))
+          )}
+        </Grid>
       </Box>
     </Box>
   );
