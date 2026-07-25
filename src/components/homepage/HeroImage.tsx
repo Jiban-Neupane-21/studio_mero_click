@@ -52,7 +52,8 @@ const Hero = () => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        py: { xs: 3, md: 4 },
+        py: { md: 4 },
+        pt: { xs: 10, md: 4 },
         boxSizing: "border-box",
       }}
     >
@@ -69,7 +70,12 @@ const Hero = () => {
         onMouseLeave={() => setIsHovered(false)}
       >
         {loading ? (
-          <Skeleton variant="rectangular" width="100%" height="100%" animation="wave" />
+          <Skeleton
+            variant="rectangular"
+            width="100%"
+            height="100%"
+            animation="wave"
+          />
         ) : (
           <>
             <AnimatePresence mode="wait">
@@ -106,7 +112,6 @@ const Hero = () => {
                 </Box>
               </motion.div>
             </AnimatePresence>
-
 
             {showControls && (
               <>
