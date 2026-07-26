@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   Container,
@@ -7,20 +8,27 @@ import {
   Stack,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import {
-  Camera,
-  MessageSquare,
-  CheckCircle,
-  Aperture,
-} from "lucide-react";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import MessageIcon from "@mui/icons-material/Message";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CameraIcon from "@mui/icons-material/Camera";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import { FaTiktok } from "react-icons/fa";
 import { aboutData } from "../data/about.data";
-import ScrollReveal, { StaggerContainer, StaggerItem } from "../components/common/ScrollReveal";
+import ScrollReveal, {
+  StaggerContainer,
+  StaggerItem,
+} from "../components/common/ScrollReveal";
 
 const iconMap: Record<string, React.ReactNode> = {
-  MessageSquare: <MessageSquare size={24} />,
-  Aperture: <Aperture size={24} />,
-  Camera: <Camera size={24} />,
-  CheckCircle: <CheckCircle size={24} />,
+  MessageSquare: <MessageIcon />,
+  Aperture: <CameraIcon />,
+  Camera: <CameraAltIcon />,
+  CheckCircle: <CheckCircleIcon />,
+  Facebook: <FacebookIcon sx={{ fontSize: 16 }} />,
+  Instagram: <InstagramIcon sx={{ fontSize: 16 }} />,
+  Tiktok: <FaTiktok style={{ fontSize: 14 }} />,
 };
 
 export default function AboutPage() {
@@ -32,38 +40,19 @@ export default function AboutPage() {
   const BG_DEFAULT = theme.palette.background.default;
 
   return (
-    <Box sx={{ width: "100%", backgroundColor: BG_DEFAULT, overflowX: "hidden" }}>
-
+    <Box
+      sx={{ width: "100%", backgroundColor: BG_DEFAULT, overflowX: "hidden" }}
+    >
       {/* ─── Hero Header ─── */}
       <ScrollReveal animation="fadeUp">
-        <Container maxWidth="md" sx={{ textAlign: "center", pt: { xs: 8, md: 12 }, pb: { xs: 5, md: 7 } }}>
-          <Box
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1,
-              px: 2,
-              py: 0.5,
-              borderRadius: "100px",
-              backgroundColor: "rgba(229, 9, 20, 0.08)",
-              border: "1px solid rgba(229, 9, 20, 0.25)",
-              mb: 3,
-            }}
-          >
-            <Camera size={14} color={RED} />
-            <Typography
-              variant="caption"
-              sx={{
-                fontFamily: '"Space Grotesk", sans-serif',
-                color: RED,
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.1rem",
-              }}
-            >
-              About Studio
-            </Typography>
-          </Box>
+        <Container
+          maxWidth="md"
+          sx={{
+            textAlign: "center",
+            pt: { xs: 8, md: 12 },
+            pb: { xs: 5, md: 7 },
+          }}
+        >
           <Typography
             variant="h2"
             sx={{
@@ -105,7 +94,10 @@ export default function AboutPage() {
               fontFamily: '"Space Grotesk", sans-serif',
               textTransform: "none",
               letterSpacing: 0.5,
-              "&:hover": { backgroundColor: "#c40812", boxShadow: "0 8px 24px rgba(229,9,20,0.3)" },
+              "&:hover": {
+                backgroundColor: "#c40812",
+                boxShadow: "0 8px 24px rgba(229,9,20,0.3)",
+              },
             }}
           >
             {aboutData.header.buttonText}
@@ -115,13 +107,23 @@ export default function AboutPage() {
 
       {/* ─── Stats ─── */}
       <ScrollReveal animation="fadeUp" delay={0.05}>
-        <Box sx={{ width: "100%", py: { xs: 5, md: 8 }, backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "#F4F5F7" }}>
+        <Box
+          sx={{
+            width: "100%",
+            py: { xs: 5, md: 8 },
+            backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "#F4F5F7",
+          }}
+        >
           <Container maxWidth="lg">
             <StaggerContainer staggerDelay={0.1}>
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+                  gridTemplateColumns: {
+                    xs: "repeat(2, 1fr)",
+                    sm: "repeat(2, 1fr)",
+                    md: "repeat(4, 1fr)",
+                  },
                   gap: { xs: 3, md: 4 },
                 }}
               >
@@ -130,7 +132,11 @@ export default function AboutPage() {
                     <Box sx={{ textAlign: "center" }}>
                       <Typography
                         sx={{
-                          fontSize: { xs: "2.5rem", sm: "3.5rem", md: "4.2rem" },
+                          fontSize: {
+                            xs: "2.5rem",
+                            sm: "3.5rem",
+                            md: "4.2rem",
+                          },
                           fontWeight: 200,
                           lineHeight: 1,
                           color: TEXT_PRIMARY,
@@ -187,7 +193,10 @@ export default function AboutPage() {
 
       {/* ─── Statement ─── */}
       <ScrollReveal animation="fadeUp">
-        <Container maxWidth="md" sx={{ textAlign: "center", pb: { xs: 8, md: 12 } }}>
+        <Container
+          maxWidth="md"
+          sx={{ textAlign: "center", pb: { xs: 8, md: 12 } }}
+        >
           <Typography
             variant="h3"
             sx={{
@@ -227,7 +236,10 @@ export default function AboutPage() {
               fontWeight: 600,
               fontFamily: '"Space Grotesk", sans-serif',
               textTransform: "none",
-              "&:hover": { backgroundColor: "#c40812", boxShadow: "0 8px 24px rgba(229,9,20,0.3)" },
+              "&:hover": {
+                backgroundColor: "#c40812",
+                boxShadow: "0 8px 24px rgba(229,9,20,0.3)",
+              },
             }}
           >
             {aboutData.statement.buttonText}
@@ -237,7 +249,12 @@ export default function AboutPage() {
 
       {/* ─── Differences ─── */}
       <ScrollReveal animation="fadeUp">
-        <Box sx={{ backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "#F4F5F7", py: { xs: 8, md: 12 } }}>
+        <Box
+          sx={{
+            backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "#F4F5F7",
+            py: { xs: 8, md: 12 },
+          }}
+        >
           <Container maxWidth="lg">
             <Typography
               variant="h3"
@@ -263,8 +280,19 @@ export default function AboutPage() {
               {/* Left column */}
               <Stack spacing={3}>
                 {aboutData.differences.paragraphsLeft.map((p, idx) => (
-                  <ScrollReveal key={idx} animation="slideLeft" delay={idx * 0.1}>
-                    <Typography variant="body1" sx={{ color: TEXT_SECONDARY, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } }}>
+                  <ScrollReveal
+                    key={idx}
+                    animation="slideLeft"
+                    delay={idx * 0.1}
+                  >
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: TEXT_SECONDARY,
+                        lineHeight: 1.8,
+                        fontSize: { xs: "0.9rem", md: "0.95rem" },
+                      }}
+                    >
                       {p}
                     </Typography>
                   </ScrollReveal>
@@ -274,7 +302,15 @@ export default function AboutPage() {
               {/* Right column */}
               <Box>
                 <ScrollReveal animation="slideRight">
-                  <Typography variant="body1" sx={{ color: TEXT_SECONDARY, mb: 2, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } }}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: TEXT_SECONDARY,
+                      mb: 2,
+                      lineHeight: 1.8,
+                      fontSize: { xs: "0.9rem", md: "0.95rem" },
+                    }}
+                  >
                     {aboutData.differences.paragraphsRightIntro}
                   </Typography>
                 </ScrollReveal>
@@ -285,7 +321,11 @@ export default function AboutPage() {
                       color: TEXT_SECONDARY,
                       pl: 2,
                       mb: 3,
-                      "& li": { mb: 1.5, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } },
+                      "& li": {
+                        mb: 1.5,
+                        lineHeight: 1.8,
+                        fontSize: { xs: "0.9rem", md: "0.95rem" },
+                      },
                     }}
                   >
                     {aboutData.differences.list.map((item, idx) => (
@@ -294,7 +334,14 @@ export default function AboutPage() {
                   </Box>
                 </ScrollReveal>
                 <ScrollReveal animation="slideRight" delay={0.2}>
-                  <Typography variant="body1" sx={{ color: TEXT_SECONDARY, lineHeight: 1.8, fontSize: { xs: "0.9rem", md: "0.95rem" } }}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: TEXT_SECONDARY,
+                      lineHeight: 1.8,
+                      fontSize: { xs: "0.9rem", md: "0.95rem" },
+                    }}
+                  >
                     {aboutData.differences.paragraphsRightOutro}
                   </Typography>
                 </ScrollReveal>
@@ -320,7 +367,13 @@ export default function AboutPage() {
             >
               {aboutData.teamSection.title}
             </Typography>
-            <Typography variant="body1" sx={{ color: TEXT_SECONDARY, fontSize: { xs: "0.9rem", md: "1rem" } }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: TEXT_SECONDARY,
+                fontSize: { xs: "0.9rem", md: "1rem" },
+              }}
+            >
               {aboutData.teamSection.description}
             </Typography>
           </Box>
@@ -329,7 +382,11 @@ export default function AboutPage() {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+                gridTemplateColumns: {
+                  xs: "repeat(2, 1fr)",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(4, 1fr)",
+                },
                 gap: { xs: 3, md: 4 },
               }}
             >
@@ -341,13 +398,17 @@ export default function AboutPage() {
                       borderRadius: "12px",
                       overflow: "hidden",
                       backgroundColor: "background.paper",
+                      position: "relative",
                       border: "1px solid",
-                      borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                      borderColor: isDark
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.06)",
                       transition: "transform 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": {
-                        transform: "translateY(-6px)",
+                        transform: "translateY(-8px)",
                         boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
                         "& img": { filter: "grayscale(0%)" },
+                        "& .social-icons-overlay": { opacity: 1 },
                       },
                     }}
                   >
@@ -363,11 +424,83 @@ export default function AboutPage() {
                         transition: "filter 0.4s ease",
                       }}
                     />
+                    <Box
+                      className="social-icons-overlay"
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        opacity: 0,
+                        transition: "opacity 0.3s ease",
+                      }}
+                    >
+                      <Stack direction="row" spacing={1.5}>
+                        {Object.entries(member.socials).map(
+                          ([platform, url]) => {
+                            const IconComponent =
+                              iconMap[
+                                platform.charAt(0).toUpperCase() +
+                                  platform.slice(1)
+                              ];
+                            if (!IconComponent) return null;
+                            return (
+                              <Box
+                                key={platform}
+                                component="a"
+                                href={url as string}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: 36,
+                                  height: 36,
+                                  borderRadius: "50%",
+                                  backgroundColor: "rgba(255,255,255,0.15)",
+                                  color: "#fff",
+                                  backdropFilter: "blur(4px)",
+                                  transition: "all 0.2s ease",
+                                  "&:hover": {
+                                    backgroundColor: RED,
+                                    transform: "scale(1.1)",
+                                  },
+                                }}
+                              >
+                                {IconComponent}
+                              </Box>
+                            );
+                          },
+                        )}
+                      </Stack>
+                    </Box>
                     <Box sx={{ p: 2 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600, color: TEXT_PRIMARY, fontSize: "0.95rem" }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 600,
+                          color: TEXT_PRIMARY,
+                          fontSize: "0.95rem",
+                        }}
+                      >
                         {member.name}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: RED, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.7rem" }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: RED,
+                          fontWeight: 500,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          fontSize: "0.7rem",
+                        }}
+                      >
                         {member.role}
                       </Typography>
                     </Box>
@@ -381,7 +514,10 @@ export default function AboutPage() {
 
       {/* ─── Process ─── */}
       <ScrollReveal animation="fadeUp">
-        <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 }, textAlign: "center" }}>
+        <Container
+          maxWidth="lg"
+          sx={{ py: { xs: 8, md: 12 }, textAlign: "center" }}
+        >
           <Typography
             variant="h3"
             sx={{
@@ -412,7 +548,11 @@ export default function AboutPage() {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" },
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  lg: "repeat(4, 1fr)",
+                },
                 gap: { xs: 3, md: 4 },
                 mb: { xs: 6, md: 8 },
               }}
@@ -453,7 +593,11 @@ export default function AboutPage() {
                         zIndex: 2,
                       }}
                     >
-                      {iconMap[process.iconName]}
+                      {iconMap[process.iconName] &&
+                        React.cloneElement(
+                          iconMap[process.iconName] as React.ReactElement,
+                          { sx: { fontSize: 24 } },
+                        )}
                     </Box>
 
                     {/* Card body */}
@@ -463,11 +607,28 @@ export default function AboutPage() {
                         overflow: "hidden",
                         backgroundColor: "background.paper",
                         border: "1px solid",
-                        borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                        borderColor: isDark
+                          ? "rgba(255,255,255,0.06)"
+                          : "rgba(0,0,0,0.06)",
                       }}
                     >
-                      <Box sx={{ bgcolor: isDark ? "rgba(255,255,255,0.04)" : "#1a1a2e", py: 2, px: 2 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#fff", fontFamily: '"Space Grotesk", sans-serif' }}>
+                      <Box
+                        sx={{
+                          bgcolor: isDark
+                            ? "rgba(255,255,255,0.04)"
+                            : "#1a1a2e",
+                          py: 2,
+                          px: 2,
+                        }}
+                      >
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 600,
+                            color: "#fff",
+                            fontFamily: '"Space Grotesk", sans-serif',
+                          }}
+                        >
                           {process.title}
                         </Typography>
                       </Box>
@@ -479,7 +640,11 @@ export default function AboutPage() {
                           m: 0,
                           textAlign: "left",
                           color: TEXT_SECONDARY,
-                          "& li": { mb: 1, lineHeight: 1.7, fontSize: "0.85rem" },
+                          "& li": {
+                            mb: 1,
+                            lineHeight: 1.7,
+                            fontSize: "0.85rem",
+                          },
                         }}
                       >
                         {process.points.map((point, idx) => (
@@ -506,7 +671,10 @@ export default function AboutPage() {
               fontWeight: 600,
               fontFamily: '"Space Grotesk", sans-serif',
               textTransform: "none",
-              "&:hover": { backgroundColor: "#c40812", boxShadow: "0 8px 24px rgba(229,9,20,0.3)" },
+              "&:hover": {
+                backgroundColor: "#c40812",
+                boxShadow: "0 8px 24px rgba(229,9,20,0.3)",
+              },
             }}
           >
             {aboutData.processSection.buttonText}
