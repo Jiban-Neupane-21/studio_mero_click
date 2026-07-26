@@ -1,8 +1,9 @@
 /* eslint-disable */
 import { Box, Container, Typography, Divider } from "@mui/material";
 import { MapPin, PhoneCall, Mail, ExternalLink } from "lucide-react";
-import logo from "/Logo.png"; 
+import logo from "/Logo.png";
 import { socialMediaData } from "../../data/socialmedia";
+import { useNavigate } from "react-router-dom";
 
 interface FooterProps {
   mode: "dark" | "light";
@@ -11,6 +12,7 @@ interface FooterProps {
 
 const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
   const isDark = mode === "dark";
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -18,7 +20,9 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
         py: 8,
         backgroundColor: isDark ? "#111111" : "#f1f5f9",
         color: isDark ? "#cbd5e1" : "#475569",
-        borderTop: isDark ? "1px solid rgba(229, 9, 20, 0.25)" : "1px solid rgba(229, 9, 20, 0.1)",
+        borderTop: isDark
+          ? "1px solid rgba(229, 9, 20, 0.25)"
+          : "1px solid rgba(229, 9, 20, 0.1)",
         transition: "background-color 0.3s, color 0.3s",
       }}
       id="app-footer"
@@ -64,7 +68,10 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                   letterSpacing: "0.05em",
                 }}
               >
-                STUDIOMERO<Box component="span" sx={{ color: "#E50914" }}>CLICK</Box>
+                STUDIOMERO
+                <Box component="span" sx={{ color: "#E50914" }}>
+                  CLICK
+                </Box>
               </Typography>
             </Box>
 
@@ -79,8 +86,8 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
               }}
             >
               Our Kathmandu-based photo studio provides passport validation,
-              professional wedding videos, framing solutions, and portrait
-              work matching strict criteria.
+              professional wedding videos, framing solutions, and portrait work
+              matching strict criteria.
             </Typography>
 
             {/* Location */}
@@ -115,8 +122,12 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                       width: 32,
                       height: 32,
                       borderRadius: "50%",
-                      backgroundColor: isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.04)",
-                      border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
+                      backgroundColor: isDark
+                        ? "rgba(255, 255, 255, 0.04)"
+                        : "rgba(0, 0, 0, 0.04)",
+                      border: isDark
+                        ? "1px solid rgba(255,255,255,0.08)"
+                        : "1px solid rgba(0,0,0,0.08)",
                       color: isDark ? "#cbd5e1" : "#475569",
                       transition: "all 0.3s ease",
                       "&:hover": {
@@ -149,7 +160,7 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
             >
               Quick Navigation Links
             </Typography>
-            
+
             <Box
               sx={{
                 display: "grid",
@@ -160,7 +171,7 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Typography
                   variant="body2"
-                  onClick={() => handleScrollToSection("home")}
+                  onClick={() => navigate("/")}
                   sx={{
                     cursor: "pointer",
                     color: isDark ? "#cbd5e1" : "#475569",
@@ -172,7 +183,7 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                 </Typography>
                 <Typography
                   variant="body2"
-                  onClick={() => handleScrollToSection("visa-guides")}
+                  onClick={() => navigate("/services")}
                   sx={{
                     cursor: "pointer",
                     color: isDark ? "#cbd5e1" : "#475569",
@@ -180,11 +191,11 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                     transition: "color 0.2s",
                   }}
                 >
-                  Online Resizer
+                  Our Services
                 </Typography>
                 <Typography
                   variant="body2"
-                  onClick={() => handleScrollToSection("services")}
+                  onClick={() => navigate("/portfolio")}
                   sx={{
                     cursor: "pointer",
                     color: isDark ? "#cbd5e1" : "#475569",
@@ -192,14 +203,14 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                     transition: "color 0.2s",
                   }}
                 >
-                  Studio Services
+                  Gallery
                 </Typography>
               </Box>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Typography
                   variant="body2"
-                  onClick={() => handleScrollToSection("portfolio")}
+                  onClick={() => navigate("/contact")}
                   sx={{
                     cursor: "pointer",
                     color: isDark ? "#cbd5e1" : "#475569",
@@ -207,11 +218,11 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                     transition: "color 0.2s",
                   }}
                 >
-                  Our Portfolio
+                  Contact
                 </Typography>
                 <Typography
                   variant="body2"
-                  onClick={() => handleScrollToSection("pricing")}
+                  onClick={() => navigate("/about")}
                   sx={{
                     cursor: "pointer",
                     color: isDark ? "#cbd5e1" : "#475569",
@@ -219,11 +230,11 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                     transition: "color 0.2s",
                   }}
                 >
-                  Pricing Sheets
+                  About Us
                 </Typography>
                 <Typography
                   variant="body2"
-                  onClick={() => handleScrollToSection("contact")}
+                  onClick={() => navigate("/videos")}
                   sx={{
                     cursor: "pointer",
                     color: isDark ? "#cbd5e1" : "#475569",
@@ -231,7 +242,7 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                     transition: "color 0.2s",
                   }}
                 >
-                  Contact details
+                  Our Videos
                 </Typography>
               </Box>
             </Box>
@@ -277,7 +288,9 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
             <Divider
               sx={{
                 my: 2.5,
-                borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+                borderColor: isDark
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(0,0,0,0.08)",
               }}
             />
 
