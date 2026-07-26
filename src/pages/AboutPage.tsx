@@ -596,7 +596,7 @@ export default function AboutPage() {
                       {iconMap[process.iconName] &&
                         React.cloneElement(
                           iconMap[process.iconName] as React.ReactElement,
-                          { sx: { fontSize: 24 } },
+                          { sx: { fontSize: 24 } } as any,
                         )}
                     </Box>
 
