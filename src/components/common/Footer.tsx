@@ -85,9 +85,9 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
                 color: isDark ? "#cbd5e1" : "#475569",
               }}
             >
-              Our Kathmandu-based photo studio provides passport validation,
-              professional wedding videos, framing solutions, and portrait work
-              matching strict criteria.
+              A professional photography studio dedicated to capturing your most
+              precious moments. Weddings, Portraits, Events & Commercial
+              Photography.
             </Typography>
 
             {/* Location */}
@@ -332,12 +332,16 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
           </Typography>
 
           <Box
-            onClick={() => handleScrollToSection("visa-guides")}
+            component="a"
+            href="https://jibanneupane.com.np/"
+            target="_blank"
+            rel="noopener noreferrer"
             sx={{
               display: "flex",
               alignItems: "center",
               gap: 0.5,
               cursor: "pointer",
+              textDecoration: "none",
               color: isDark ? "#7c8ba1" : "#64748b",
               transition: "color 0.2s",
               "&:hover": { color: "#E50914" },
@@ -347,7 +351,7 @@ const Footer = ({ mode, handleScrollToSection }: FooterProps) => {
               variant="caption"
               sx={{ fontSize: "0.85rem", color: "inherit" }}
             >
-              Bespoke design for academic, corporate & biometric compliance.
+              Powered by Jiban Neupane
             </Typography>
             <ExternalLink size={10} />
           </Box>
