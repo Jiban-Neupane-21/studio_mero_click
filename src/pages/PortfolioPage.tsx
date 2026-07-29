@@ -27,7 +27,9 @@ export default function PortfolioPage() {
   }, [portfolioItems]);
 
   return (
-    <Box id="page-portfolio" sx={{ minHeight: "80vh", backgroundColor: "background.default" }}>
+    <Box id="page-portfolio" sx={{ minHeight: "80vh", backgroundColor: "background.default",   py: { md: 4 },
+        pt: { xs: 5, md: 4 }, }
+    }>
       <ScrollReveal animation="fadeUp">
         <PortfolioGrid items={items} loading={loadingSkeleton} />
       </ScrollReveal>
