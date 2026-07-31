@@ -13,4 +13,4 @@ deployment:
     # Execute build commands for your React application.
     - /bin/npm install --omit=dev
     - /bin/npm run build
-    - /bin/cp -R build/* $DEPLOYPATH
+    - /bin/cp -R dist/* $DEPLOYPATH
