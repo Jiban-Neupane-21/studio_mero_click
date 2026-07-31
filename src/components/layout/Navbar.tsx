@@ -272,10 +272,10 @@ const Navbar = () => {
                   );
                 })}
 
-                {/* Utility Icons (Theme Toggle & Login) */}
+                {/* Utility Icons (Theme Toggle & Login) — hidden on small devices, moved to drawer */}
                 <Box
                   sx={{
-                    display: "flex",
+                    display: { xs: "none", md: "flex" },
                     alignItems: "center",
                     gap: 1,
                     ml: { xs: 0, sm: 2 },
@@ -786,7 +786,6 @@ const Navbar = () => {
                             );
                           })}
                         </Box>
-
                       </Box>
                     </Menu>
                   </Box>
@@ -898,28 +897,6 @@ const Navbar = () => {
             p: 2,
           }}
         >
-          <Button
-            component={Link}
-            to="/book"
-            variant="contained"
-            sx={{
-              ml: { md: 2, lg: 3 },
-              bgcolor: "#E50914",
-              color: "#ffffff",
-              fontWeight: 700,
-              px: 3,
-              py: 1,
-              borderRadius: "4px",
-              boxShadow: "0 4px 14px rgba(229, 9, 20, 0.4)",
-              "&:hover": {
-                bgcolor: "#B71C1C",
-                boxShadow: "0 6px 20px rgba(229, 9, 20, 0.6)",
-              },
-            }}
-          >
-            Book Studio
-          </Button>
-
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
             Menu
           </Typography>
@@ -1053,6 +1030,32 @@ const Navbar = () => {
               );
             }
           })}
+        </List>
+
+        <Divider />
+
+        {/* Dark Mode toggle — moved from the top utility bar for small devices */}
+        <List>
+          <ListItemButton
+            onClick={toggleMode}
+            sx={{
+              "&:hover": {
+                color: "#E50914",
+                "& .MuiListItemIcon-root": { color: "#E50914" },
+              },
+            }}
+          >
+            <ListItemIcon>
+              {mode === "dark" ? (
+                <Brightness7Icon fontSize="small" />
+              ) : (
+                <Brightness4Icon fontSize="small" />
+              )}
+            </ListItemIcon>
+            <ListItemText
+              primary={mode === "dark" ? "Dark Mode" : "Light Mode"}
+            />
+          </ListItemButton>
         </List>
       </Drawer>
     </>
