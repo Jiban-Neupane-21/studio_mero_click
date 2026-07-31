@@ -48,7 +48,7 @@ const adminLinks = [
   { name: 'Tutorial Videos', path: '/admin/tutorials', icon: PlaySquare },
   { name: 'Learning Articles', path: '/admin/learning', icon: BookOpen },
   { name: 'Image Restoration', path: '/admin/restorations', icon: ImagePlus },
-  { name: 'Offer Ads', path: '/admin/offer-ads', icon: Megaphone },
+  // { name: 'Offer Ads', path: '/admin/offer-ads', icon: Megaphone },
 ];
 
 export default function AdminNavbar() {

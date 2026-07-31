@@ -45,6 +45,7 @@ import { TutorialVideo, LearningArticle } from '../types';
 import { ColorModeContext } from '../App';
 import { useData } from '../context/DataContext';
 import { useMinDelay } from '../hooks/useMinDelay';
+import { extractYoutubeId } from '../utils/youtube';
 import ScrollReveal, { StaggerContainer, StaggerItem } from '../components/common/ScrollReveal';
 
 const extractTiktokId = (url: string) => {
@@ -72,7 +73,7 @@ export default function LearnFromUs() {
     const videos: TutorialVideo[] = useMemo(() => {
         return rawVideos.map((v: any) => ({
             ...v,
-            youtubeId: v.youtube_id || v.youtubeId,
+            youtubeId: extractYoutubeId(v.youtube_id || v.youtubeId) || v.youtube_id || v.youtubeId,
             facebookLink: v.facebook_link || v.facebookLink,
             tiktokLink: v.tiktok_link || v.tiktokLink,
             uploadDate: v.upload_date || v.uploadDate,

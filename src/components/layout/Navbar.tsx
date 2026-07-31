@@ -36,6 +36,10 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import { navItems } from "../../data/navitem";
 import { socialMediaData } from "../../data/socialmedia";
+import {
+  portfolioCategories,
+  getPortfolioCategoryPath,
+} from "../../data/portfolioCategories";
 import { ColorModeContext } from "../../App";
 import { services as menuItems } from "../../data/product.data";
 
@@ -46,7 +50,10 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [servicesMenuAnchorEl, setServicesMenuAnchorEl] =
     useState<null | HTMLElement>(null);
+  const [portfolioMenuAnchorEl, setPortfolioMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [mobilePortfolioOpen, setMobilePortfolioOpen] = useState(false);
   const navigate = useNavigate();
 
   const toggleDrawer = (value: boolean) => () => {
@@ -61,8 +68,20 @@ const Navbar = () => {
     setServicesMenuAnchorEl(null);
   };
 
+  const handlePortfolioMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setPortfolioMenuAnchorEl(event.currentTarget);
+  };
+
+  const handlePortfolioMenuClose = () => {
+    setPortfolioMenuAnchorEl(null);
+  };
+
   const handleMobileServicesClick = () => {
     setMobileServicesOpen(!mobileServicesOpen);
+  };
+
+  const handleMobilePortfolioClick = () => {
+    setMobilePortfolioOpen(!mobilePortfolioOpen);
   };
 
   const getSocialTitle = (name: string) => {
@@ -592,6 +611,185 @@ const Navbar = () => {
                       </Box>
                     </Menu>
                   </Box>
+                ) : item.id === "portfolio" ? (
+                  <Box key={item.id} onMouseLeave={handlePortfolioMenuClose}>
+                    <Typography
+                      component={item.path ? NavLink : "div"}
+                      to={item.path || undefined}
+                      aria-controls="portfolio-menu"
+                      aria-haspopup="true"
+                      onMouseEnter={handlePortfolioMenuOpen}
+                      color="inherit"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        px: 2,
+                        py: 1,
+                        fontWeight: 600,
+                        textTransform: "none",
+                        textDecoration: "none",
+                        color: "text.primary",
+                        "&.active": {
+                          textDecoration: "underline",
+                          textDecorationColor: "#E50914",
+                          textUnderlineOffset: "5px",
+                          textDecorationThickness: "2px",
+                        },
+                        "&:hover": {
+                          color: "#E50914",
+                        },
+                      }}
+                    >
+                      {item.title}
+                      <ArrowDropDownIcon />
+                    </Typography>
+                    <Menu
+                      id="portfolio-menu"
+                      anchorEl={portfolioMenuAnchorEl}
+                      keepMounted
+                      open={Boolean(portfolioMenuAnchorEl)}
+                      onClose={handlePortfolioMenuClose}
+                      slotProps={{
+                        list: {
+                          onMouseLeave: handlePortfolioMenuClose,
+                          sx: { p: 0 },
+                        },
+                        paper: {
+                          elevation: 0,
+                          sx: {
+                            mt: 1.5,
+                            width: 640,
+                            maxWidth: "calc(100vw - 32px)",
+                            borderRadius: "16px",
+                            overflow: "hidden",
+                            bgcolor: "background.paper",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            boxShadow: "0 24px 60px rgba(0,0,0,0.45)",
+                            "@keyframes dropdownFadeIn": {
+                              "0%": {
+                                opacity: 0,
+                                transform: "translateY(-8px)",
+                              },
+                              "100%": {
+                                opacity: 1,
+                                transform: "translateY(0)",
+                              },
+                            },
+                            animation: "dropdownFadeIn 0.25s ease-out forwards",
+                          },
+                        },
+                      }}
+                      transformOrigin={{ horizontal: "left", vertical: "top" }}
+                      anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+                    >
+                      <Box sx={{ p: 3 }}>
+                        {/* Header */}
+                        <Typography
+                          sx={{
+                            fontSize: "0.68rem",
+                            fontWeight: 800,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.18em",
+                            color: "#E50914",
+                            mb: 0.5,
+                          }}
+                        >
+                          Portfolio Categories
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: "0.85rem",
+                            color: "text.secondary",
+                          }}
+                        >
+                          Browse our latest work by category.
+                        </Typography>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        {/* Two-column list */}
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                            columnGap: 4,
+                            rowGap: 1,
+                          }}
+                        >
+                          {portfolioCategories.map((cat) => {
+                            const CatIcon = cat.icon;
+                            return (
+                              <Box
+                                key={cat.id}
+                                component={Link}
+                                to={getPortfolioCategoryPath(cat.id)}
+                                onClick={handlePortfolioMenuClose}
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                  gap: 1.5,
+                                  p: 1,
+                                  borderRadius: "10px",
+                                  textDecoration: "none",
+                                  color: "text.primary",
+                                  transition: "background-color 0.2s ease",
+                                  "&:hover": {
+                                    bgcolor: "action.hover",
+                                    "& .portfolio-title": { color: "#E50914" },
+                                    "& .portfolio-icon": { color: "#E50914" },
+                                  },
+                                }}
+                              >
+                                <Box
+                                  className="portfolio-icon"
+                                  sx={{
+                                    flexShrink: 0,
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: "10px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    bgcolor: "action.selected",
+                                    color: "text.secondary",
+                                    transition: "color 0.2s ease",
+                                  }}
+                                >
+                                  {CatIcon && <CatIcon fontSize="small" />}
+                                </Box>
+                                <Box>
+                                  <Typography
+                                    className="portfolio-title"
+                                    sx={{
+                                      fontWeight: 700,
+                                      fontSize: "0.88rem",
+                                      color: "text.primary",
+                                      lineHeight: 1.3,
+                                      transition: "color 0.2s ease",
+                                    }}
+                                  >
+                                    {cat.label}
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "0.76rem",
+                                      color: "text.secondary",
+                                      lineHeight: 1.35,
+                                    }}
+                                  >
+                                    {cat.description}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            );
+                          })}
+                        </Box>
+
+                      </Box>
+                    </Menu>
+                  </Box>
                 ) : (
                   <Box key={item.id}>
                     <Typography
@@ -778,6 +976,52 @@ const Navbar = () => {
                               </ListItemIcon>
                             )}
                             <ListItemText primary={item.title} />
+                          </ListItemButton>
+                        );
+                      })}
+                    </List>
+                  </Collapse>
+                </div>
+              );
+            } else if (item.id === "portfolio") {
+              return (
+                <div key={item.id}>
+                  <ListItemButton onClick={handleMobilePortfolioClick}>
+                    {Icon && (
+                      <ListItemIcon>
+                        <Icon />
+                      </ListItemIcon>
+                    )}
+                    <ListItemText primary={item.title} />
+                    {mobilePortfolioOpen ? <ExpandLess /> : <ExpandMore />}
+                  </ListItemButton>
+                  <Collapse
+                    in={mobilePortfolioOpen}
+                    timeout="auto"
+                    unmountOnExit
+                  >
+                    <List component="div" disablePadding>
+                      {portfolioCategories.map((cat) => {
+                        const CatIcon = cat.icon;
+                        return (
+                          <ListItemButton
+                            key={cat.id}
+                            component={NavLink}
+                            to={getPortfolioCategoryPath(cat.id)}
+                            onClick={toggleDrawer(false)}
+                            sx={{
+                              pl: 4,
+                              "&.active": {
+                                color: "#E50914",
+                              },
+                            }}
+                          >
+                            {CatIcon && (
+                              <ListItemIcon sx={{ minWidth: "40px" }}>
+                                <CatIcon fontSize="small" />
+                              </ListItemIcon>
+                            )}
+                            <ListItemText primary={cat.label} />
                           </ListItemButton>
                         );
                       })}

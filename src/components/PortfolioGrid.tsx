@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { PortfolioItem } from "../types";
 import { useNavigate } from "react-router-dom";
+import { portfolioCategories } from "../data/portfolioCategories";
 
 export default function PortfolioGrid({
   items,
@@ -79,19 +80,6 @@ export default function PortfolioGrid({
   }, [activeTab]);
 
   const isDark = theme.palette.mode === "dark";
-
-  const categories = [
-    { id: "all", label: "All Projects" },
-    { id: "Portraits", label: "Portraits" },
-    { id: "Wedding", label: "Wedding" },
-    { id: "Maternity", label: "Maternity" },
-    { id: "Fashion", label: "Fashion" },
-    { id: "Graduation", label: "Graduation" },
-    { id: "Cakesmash", label: "Cake Smash" },
-    { id: "Events", label: "Events" },
-    { id: "Newborn", label: "New Born" },
-    { id: "Product", label: "Product" },
-  ];
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     if (newValue === "all") {
@@ -202,7 +190,7 @@ export default function PortfolioGrid({
               },
             }}
           >
-            {categories.map((cat) => (
+            {portfolioCategories.map((cat) => (
               <Tab
                 key={cat.id}
                 label={cat.label}
