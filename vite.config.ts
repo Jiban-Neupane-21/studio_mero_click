@@ -1,16 +1,14 @@
-import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import { defineConfig } from "vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    babel({ presets: [reactCompilerPreset()] })
-  ],
+  base: "./", // <-- YO LINE YAHA (plugins bhanda bahira) RAKHNUHOS
+  plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
   server: {
-    host: '0.0.0.0',
+    host: "0.0.0.0",
     port: 3000,
-    allowedHosts: true
-  }
-})
+    allowedHosts: true,
+  },
+});
