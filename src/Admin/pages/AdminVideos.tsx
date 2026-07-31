@@ -30,6 +30,7 @@ import 'react-quill-new/dist/quill.snow.css';
 import { VideoItem } from '../../types';
 import { videoItemsApi } from '../../api/videoItems';
 import { uploadImage } from '../../utils/uploadImage';
+import { extractYoutubeId } from '../../utils/youtube';
 
 export default function AdminVideos() {
   const [items, setItems] = useState<VideoItem[]>([]);
@@ -166,11 +167,13 @@ export default function AdminVideos() {
         thumbnailUrl = await uploadImage(thumbnailFile);
       }
 
+      const youtubeId = extractYoutubeId(formData.youtube_id || '') || '';
+
       const payload = {
         title: formData.title,
         category: formData.category,
         description: formData.description,
-        youtube_id: formData.youtube_id || '',
+        youtube_id: youtubeId,
         facebook_link: formData.facebook_link || '',
         tiktok_link: formData.tiktok_link || '',
         duration: formData.duration || '',
@@ -353,8 +356,14 @@ export default function AdminVideos() {
                         value={formData.youtube_id}
                         onChange={handleChange}
                         color="error"
-                        placeholder="e.g. dQw4w9WgXcQ"
-                        helperText="Only the ID part of the URL (after v=)"
+                        placeholder="e.g. dQw4w9WgXcQ or https://youtu.be/..."
+                        helperText={
+                          formData.youtube_id
+                            ? (extractYoutubeId(formData.youtube_id)
+                              ? `Will save ID: ${extractYoutubeId(formData.youtube_id)}`
+                              : "Couldn't detect a YouTube video ID — please check the link")
+                            : "Paste a full link (watch?v=... or youtu.be/...) or just the ID"
+                        }
                       />
                     </Grid>
                   </Grid>
