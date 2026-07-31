@@ -19,12 +19,6 @@ export interface PortfolioCategoryNavItem {
 
 export const portfolioCategories: PortfolioCategoryNavItem[] = [
   {
-    id: "all",
-    label: "All Projects",
-    icon: PhotoLibraryIcon,
-    description: "Explore our complete portfolio across every category.",
-  },
-  {
     id: "Portraits",
     label: "Portraits",
     icon: PortraitIcon,
@@ -77,6 +71,12 @@ export const portfolioCategories: PortfolioCategoryNavItem[] = [
     label: "Product",
     icon: ShoppingBagIcon,
     description: "Clean commercial and ecommerce product shots.",
+  },
+  {
+    id: "all",
+    label: "View All",
+    icon: PhotoLibraryIcon,
+    description: "Explore our complete portfolio across every category.",
   },
 ];
 
