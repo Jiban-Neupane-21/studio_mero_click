@@ -1,9 +1,10 @@
-# Correct MIME type for JavaScript & ES Modules
+# Force correct MIME types for JS and Modules
 <IfModule mod_mime.c>
-  AddType application/javascript .js .mjs
+  AddType application/javascript js mjs ts tsx
+  AddType text/css css
 </IfModule>
 
-# React Single Page App Routing
+# SPA Routing for React
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
