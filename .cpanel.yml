@@ -11,6 +11,6 @@ deployment:
     - export DEPLOYPATH=/home/tarpainf/studiomeroclick.com.np/
 
     # Execute build commands for your React application.
-    - /bin/npm install --omit=dev
+    - /bin/npm install 
     - /bin/npm run build
     - /bin/cp -R dist/* $DEPLOYPATH
