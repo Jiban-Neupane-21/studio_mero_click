@@ -21,7 +21,7 @@ jobs:
             # Set Node.js binary path (Update 'alt-nodejs18' to your server's Node version if needed)
             export PATH=/opt/alt/alt-nodejs18/root/usr/bin:$PATH
 
-            cd /home/tarpainf/repositories/studio_mero_click
+            cd /home/tarpainf/studiomeroclick.com.np
 
             git pull origin main
 
