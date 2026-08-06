@@ -10,20 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build application
-        run: npm run build
-
       - name: Deploy through SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -32,15 +18,16 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
+            # Set Node.js binary path (Update 'alt-nodejs18' to your server's Node version if needed)
             export PATH=/opt/alt/alt-nodejs18/root/usr/bin:$PATH
 
             cd /home/tarpainf/repositories/studio_mero_click
 
             git pull origin main
 
-            /opt/alt/alt-nodejs18/root/usr/bin/npm install
-            /opt/alt/alt-nodejs18/root/usr/bin/npm run build
+            npm install
+            npm run build
 
-            # Restart the cPanel Node.js application (Passenger)
+            # Restart the cPanel Node.js application (Phusion Passenger)
             mkdir -p tmp
             touch tmp/restart.txt
