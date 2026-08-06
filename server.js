@@ -46,8 +46,8 @@ console.log("Index Path:", indexPath);
 
 app.use(express.static(distPath));
 
-// React Routes
-app.get("*", (req, res, next) => {
+// React SPA fallback
+app.use((req, res, next) => {
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error("sendFile Error:", err);
