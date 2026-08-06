@@ -28,9 +28,21 @@ jobs:
             npm install
             npm run build
 
-            # Copy production build files into your live domain folder
-            rsync -avz --delete dist/ /home/tarpainf/studiomeroclick.com.np/
+            # Copy production build files and backend files into your live domain folder
+            rsync -avz --delete \
+              --exclude '.git' \
+              --exclude '.github' \
+              --exclude 'src' \
+              --exclude 'public' \
+              --exclude 'node_modules' \
+              --exclude '.env*' \
+              --exclude '*.local' \
+              ./ /home/tarpainf/studiomeroclick.com.np/
 
-            # Force restart server
+            # Install production dependencies on the live folder
+            cd /home/tarpainf/studiomeroclick.com.np
+            npm install --omit=dev
+
+            # Force restart Passenger Node.js server
             mkdir -p /home/tarpainf/studiomeroclick.com.np/tmp
             touch /home/tarpainf/studiomeroclick.com.np/tmp/restart.txt
