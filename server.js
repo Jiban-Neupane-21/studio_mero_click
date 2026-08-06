@@ -35,7 +35,7 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.resolve(__dirname, "dist")));
 
 // All other GET requests not handled by API routes should serve the frontend's index.html
-app.get("*", (req, res) => {
+app.get(/.*/, (req, res) => {
   res.sendFile(path.resolve(__dirname, "dist", "index.html"));
 });
 
