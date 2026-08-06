@@ -18,16 +18,19 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            # Set Node.js binary path (Update 'alt-nodejs18' to your server's Node version if needed)
             export PATH=/opt/alt/alt-nodejs18/root/usr/bin:$PATH
 
-            cd /home/tarpainf/studiomeroclick.com.np
+            cd /home/tarpainf/repositories/studio_mero_click
 
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
 
             npm install
             npm run build
 
-            # Restart the cPanel Node.js application (Phusion Passenger)
-            mkdir -p tmp
-            touch tmp/restart.txt
+            # Copy production build files into your live domain folder
+            cp -r dist/* /home/tarpainf/studiomeroclick.com.np/
+
+            # Force restart server
+            mkdir -p /home/tarpainf/studiomeroclick.com.np/tmp
+            touch /home/tarpainf/studiomeroclick.com.np/tmp/restart.txt
