@@ -7,9 +7,9 @@ import { fileURLToPath } from "url";
 dotenv.config({ path: "./.env.local" });
 
 // API Routes
-import sendBookingEmailHandler from "./api/send-booking-email.js";
-import sendContactEmailHandler from "./api/send-contact-email.js";
-import sendClaimEmailHandler from "./api/send-claim-email.js";
+// import sendBookingEmailHandler from "./api/send-booking-email.js";
+// import sendContactEmailHandler from "./api/send-contact-email.js";
+// import sendClaimEmailHandler from "./api/send-claim-email.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,9 +31,9 @@ app.use((req, res, next) => {
 // ---------------------------
 // API Routes
 // ---------------------------
-app.post("/api/send-booking-email", sendBookingEmailHandler);
-app.post("/api/send-contact-email", sendContactEmailHandler);
-app.post("/api/send-claim-email", sendClaimEmailHandler);
+// app.post("/api/send-booking-email", sendBookingEmailHandler);
+// app.post("/api/send-contact-email", sendContactEmailHandler);
+// app.post("/api/send-claim-email", sendClaimEmailHandler);
 
 // ---------------------------
 // Static React Build
@@ -70,6 +70,10 @@ app.use((err, req, res, next) => {
 // ---------------------------
 // Start Server
 // ---------------------------
-app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+server.on("error", (err) => {
+  console.error("Server error:", err);
 });
