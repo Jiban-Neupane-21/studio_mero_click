@@ -28,7 +28,6 @@ import {
   Clock,
   Gift,
 } from "lucide-react";
-import emailjs from "@emailjs/browser";
 import { OfferAd } from "../types";
 import { useData } from "../context/DataContext";
 
@@ -120,31 +119,26 @@ export default function ClaimOffer() {
         console.error("Error saving claim locally:", e);
       }
 
-      // Send email to admin
-      emailjs
-        .send(
-          "service_01581tk", // Your EmailJS Service ID
-          "template_5vabe8", // Your EmailJS Template ID for offer claims
-          {
-            client_name: name,
-            client_email: email,
-            client_phone: phone,
-            package_name: `${selectedOffer.title} (${selectedOffer.discount})`,
-            booking_date: new Date(preferredDate).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            }),
-            notes: `[Offer Claim] ${notes || "No special requests."}`,
-            claim_code: code,
-            to_email: "neupanejiban73@gmail.com",
-            reply_to: "neupanejiban73@gmail.com",
-          },
-          "cDNJDxxr2a8Yz4PF8", // Your EmailJS Public Key
-        )
-        .catch((err) =>
-          console.error("Failed to send admin notification email:", err),
-        );
+      // Send email to admin via backend API
+      fetch("/api/send-claim-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_name: name,
+          client_email: email,
+          client_phone: phone,
+          package_name: `${selectedOffer.title} (${selectedOffer.discount})`,
+          booking_date: new Date(preferredDate).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          }),
+          notes: `[Offer Claim] ${notes || "No special requests."}`,
+          claim_code: code,
+        }),
+      }).catch((err) =>
+        console.error("Failed to send admin notification email:", err),
+      );
 
       setClaimCode(code);
       setSubmitting(false);

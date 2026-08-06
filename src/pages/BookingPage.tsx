@@ -12,12 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import { ArrowLeft, CheckCircle } from "lucide-react";
-import emailjs from "@emailjs/browser";
 import { useData } from "../context/DataContext";
-
-const EMAILJS_SERVICE_ID = "service_wt15ou7";
-const EMAILJS_TEMPLATE_ID = "template_sfe4x7z";
-const EMAILJS_PUBLIC_KEY = "cDNJDxxr2a8Yz4PF8";
 
 interface ServiceItem {
   id: string;
@@ -79,31 +74,41 @@ const BookingPage = () => {
     setError("");
 
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
+      const response = await fetch("/api/send-booking-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           client_name: name,
           client_email: email,
           client_phone: phone,
           service_title: service.title,
           service_category: service.category || "",
           service_subcategory: subCategoryName,
-          service_price: service.new_price ? `Rs. ${service.new_price}` : "",
+          service_price: service.new_price
+            ? `Rs. ${service.new_price}`
+            : "Not specified",
           booking_date: new Date(preferredDate).toLocaleDateString("en-US", {
             month: "long",
             day: "numeric",
             year: "numeric",
           }),
           notes: notes || "No special requests.",
-          to_email: "neupanejiban73@gmail.com",
-          reply_to: email,
-        },
-        EMAILJS_PUBLIC_KEY,
-      );
-      setSuccess(true);
-    } catch {
-      setError("Failed to send booking. Please try again later.");
+        }),
+      });
+
+      if (response.ok) {
+        setSuccess(true);
+      } else {
+        const errorData = await response.json();
+        setError(
+          errorData.error || "Failed to send booking. Please try again later.",
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An unexpected error occurred. Please try again later.");
     } finally {
       setSubmitting(false);
     }
