@@ -43,13 +43,12 @@ export const aboutData = {
     description: "The creative minds behind the lens.",
     members: [
       {
-        name: "Alex Reynolds",
-        role: "Pro Photographer",
-        image:
-          "https://images.unsplash.com/photo-1552058544-f2b08422138a?auto=format&fit=crop&w=800&q=80",
+        name: "Sandesh Neupane",
+        role: "Assistaant of Studio",
+        image: "../../public/About/Sandesh.jpeg",
         socials: {
           facebook: "#",
-          instagram: "#",
+          instagram: "https://www.instagram.com/s_an_deshhh/",
           tiktok: "#",
         },
       },
