@@ -29,7 +29,7 @@ jobs:
             npm run build
 
             # Copy production build files into your live domain folder
-            cp -r dist/* /home/tarpainf/studiomeroclick.com.np/
+            rsync -avz --delete dist/ /home/tarpainf/studiomeroclick.com.np/
 
             # Force restart server
             mkdir -p /home/tarpainf/studiomeroclick.com.np/tmp
