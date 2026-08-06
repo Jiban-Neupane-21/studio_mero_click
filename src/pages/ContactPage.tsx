@@ -28,6 +28,8 @@ export default function ContactSection() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -57,13 +59,40 @@ export default function ContactSection() {
     }
 
     setErrors({});
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setName("");
-      setEmail("");
-      setMessage("");
-    }, 5000);
+    setIsSending(true);
+    setSubmitError(false);
+
+    fetch("/api/send-contact-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        subject: "Website Contact Inquiry",
+        message
+      })
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to send");
+        setIsSubmitted(true);
+        setIsSending(false);
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setName("");
+          setEmail("");
+          setMessage("");
+        }, 5000);
+      })
+      .catch((err) => {
+        console.error(err);
+        setSubmitError(true);
+        setIsSending(false);
+        setIsSubmitted(true); // show the alert block but as error
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setSubmitError(false);
+        }, 5000);
+      });
   };
 
   const mapCoordinates = "27.6915° N, 85.3422° E";
@@ -319,22 +348,36 @@ export default function ContactSection() {
               </Typography>
 
               {isSubmitted ? (
-                <Alert
-                  severity="error"
-                  sx={{
-                    backgroundColor: "rgba(229, 9, 20, 0.08)",
-                    color: "#E50914",
-                    border: "1px solid rgba(229, 9, 20, 0.2)",
-                    ".MuiAlert-icon": { color: "#E50914" },
-                  }}
-                >
-                  We&apos;re currently unable to send your message through this form.
-                  Please contact us directly:
-                  <br />
-                  Email: studiomeroclick@gmail.com
-                  <br />
-                  Phone: +977-9823367428
-                </Alert>
+                submitError ? (
+                  <Alert
+                    severity="error"
+                    sx={{
+                      backgroundColor: "rgba(229, 9, 20, 0.08)",
+                      color: "#E50914",
+                      border: "1px solid rgba(229, 9, 20, 0.2)",
+                      ".MuiAlert-icon": { color: "#E50914" },
+                    }}
+                  >
+                    We&apos;re currently unable to send your message through this form.
+                    Please contact us directly:
+                    <br />
+                    Email: studiomeroclick@gmail.com
+                    <br />
+                    Phone: +977-9823367428
+                  </Alert>
+                ) : (
+                  <Alert
+                    severity="success"
+                    sx={{
+                      backgroundColor: "rgba(46, 125, 50, 0.08)",
+                      color: "#2e7d32",
+                      border: "1px solid rgba(46, 125, 50, 0.2)",
+                      ".MuiAlert-icon": { color: "#2e7d32" },
+                    }}
+                  >
+                    Your message has been sent successfully! We will get back to you soon.
+                  </Alert>
+                )
               ) : (
                 <form onSubmit={handleSubmit}>
                   <Stack spacing={2.5}>
@@ -389,6 +432,7 @@ export default function ContactSection() {
                       type="submit"
                       variant="contained"
                       endIcon={<Send size={14} />}
+                      disabled={isSending}
                       sx={{
                         backgroundColor: "#E50914",
                         color: "#ffffff",
@@ -403,9 +447,13 @@ export default function ContactSection() {
                           backgroundColor: "#c40812",
                           boxShadow: "0 8px 24px rgba(229,9,20,0.35)",
                         },
+                        "&.Mui-disabled": {
+                          backgroundColor: "rgba(229,9,20,0.5)",
+                          color: "#ffffff"
+                        }
                       }}
                     >
-                      Send Message
+                      {isSending ? "Sending..." : "Send Message"}
                     </Button>
                   </Stack>
                 </form>

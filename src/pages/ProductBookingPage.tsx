@@ -12,12 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import { ArrowLeft, CheckCircle } from "lucide-react";
-import emailjs from "@emailjs/browser";
 import { useData } from "../context/DataContext";
-
-const EMAILJS_SERVICE_ID = "service_wt15ou7";
-const EMAILJS_TEMPLATE_ID = "template_sfe4x7z";
-const EMAILJS_PUBLIC_KEY = "cDNJDxxr2a8Yz4PF8";
 
 const ProductBookingPage = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -61,26 +56,28 @@ const ProductBookingPage = () => {
     setError("");
 
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
+      const response = await fetch("/api/send-booking-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           client_name: name,
           client_email: email,
           client_phone: phone,
-          product_title: product.title,
-          product_price: product.new_price ? `Rs. ${product.new_price}` : "",
+          service_title: product.title,
+          service_price: product.new_price ? `Rs. ${product.new_price}` : "",
           booking_date: new Date(preferredDate).toLocaleDateString("en-US", {
             month: "long",
             day: "numeric",
             year: "numeric",
           }),
           notes: `[Product Booking] ${notes || "No special requests."}`,
-          to_email: "neupanejiban73@gmail.com",
-          reply_to: email,
-        },
-        EMAILJS_PUBLIC_KEY,
-      );
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to send booking request.");
+      }
+      
       setSuccess(true);
     } catch {
       setError("Failed to send booking. Please try again later.");
