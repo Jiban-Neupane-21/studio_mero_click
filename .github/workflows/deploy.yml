@@ -32,9 +32,18 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
+            export PATH=/opt/alt/alt-nodejs18/root/usr/bin:$PATH
+
             cd /home/tarpainf/repositories/studio_mero_click
+
             git pull origin main
-            npm install
-            npm run build
+
+            /opt/alt/alt-nodejs18/root/usr/bin/npm install
+            /opt/alt/alt-nodejs18/root/usr/bin/npm run build
+
+            mkdir -p /home/tarpainf/studiomeroclick.com.np
+
             rm -rf /home/tarpainf/studiomeroclick.com.np/*
-            cp -r dist/* /home/tarpainf/studiomeroclick.com.np/
+            cp -rf dist/* /home/tarpainf/studiomeroclick.com.np/
+
+            ls -la /home/tarpainf/studiomeroclick.com.np
