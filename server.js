@@ -3,49 +3,73 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Load environment variables from .env.local
+// Load environment variables
 dotenv.config({ path: "./.env.local" });
 
-// Import your API route handler
+// API Routes
 import sendBookingEmailHandler from "./api/send-booking-email.js";
 import sendContactEmailHandler from "./api/send-contact-email.js";
 import sendClaimEmailHandler from "./api/send-claim-email.js";
 
 const app = express();
-const PORT = process.env.PORT || 3001; // Use a different port than Vite's dev server (3000)
+const PORT = process.env.PORT || 3001;
 
-// Middleware to parse JSON request bodies
-app.use(express.json());
-
-// API route for sending booking emails
-app.post("/api/send-booking-email", sendBookingEmailHandler);
-
-// API route for sending contact form emails
-app.post("/api/send-contact-email", sendContactEmailHandler);
-
-// API route for sending offer claim emails
-app.post("/api/send-claim-email", sendClaimEmailHandler);
-
-// --- Production-specific setup (serving Vite build) ---
-// Get __dirname equivalent in ES Modules
+// ES Module __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static files from the Vite build output directory
-app.use(express.static(path.resolve(__dirname, "dist")));
+// ---------------------------
+// Middleware
+// ---------------------------
+app.use(express.json());
 
-// All other GET requests not handled by API routes should serve the frontend's index.html
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
+  next();
 });
 
-// Start the server
+// ---------------------------
+// API Routes
+// ---------------------------
+app.post("/api/send-booking-email", sendBookingEmailHandler);
+app.post("/api/send-contact-email", sendContactEmailHandler);
+app.post("/api/send-claim-email", sendClaimEmailHandler);
+
+// ---------------------------
+// Static React Build
+// ---------------------------
+const distPath = path.join(__dirname, "dist");
+const indexPath = path.join(distPath, "index.html");
+
+console.log("Dist Path:", distPath);
+console.log("Index Path:", indexPath);
+
+app.use(express.static(distPath));
+
+// React Routes
+app.get("*", (req, res, next) => {
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error("sendFile Error:", err);
+      next(err);
+    }
+  });
+});
+
+// ---------------------------
+// Global Error Handler
+// ---------------------------
+app.use((err, req, res, next) => {
+  console.error("======== EXPRESS ERROR ========");
+  console.error(err.stack || err);
+  console.error("===============================");
+
+  res.status(500).send(err.stack || err.message || "Internal Server Error");
+});
+
+// ---------------------------
+// Start Server
+// ---------------------------
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  if (process.env.NODE_ENV === "development") {
-    console.log(`API routes available at http://localhost:${PORT}/api/...`);
-    console.log(
-      `Ensure your Vite dev server is configured to proxy to this port.`,
-    );
-  }
 });
