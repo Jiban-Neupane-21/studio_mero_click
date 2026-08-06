@@ -56,8 +56,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            export PATH=/opt/alt/alt-nodejs18/root/usr/bin:$PATH
-            
             cd /home/tarpainf/studiomeroclick.com.np/
             
             # Unzip the production bundle (overwrite existing files)
