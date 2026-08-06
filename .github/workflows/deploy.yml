@@ -6,11 +6,49 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy through SSH
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies and Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Package Production Files
+        run: |
+          mkdir release
+          # Copy only the files needed for production
+          cp -r dist release/
+          cp -r api release/
+          cp server.js release/
+          cp app.js release/
+          cp package.json release/
+          cp package-lock.json release/
+          
+          # Create a zip archive
+          cd release
+          zip -r ../deploy.zip .
+
+      - name: Upload to cPanel
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          source: "deploy.zip"
+          target: "/home/tarpainf/studiomeroclick.com.np/"
+
+      - name: Extract and Restart Server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -19,30 +57,21 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             export PATH=/opt/alt/alt-nodejs18/root/usr/bin:$PATH
-
-            cd /home/tarpainf/repositories/studio_mero_click
-
-            git fetch origin
-            git reset --hard origin/main
-
-            npm install
-            npm run build
-
-            # Copy production build files and backend files into your live domain folder
-            rsync -avz --delete \
-              --exclude '.git' \
-              --exclude '.github' \
-              --exclude 'src' \
-              --exclude 'public' \
-              --exclude 'node_modules' \
-              --exclude '.env*' \
-              --exclude '*.local' \
-              ./ /home/tarpainf/studiomeroclick.com.np/
-
-            # Install production dependencies on the live folder
-            cd /home/tarpainf/studiomeroclick.com.np
+            
+            cd /home/tarpainf/studiomeroclick.com.np/
+            
+            # Unzip the production bundle (overwrite existing files)
+            unzip -o deploy.zip
+            
+            # Clean up the zip file
+            rm deploy.zip
+            
+            # Remove any rogue development index.html file to prevent Apache from serving it
+            rm -f index.html
+            
+            # Install production dependencies
             npm install --omit=dev
-
+            
             # Force restart Passenger Node.js server
-            mkdir -p /home/tarpainf/studiomeroclick.com.np/tmp
-            touch /home/tarpainf/studiomeroclick.com.np/tmp/restart.txt
+            mkdir -p tmp
+            touch tmp/restart.txt
