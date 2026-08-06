@@ -27,19 +27,17 @@ app.post("/api/send-contact-email", sendContactEmailHandler);
 app.post("/api/send-claim-email", sendClaimEmailHandler);
 
 // --- Production-specific setup (serving Vite build) ---
-if (process.env.NODE_ENV === "production") {
-  // Get __dirname equivalent in ES Modules
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+// Get __dirname equivalent in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  // Serve static files from the Vite build output directory
-  app.use(express.static(path.resolve(__dirname, "dist")));
+// Serve static files from the Vite build output directory
+app.use(express.static(path.resolve(__dirname, "dist")));
 
-  // All other GET requests not handled by API routes should serve the frontend's index.html
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "dist", "index.html"));
-  });
-}
+// All other GET requests not handled by API routes should serve the frontend's index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+});
 
 // Start the server
 app.listen(PORT, () => {
