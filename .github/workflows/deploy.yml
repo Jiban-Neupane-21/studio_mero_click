@@ -66,6 +66,9 @@ jobs:
             # Clean up the zip file
             rm deploy.zip
             
+            # Ensure .htaccess exists so cPanel Passenger can modify it
+            touch .htaccess
+            
             # Remove any rogue development index.html file to prevent Apache from serving it
             rm -f index.html
             
