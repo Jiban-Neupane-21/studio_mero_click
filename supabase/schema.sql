@@ -95,6 +95,7 @@ CREATE TABLE public.portfolio_items (
     author TEXT,
     description TEXT,
     secondary_images JSONB DEFAULT '[]'::jsonb, -- Array of strings
+    sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -174,6 +175,7 @@ CREATE TABLE public.products (
     category TEXT NOT NULL DEFAULT '',
     is_featured BOOLEAN DEFAULT false,
     is_available BOOLEAN DEFAULT true,
+    sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -320,3 +322,19 @@ BEGIN
     END LOOP;
 END;
 $$;
+
+-- ==========================================
+-- 4. SEED DATA
+-- ==========================================
+
+INSERT INTO public.service_categories (name, slug, description, sort_order) VALUES
+  ('Studio Photography', 'photography', 'Professional in-studio photoshoots with perfect lighting.', 1),
+  ('Wedding Photography', 'wedding', 'Capturing the magic of your special day with elegance.', 2),
+  ('Printing', 'printing', 'High-quality prints for your photos and documents.', 3),
+  ('Photo Frame', 'frame', 'Beautifully crafted frames to display your memories.', 4),
+  ('Canvas Prints', 'canvas', 'Turn your photos into stunning pieces of wall art.', 5),
+  ('Maternity Photography', 'maternity', 'Celebrate the beauty of pregnancy with a special photoshoot.', 6),
+  ('Graduation Photography', 'graduation', 'Commemorate your academic achievements with us.', 7),
+  ('Photo Album', 'album', 'Custom-designed albums to tell your unique story.', 8),
+  ('Studio Backdrop', 'studio-backdrop', 'A wide variety of backdrops for creative shoots.', 9)
+ON CONFLICT (slug) DO NOTHING;

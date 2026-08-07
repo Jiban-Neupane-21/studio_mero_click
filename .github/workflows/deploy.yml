@@ -29,16 +29,13 @@ jobs:
           mkdir release
 
           # Copy React build assets
-          cp -r dist release/
+          cp -r frontend/dist release/dist
 
-          # Copy Backend files if present
-          [ -d api ] && cp -r api release/ || true
-          [ -f server.js ] && cp server.js release/ || true
-          [ -f app.js ] && cp app.js release/ || true
-
-          # Copy package manifests
-          cp package.json release/
-          [ -f package-lock.json ] && cp package-lock.json release/ || true
+          # Copy Backend files
+          cp -r backend/api release/api
+          cp backend/server.js release/server.js
+          cp backend/app.js release/app.js
+          cp backend/package.json release/package.json
 
           # Create zip bundle
           cd release
