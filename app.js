@@ -1,2 +1,4 @@
-// This file serves as the default entry point for cPanel's Passenger Node.js app
-import './server.js';
+console.log("=== app.js LOADED ===");
+console.log("Node version:", process.version);
+
+import "./server.js";
