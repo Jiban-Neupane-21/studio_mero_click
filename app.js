@@ -1,4 +1,10 @@
-console.log("=== app.js LOADED ===");
-console.log("Node version:", process.version);
+import fs from "fs";
+
+fs.appendFileSync(
+  "/home/tarpainf/studiomeroclick.com.np/startup.log",
+  `Started at ${new Date().toISOString()}\n`,
+);
+
+console.log("APP STARTED");
 
 import "./server.js";
