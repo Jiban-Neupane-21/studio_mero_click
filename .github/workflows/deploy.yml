@@ -79,20 +79,6 @@ jobs:
 
             rm -f dist/.htaccess
 
-            cat > .htaccess << 'EOF'
-            # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
-            PassengerAppRoot "/home/tarpainf/studiomeroclick.com.np"
-            PassengerBaseURI "/"
-            PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"
-            PassengerAppType node
-            PassengerStartupFile app.js
-            # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
-
-            <IfModule mod_rewrite.c>
-                RewriteEngine On
-            </IfModule>
-            EOF
-
             npm install --omit=dev
 
             mkdir -p tmp
