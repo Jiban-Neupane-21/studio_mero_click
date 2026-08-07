@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 import sendBookingEmailHandler from "./api/send-booking-email.js";
-import sendClaimEmailHandler from "./api/send-claim-email.js";
 import sendContactEmailHandler from "./api/send-contact-email.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,7 +30,6 @@ app.get("/health", (req, res) => {
 
 // --- 2. RESEND EMAIL API ENDPOINTS ---
 app.post("/api/send-booking-email", sendBookingEmailHandler);
-app.post("/api/send-claim-email", sendClaimEmailHandler);
 app.post("/api/send-contact-email", sendContactEmailHandler);
 
 // --- 3. SERVE REACT FRONTEND (STATIC ASSETS) ---
