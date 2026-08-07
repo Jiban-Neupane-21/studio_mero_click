@@ -35,7 +35,7 @@ jobs:
           mkdir -p release
 
           # Frontend
-          cp -r frontend/dist release/dist
+          cp -r frontend/dist/index.html release/index.html
 
           # Backend
           cp -r backend/api release/api
