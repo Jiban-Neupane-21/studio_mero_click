@@ -31,10 +31,7 @@ app.post("/api/send-booking-email", sendBookingEmailHandler);
 app.post("/api/send-contact-email", sendContactEmailHandler);
 
 // --- 3. SERVE REACT FRONTEND (STATIC ASSETS) ---
-const distPath =
-  process.env.NODE_ENV === "production"
-    ? path.join(__dirname, "dist")
-    : path.join(__dirname, "../frontend/dist");
+const distPath = path.join(__dirname, "dist");
 
 app.use(express.static(distPath));
 
