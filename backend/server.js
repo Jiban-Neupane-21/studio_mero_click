@@ -11,8 +11,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables (.env.local for dev, or standard env for production)
-dotenv.config({ path: path.join(__dirname, "../.env.local") });
-dotenv.config({ path: path.join(__dirname, "../.env") });
+dotenv.config({
+  path: path.join(__dirname, ".env"),
+});
 
 console.log("=== SERVER INITIALIZING ===");
 console.log("NODE_ENV =", process.env.NODE_ENV || "production");
