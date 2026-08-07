@@ -88,6 +88,9 @@ jobs:
             PassengerStartupFile app.js
             # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 
+            # Enable Passenger explicitly
+            PassengerEnabled On
+
             <IfModule mod_rewrite.c>
                 RewriteEngine On
             </IfModule>
