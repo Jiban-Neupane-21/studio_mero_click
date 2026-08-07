@@ -63,12 +63,18 @@ jobs:
           script: |
             cd /home/tarpainf/studiomeroclick.com.np/
 
+            # Unzip production bundle
             unzip -o deploy.zip
             rm -f deploy.zip
 
-            # Install production dependencies on server
+            # If .htaccess exists inside dist/, move it out to the application root
+            if [ -f dist/.htaccess ]; then
+              mv dist/.htaccess ./.htaccess
+            fi
+
+            # Install production dependencies
             npm install --omit=dev
 
-            # Trigger cPanel Passenger restart
+            # Trigger Phusion Passenger / LiteSpeed app restart
             mkdir -p tmp
             touch tmp/restart.txt
