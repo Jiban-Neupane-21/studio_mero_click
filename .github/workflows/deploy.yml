@@ -24,6 +24,12 @@ jobs:
           npm run build
 
       - name: Package Production Files
+        env:
+          PORT: 5000
+          NODE_ENV: production
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
           rm -rf release deploy.zip
           mkdir release
@@ -36,6 +42,15 @@ jobs:
           cp backend/server.js release/server.js
           cp backend/app.js release/app.js
           cp backend/package.json release/package.json
+
+          # Inject production environment variables for Supabase and Resend
+          cat <<EOF > release/.env
+          PORT=${PORT}
+          NODE_ENV=${NODE_ENV}
+          SUPABASE_URL=${SUPABASE_URL}
+          SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+          RESEND_API_KEY=${RESEND_API_KEY}
+          EOF
 
           # Create zip bundle
           cd release
@@ -77,12 +92,12 @@ jobs:
             echo 'PassengerStartupFile app.js' >> .htaccess
             echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END' >> .htaccess
 
-            # LiteSpeed Direct Proxy Handler
+            # LiteSpeed Direct Proxy Handler (FIXED REWRITE RULES)
             echo '<IfModule mod_rewrite.c>' >> .htaccess
             echo '  RewriteEngine On' >> .htaccess
-            echo '  RewriteRule ^$ - [L]' >> .htaccess
-            echo '  RewriteCond %{REQUEST_FILENAME} !-f' >> .htaccess
-            echo '  RewriteCond %{REQUEST_FILENAME} !-d' >> .htaccess
+            echo '  RewriteCond %{REQUEST_FILENAME} -f [OR]' >> .htaccess
+            echo '  RewriteCond %{REQUEST_FILENAME} -d' >> .htaccess
+            echo '  RewriteRule ^ - [L]' >> .htaccess
             echo '  RewriteRule ^(.*)$ app.js/$1 [QSA,L]' >> .htaccess
             echo '</IfModule>' >> .htaccess
 
