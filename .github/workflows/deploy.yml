@@ -77,9 +77,4 @@ jobs:
             unzip -o deploy.zip
             rm -f deploy.zip
 
-            rm -f dist/.htaccess
-
             npm install --omit=dev
-
-            mkdir -p tmp
-            touch tmp/restart.txt
