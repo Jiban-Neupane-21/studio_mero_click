@@ -77,4 +77,4 @@ jobs:
             unzip -o deploy.zip
             rm -f deploy.zip
 
-            npm install --omit=dev
+            /home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/npm install --omit=dev
