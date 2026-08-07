@@ -11,30 +11,35 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install Dependencies and Build
         run: |
-          npm install
+          npm ci
           npm run build
 
       - name: Package Production Files
         run: |
+          rm -rf release deploy.zip
           mkdir release
-          # Copy only the files needed for production
+
+          # Copy React build
           cp -r dist release/
-          cp -r api release/
-          cp server.js release/
-          cp app.js release/
+
+          # Copy Backend files
+          [ -d api ] && cp -r api release/ || true
+          [ -f server.js ] && cp server.js release/ || true
+          [ -f app.js ] && cp app.js release/ || true
+
+          # Copy Package Files
           cp package.json release/
-          cp package-lock.json release/
-          
-          # Create a zip archive
+          [ -f package-lock.json ] && cp package-lock.json release/ || true
+
           cd release
           zip -r ../deploy.zip .
 
@@ -57,22 +62,13 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd /home/tarpainf/studiomeroclick.com.np/
-            
-            # Unzip the production bundle (overwrite existing files)
+
             unzip -o deploy.zip
-            
-            # Clean up the zip file
-            rm deploy.zip
-            
-            # Ensure .htaccess exists so cPanel Passenger can modify it
-            touch .htaccess
-            
-            # Remove any rogue development index.html file to prevent Apache from serving it
-            rm -f index.html
-            
-            # Install production dependencies
+            rm -f deploy.zip
+
+            # Install production dependencies on server
             npm install --omit=dev
-            
-            # Force restart Passenger Node.js server
+
+            # Trigger cPanel Passenger restart
             mkdir -p tmp
             touch tmp/restart.txt
