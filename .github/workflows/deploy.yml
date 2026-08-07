@@ -36,7 +36,6 @@ jobs:
 
           # Frontend
           cp -r frontend/dist release/dist
-          cp -r frontend/dist/index.html release/index.html
 
           # Backend
           cp -r backend/api release/api
@@ -87,24 +86,10 @@ jobs:
             PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"
             PassengerAppType node
             PassengerStartupFile app.js
-            PassengerEnabled On
             # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
-
-            # Litespeed optimization rules
-            DirectoryIndex disabled
-            Options -Indexes
 
             <IfModule mod_rewrite.c>
                 RewriteEngine On
-                RewriteBase /
-
-                # Serve physical static files directly
-                RewriteCond %{REQUEST_FILENAME} -f [OR]
-                RewriteCond %{REQUEST_FILENAME} -d
-                RewriteRule ^ - [L]
-
-                # Proxy fallback to local Node app (if Passenger doesn't hook port directly)
-                RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
             </IfModule>
             EOF
 
