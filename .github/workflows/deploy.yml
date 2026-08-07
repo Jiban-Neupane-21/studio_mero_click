@@ -28,18 +28,19 @@ jobs:
           rm -rf release deploy.zip
           mkdir release
 
-          # Copy React build files
+          # Copy React build assets
           cp -r dist release/
 
-          # Copy backend files
+          # Copy Backend files if present
           [ -d api ] && cp -r api release/ || true
           [ -f server.js ] && cp server.js release/ || true
           [ -f app.js ] && cp app.js release/ || true
 
-          # Copy package files
+          # Copy package manifests
           cp package.json release/
           [ -f package-lock.json ] && cp package-lock.json release/ || true
 
+          # Create zip bundle
           cd release
           zip -r ../deploy.zip .
 
@@ -53,7 +54,7 @@ jobs:
           source: "deploy.zip"
           target: "/home/tarpainf/studiomeroclick.com.np/"
 
-      - name: Extract and restart application
+      - name: Extract, Create .htaccess and Restart Server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -63,22 +64,36 @@ jobs:
           script: |
             cd /home/tarpainf/studiomeroclick.com.np/
 
+            # Unzip production bundle
             unzip -o deploy.zip
             rm -f deploy.zip
 
-            if [ ! -f .htaccess ]; then
-              cat << 'EOF' > .htaccess
-# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
-PassengerAppRoot "/home/tarpainf/studiomeroclick.com.np"
-PassengerBaseURI "/"
-PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"
-PassengerAppType node
-PassengerStartupFile app.js
-# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
-EOF
+            # Move dist/.htaccess out if generated there
+            if [ -f dist/.htaccess ]; then
+              mv dist/.htaccess ./.htaccess
             fi
 
+            # Auto-generate .htaccess if missing
+            if [ ! -f .htaccess ]; then
+              echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN' > .htaccess
+              echo 'PassengerAppRoot "/home/tarpainf/studiomeroclick.com.np"' >> .htaccess
+              echo 'PassengerBaseURI "/"' >> .htaccess
+              echo 'PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"' >> .htaccess
+              echo 'PassengerAppType node' >> .htaccess
+              echo 'PassengerStartupFile app.js' >> .htaccess
+              echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END' >> .htaccess
+              echo '<IfModule mod_rewrite.c>' >> .htaccess
+              echo '  RewriteEngine On' >> .htaccess
+              echo '  RewriteRule ^$ - [L]' >> .htaccess
+              echo '  RewriteCond %{REQUEST_FILENAME} !-f' >> .htaccess
+              echo '  RewriteCond %{REQUEST_FILENAME} !-d' >> .htaccess
+              echo '  RewriteRule ^(.*)$ app.js/$1 [QSA,L]' >> .htaccess
+              echo '</IfModule>' >> .htaccess
+            fi
+
+            # Install production dependencies
             npm install --omit=dev
 
+            # Trigger Passenger restart
             mkdir -p tmp
             touch tmp/restart.txt
