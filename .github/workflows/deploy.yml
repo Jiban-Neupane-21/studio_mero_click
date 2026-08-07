@@ -68,32 +68,30 @@ jobs:
             unzip -o deploy.zip
             rm -f deploy.zip
 
-            # Move dist/.htaccess out if generated there
-            if [ -f dist/.htaccess ]; then
-              mv dist/.htaccess ./.htaccess
-            fi
+            # Remove static React .htaccess if Vite placed one inside dist/
+            rm -f dist/.htaccess
 
-            # Auto-generate .htaccess if missing
-            if [ ! -f .htaccess ]; then
-              echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN' > .htaccess
-              echo 'PassengerAppRoot "/home/tarpainf/studiomeroclick.com.np"' >> .htaccess
-              echo 'PassengerBaseURI "/"' >> .htaccess
-              echo 'PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"' >> .htaccess
-              echo 'PassengerAppType node' >> .htaccess
-              echo 'PassengerStartupFile app.js' >> .htaccess
-              echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END' >> .htaccess
-              echo '<IfModule mod_rewrite.c>' >> .htaccess
-              echo '  RewriteEngine On' >> .htaccess
-              echo '  RewriteRule ^$ - [L]' >> .htaccess
-              echo '  RewriteCond %{REQUEST_FILENAME} !-f' >> .htaccess
-              echo '  RewriteCond %{REQUEST_FILENAME} !-d' >> .htaccess
-              echo '  RewriteRule ^(.*)$ app.js/$1 [QSA,L]' >> .htaccess
-              echo '</IfModule>' >> .htaccess
-            fi
+            # FORCE WRITE clean, correct CloudLinux Passenger .htaccess
+            echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN' > .htaccess
+            echo 'PassengerAppRoot "/home/tarpainf/studiomeroclick.com.np"' >> .htaccess
+            echo 'PassengerBaseURI "/"' >> .htaccess
+            echo 'PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"' >> .htaccess
+            echo 'PassengerAppType node' >> .htaccess
+            echo 'PassengerStartupFile app.js' >> .htaccess
+            echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END' >> .htaccess
+
+            # LiteSpeed Direct Proxy Handler
+            echo '<IfModule mod_rewrite.c>' >> .htaccess
+            echo '  RewriteEngine On' >> .htaccess
+            echo '  RewriteRule ^$ - [L]' >> .htaccess
+            echo '  RewriteCond %{REQUEST_FILENAME} !-f' >> .htaccess
+            echo '  RewriteCond %{REQUEST_FILENAME} !-d' >> .htaccess
+            echo '  RewriteRule ^(.*)$ app.js/$1 [QSA,L]' >> .htaccess
+            echo '</IfModule>' >> .htaccess
 
             # Install production dependencies
-            npm install --omit=dev
+            npm install --production
 
-            # Trigger Passenger restart
+            # Force Passenger/LiteSpeed restart
             mkdir -p tmp
             touch tmp/restart.txt
