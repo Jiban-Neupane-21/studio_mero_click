@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -18,13 +18,13 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build Frontend
+      - name: Build project
         run: npm run build
 
-      - name: Package Production Files
+      - name: Package application
         env:
           PORT: 5000
           NODE_ENV: production
@@ -33,7 +33,7 @@ jobs:
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
         run: |
           rm -rf release deploy.zip
-          mkdir release
+          mkdir -p release
 
           # Frontend
           cp -r frontend/dist release/dist
@@ -44,7 +44,7 @@ jobs:
           cp backend/app.js release/app.js
           cp backend/package.json release/package.json
 
-          # Create production .env
+          # Create .env file
           cat > release/.env << EOF
           PORT=${PORT}
           NODE_ENV=${NODE_ENV}
@@ -64,9 +64,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           source: "deploy.zip"
-          target: "/home/tarpainf/studiomeroclick.com.np/"
+          target: "/home/tarpainf/studiomeroclick.com.np"
 
-      - name: Deploy on Server
+      - name: Deploy application
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -91,11 +91,7 @@ jobs:
             # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 
             <IfModule mod_rewrite.c>
-              RewriteEngine On
-              RewriteCond %{REQUEST_FILENAME} -f [OR]
-              RewriteCond %{REQUEST_FILENAME} -d
-              RewriteRule ^ - [L]
-              RewriteRule ^(.*)$ app.js/$1 [QSA,L]
+                RewriteEngine On
             </IfModule>
             EOF
 
