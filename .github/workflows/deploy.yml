@@ -28,10 +28,10 @@ jobs:
           rm -rf release deploy.zip
           mkdir release
 
-          # Copy React build assets
+          # Copy React build files
           cp -r dist release/
 
-          # Copy Backend files if they exist
+          # Copy backend files
           [ -d api ] && cp -r api release/ || true
           [ -f server.js ] && cp server.js release/ || true
           [ -f app.js ] && cp app.js release/ || true
@@ -40,7 +40,6 @@ jobs:
           cp package.json release/
           [ -f package-lock.json ] && cp package-lock.json release/ || true
 
-          # Create zip bundle
           cd release
           zip -r ../deploy.zip .
 
@@ -54,7 +53,7 @@ jobs:
           source: "deploy.zip"
           target: "/home/tarpainf/studiomeroclick.com.np/"
 
-      - name: Extract, Create .htaccess and Restart Server
+      - name: Extract and restart application
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -64,16 +63,9 @@ jobs:
           script: |
             cd /home/tarpainf/studiomeroclick.com.np/
 
-            # Unzip production bundle
             unzip -o deploy.zip
             rm -f deploy.zip
 
-            # Move dist/.htaccess out if Vite generated one there
-            if [ -f dist/.htaccess ]; then
-              mv dist/.htaccess ./.htaccess
-            fi
-
-            # Automatically generate root .htaccess if missing
             if [ ! -f .htaccess ]; then
               cat << 'EOF' > .htaccess
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
@@ -83,21 +75,10 @@ PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"
 PassengerAppType node
 PassengerStartupFile app.js
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
-
-# LiteSpeed / Apache Node.js Request Handler
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteRule ^$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ app.js/$1 [QSA,L]
-</IfModule>
 EOF
             fi
 
-            # Install production node dependencies
             npm install --omit=dev
 
-            # Force Passenger/LiteSpeed restart
             mkdir -p tmp
             touch tmp/restart.txt
