@@ -44,8 +44,7 @@ app.use((req, res) => {
 });
 
 // --- 5. START SERVER (only once, only here) ---
-const PORT =
-  process.env.PORT || (process.env.NODE_ENV === "production" ? 3000 : 3001);
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server successfully listening on port ${PORT}`);
