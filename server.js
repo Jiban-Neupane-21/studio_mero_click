@@ -2,8 +2,12 @@ import express from "express";
 
 const app = express();
 
+console.log("PORT =", process.env.PORT);
+
+const PORT = process.env.PORT || 3001;
+
 app.get("/", (req, res) => {
-  res.send("Application is running.");
+  res.send("Working");
 });
 
 app.get("/health", (req, res) => {
@@ -11,8 +15,6 @@ app.get("/health", (req, res) => {
     status: "OK",
   });
 });
-
-const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Listening on ${PORT}`);
