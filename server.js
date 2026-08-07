@@ -13,6 +13,29 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION");
+  console.error(err);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("UNHANDLED REJECTION");
+  console.error(reason);
+});
+
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on ${PORT}`);
+});
+
+server.on("error", (err) => {
+  console.error("SERVER ERROR");
+  console.error(err);
+});
+
+server.on("close", () => {
+  console.log("SERVER CLOSED");
+});
+
+process.on("exit", (code) => {
+  console.log(`PROCESS EXITED WITH CODE ${code}`);
 });
