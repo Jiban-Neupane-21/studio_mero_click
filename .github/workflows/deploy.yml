@@ -18,41 +18,41 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install Dependencies and Build
-        run: |
-          npm ci
-          npm run build
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Frontend
+        run: npm run build
 
       - name: Package Production Files
         env:
           PORT: 5000
           NODE_ENV: production
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          BOOKING_NOTIFICATION_EMAIL: ${{ secrets.BOOKING_NOTIFICATION_EMAIL }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
         run: |
           rm -rf release deploy.zip
           mkdir release
 
-          # Copy React build assets
+          # Frontend
           cp -r frontend/dist release/dist
 
-          # Copy Backend files
+          # Backend
           cp -r backend/api release/api
           cp backend/server.js release/server.js
           cp backend/app.js release/app.js
           cp backend/package.json release/package.json
 
-          # Inject production environment variables for Supabase and Resend
-          cat <<EOF > release/.env
+          # Create production .env
+          cat > release/.env << EOF
           PORT=${PORT}
           NODE_ENV=${NODE_ENV}
-          SUPABASE_URL=${SUPABASE_URL}
-          SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
           RESEND_API_KEY=${RESEND_API_KEY}
+          BOOKING_NOTIFICATION_EMAIL=${BOOKING_NOTIFICATION_EMAIL}
+          RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL}
           EOF
 
-          # Create zip bundle
           cd release
           zip -r ../deploy.zip .
 
@@ -66,7 +66,7 @@ jobs:
           source: "deploy.zip"
           target: "/home/tarpainf/studiomeroclick.com.np/"
 
-      - name: Extract, Create .htaccess and Restart Server
+      - name: Deploy on Server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -74,36 +74,32 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /home/tarpainf/studiomeroclick.com.np/
+            cd /home/tarpainf/studiomeroclick.com.np
 
-            # Unzip production bundle
             unzip -o deploy.zip
             rm -f deploy.zip
 
-            # Remove static React .htaccess if Vite placed one inside dist/
             rm -f dist/.htaccess
 
-            # FORCE WRITE clean, correct CloudLinux Passenger .htaccess
-            echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN' > .htaccess
-            echo 'PassengerAppRoot "/home/tarpainf/studiomeroclick.com.np"' >> .htaccess
-            echo 'PassengerBaseURI "/"' >> .htaccess
-            echo 'PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"' >> .htaccess
-            echo 'PassengerAppType node' >> .htaccess
-            echo 'PassengerStartupFile app.js' >> .htaccess
-            echo '# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END' >> .htaccess
+            cat > .htaccess << 'EOF'
+            # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+            PassengerAppRoot "/home/tarpainf/studiomeroclick.com.np"
+            PassengerBaseURI "/"
+            PassengerNodejs "/home/tarpainf/nodevenv/studiomeroclick.com.np/20/bin/node"
+            PassengerAppType node
+            PassengerStartupFile app.js
+            # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
 
-            # LiteSpeed Direct Proxy Handler (FIXED REWRITE RULES)
-            echo '<IfModule mod_rewrite.c>' >> .htaccess
-            echo '  RewriteEngine On' >> .htaccess
-            echo '  RewriteCond %{REQUEST_FILENAME} -f [OR]' >> .htaccess
-            echo '  RewriteCond %{REQUEST_FILENAME} -d' >> .htaccess
-            echo '  RewriteRule ^ - [L]' >> .htaccess
-            echo '  RewriteRule ^(.*)$ app.js/$1 [QSA,L]' >> .htaccess
-            echo '</IfModule>' >> .htaccess
+            <IfModule mod_rewrite.c>
+              RewriteEngine On
+              RewriteCond %{REQUEST_FILENAME} -f [OR]
+              RewriteCond %{REQUEST_FILENAME} -d
+              RewriteRule ^ - [L]
+              RewriteRule ^(.*)$ app.js/$1 [QSA,L]
+            </IfModule>
+            EOF
 
-            # Install production dependencies
-            npm install --production
+            npm install --omit=dev
 
-            # Force Passenger/LiteSpeed restart
             mkdir -p tmp
             touch tmp/restart.txt
