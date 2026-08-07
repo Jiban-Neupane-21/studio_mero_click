@@ -39,7 +39,8 @@ app.use(express.static(path.join(__dirname, "dist")));
 
 // --- 4. SPA FALLBACK ROUTE ---
 // Send index.html for any request that doesn't match an API route above
-app.get("*", (req, res) => {
+// NEW (Express v5 compatible syntax)
+app.get("/*splat", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
